@@ -22,6 +22,6 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Deploy
-        runs: nix shell .#deploy-rs -c deploy -s
+        run: nix shell .#deploy-rs -c deploy -s
       
 
