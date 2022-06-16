@@ -55,6 +55,10 @@
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           ];
       in rec {
+        checks = deploy-rs.lib."${system}".deployChecks {
+          nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
+        };
+
         devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs;
           RUST_SRC_PATH = "${fenix.packages.${system}.stable.rust-src}/bin/rust-lib/src";
@@ -65,7 +69,7 @@
           buildInputs = with pkgs; [
             (fenix.packages."${system}".stable.withComponents ["clippy" "rustfmt"])
             pkgs.just
-            deploy-rs.packages.x86_64-linux.deploy-rs
+            deploy-rs.packages."${system}".deploy-rs
           ];
         };
       }
@@ -108,9 +112,5 @@
           };
         };
       };
-      checks =
-        builtins.mapAttrs
-        (system: deployLib: deployLib.deployChecks self.deploy)
-        deploy-rs.lib;
     };
 }
