@@ -1,8 +1,8 @@
 # keyserver-rust
 
 ```sh
-RUST_SERVER_URL="keys.walletconnect.com"
-RUST_SERVER_URL="159.65.123.131"
+RUST_SERVER_URL="keys.walletconnect.com" // Not available yet
+RUST_SERVER_URL="159.65.123.131:8080"
 
 curl -i -X DELETE "$RUST_SERVER_URL/keys"
 
