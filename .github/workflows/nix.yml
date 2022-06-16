@@ -21,6 +21,10 @@ jobs:
           known_hosts: unnecessary
       - name: Install Nix
         uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+
       - name: Deploy
         run: nix shell .#deploy-rs -c deploy -s
       
