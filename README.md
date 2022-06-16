@@ -13,4 +13,6 @@ curl -i -X POST -H "Content-Type: application/json" \
     "$RUST_SERVER_URL/register"
     
 curl -i -X GET "$RUST_SERVER_URL/resolve?account=eip:1:0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+
+curl -i -X DELETE "$RUST_SERVER_URL/remove/eip:1:0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
 ```
