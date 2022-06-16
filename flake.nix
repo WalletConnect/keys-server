@@ -44,7 +44,6 @@
               "rust-docs"
               "rustc"
             ])
-            pkgs.cargo-watch
             pkgs.rust-analyzer
             pkgs.pkg-config
             pkgs.glib
