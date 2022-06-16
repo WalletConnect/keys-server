@@ -75,7 +75,11 @@
         "keys.walletconnect.com" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ({pkgs, config, ...}: {
+            ({
+              pkgs,
+              config,
+              ...
+            }: {
               nix = {
                 extraOptions = ''
                   experimental-features = nix-command flakes
