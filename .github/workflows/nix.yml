@@ -33,6 +33,6 @@ jobs:
             extra-platforms = aarch64-linux
 
       - name: Deploy
-        run: nix shell deploy
+        run: nix shell .#deploy-rs -c deploy -s
       
 
