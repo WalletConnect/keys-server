@@ -33,6 +33,7 @@
           inherit system;
           overlays = [
             fenix.overlay
+            deploy-rs.overlay
           ];
         };
         nativeBuildInputs =
@@ -53,7 +54,7 @@
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           ];
-      in {
+      in rec {
         devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs;
           RUST_SRC_PATH = "${fenix.packages.${system}.stable.rust-src}/bin/rust-lib/src";
@@ -67,49 +68,45 @@
             deploy-rs.packages.x86_64-linux.deploy-rs
           ];
         };
-        nixosConfigurations = {
-          "keys.walletconnect.com" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              ({pkgs, ...}: {
-                nix = {
-                  extraOptions = ''
-                    experimental-features = nix-command flakes
-                    keep-outputs = true
-                    keep-derivations = true
-                  '';
-                  trustedUsers = ["root"];
-                  gc = {
-                    automatic = true;
-                    options = "--delete-older-than 10d";
-                  };
-                };
-              })
-              ({config, ...}: {
-                networking.hostName = "keys-walletconnect-com";
-              })
-              ./hosts/keys.walletconnect.com
-            ];
-          };
-        };
-
-        deploy.nodes = {
-          "keys.walletconnect.com" = {
-            hostname = "159.65.123.131";
-            sshUser = "root";
-            fastConnection = true;
-            profiles.system = {
-              user = "root";
-              path =
-                deploy-rs.lib.x86_64-linux.activate.nixos
-                self.nixosConfigurations."keys.walletconnect.com";
-            };
-          };
-        };
-        checks =
-          builtins.mapAttrs
-          (system: deployLib: deployLib.deployChecks self.deploy)
-          deploy-rs.lib;
       }
-    );
+    )
+    // {
+      nixosConfigurations = {
+        "keys.walletconnect.com" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ({pkgs, config, ...}: {
+              nix = {
+                extraOptions = ''
+                  experimental-features = nix-command flakes
+                  keep-outputs = true
+                  keep-derivations = true
+                '';
+                trustedUsers = ["root"];
+              };
+              networking.hostName = "keys-walletconnect-com";
+            })
+            ./hosts/keys.walletconnect.com
+          ];
+        };
+      };
+
+      deploy.nodes = {
+        "keys.walletconnect.com" = {
+          hostname = "159.65.123.131";
+          sshUser = "root";
+          fastConnection = true;
+          profiles.system = {
+            user = "root";
+            path =
+              deploy-rs.lib.x86_64-linux.activate.nixos
+              self.nixosConfigurations."keys.walletconnect.com";
+          };
+        };
+      };
+      checks =
+        builtins.mapAttrs
+        (system: deployLib: deployLib.deployChecks self.deploy)
+        deploy-rs.lib;
+    };
 }
