@@ -2,9 +2,13 @@ name: Nix
 
 on:
   push:
-    branches: [ "ci" "main" ]
+    branches: 
+      - ci
+      - main
   pull_request:
-    branches: [ "ci" "main" ]
+    branches:
+      - ci
+      - main
 
   workflow_dispatch:
     inputs:
