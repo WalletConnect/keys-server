@@ -139,6 +139,7 @@
         "keys.walletconnect.com" = {
           hostname = "159.65.123.131";
           sshUser = "root";
+          sshOpts = [ "-o" "StrictHostKeyChecking=no"]
           fastConnection = true;
           profiles.system = {
             user = "root";
