@@ -63,11 +63,11 @@
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           ];
-      in rec {
+      in {
         checks = deploy-rs.lib."${system}".deployChecks {
           nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
         };
-        
+
         devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs;
           RUST_SRC_PATH = "${fenix.packages.${system}.stable.rust-src}/bin/rust-lib/src";
@@ -81,6 +81,11 @@
             deploy-rs.packages."${system}".deploy-rs
           ];
         };
+        defaultPackage =
+          (naersk.lib.${system}.override {
+            inherit (fenix.packages.${system}.minimal) cargo rustc;
+          })
+          .buildPackage {src = ./.;};
       }
     )
     // {
@@ -116,7 +121,7 @@
           profiles.system = {
             user = "root";
             path =
-              inputs.deploy-rs.lib.x86_64-linux.activate.nixos
+              deploy-rs.lib.x86_64-linux.activate.nixos
               self.nixosConfigurations."keys.walletconnect.com";
           };
         };
