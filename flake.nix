@@ -63,7 +63,7 @@
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           ];
-      in {
+      in rec {
         checks = deploy-rs.lib."${system}".deployChecks {
           nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
         };
@@ -81,7 +81,7 @@
             deploy-rs.packages."${system}".deploy-rs
           ];
         };
-        defaultPackage =
+        packages.default =
           (naersk.lib.${system}.override {
             inherit (fenix.packages.${system}.minimal) cargo rustc;
           })
@@ -90,7 +90,7 @@
     )
     // {
       nixosConfigurations = {
-        "keys.walletconnect.com" = nixpkgs.lib.nixosSystem {
+        "keys.walletconnect.com" = nixpkgs.lib.nixosSystem rec {
           system = "x86_64-linux";
           modules = [
             ({
@@ -106,7 +106,16 @@
                 '';
                 trustedUsers = ["root"];
               };
+              environment.systemPackages = [self.packages."${system}".default];
               networking.hostName = "keys-walletconnect-com";
+              systemd.services."keyserver" = {
+                wantedBy = ["multi-user.target"];
+                serviceConfig = {
+                  Restart = "on-failure";
+                  ExecStart = "${self.packages."${system}".default}/bin/keyserver";
+                  DynamicUser = "yes";
+                };
+              };
             })
             ./hosts/keys.walletconnect.com
           ];
