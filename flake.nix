@@ -57,6 +57,7 @@
             pkgs.rust-analyzer
             pkgs.pkg-config
             pkgs.glib
+            pkgs.glibc
             pkgs.openssl
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
