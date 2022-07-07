@@ -1,0 +1,42 @@
+name: Nix
+
+on:
+  push:
+    branches: 
+      - ci
+      - main
+  pull_request:
+    branches:
+      - ci
+      - main
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: '${{ inputs.ref }}'
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2.3.1
+        with:
+          key: ${{ secrets.PRIVATE_KEY }}
+          known_hosts: unnecessary
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+
+      - name: Deploy
+        run: nix shell .#deploy-rs -c deploy -s
+      
+

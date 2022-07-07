@@ -3,7 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
-    deploy-rs.url = "github:serokell/deploy-rs";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.naersk.follows = "naersk";
+      inputs.flake-compat.follows = "flake-compat";
+      inputs.utils.follows = "flake-utils";
+    };
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -57,7 +67,7 @@
         checks = deploy-rs.lib."${system}".deployChecks {
           nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
         };
-
+        
         devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs;
           RUST_SRC_PATH = "${fenix.packages.${system}.stable.rust-src}/bin/rust-lib/src";
@@ -106,7 +116,7 @@
           profiles.system = {
             user = "root";
             path =
-              deploy-rs.lib.x86_64-linux.activate.nixos
+              inputs.deploy-rs.lib.x86_64-linux.activate.nixos
               self.nixosConfigurations."keys.walletconnect.com";
           };
         };
