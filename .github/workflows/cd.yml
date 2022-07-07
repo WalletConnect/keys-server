@@ -3,12 +3,10 @@ name: CD
 on:
   push:
     branches:
-      - ci
-      - main
+      - master
   pull_request:
     branches:
-      - ci
-      - main
+      - master
 
   workflow_dispatch:
     inputs:
@@ -38,5 +36,9 @@ jobs:
             keep-outputs = true
             keep-derivations = true
 
+      - uses: cachix/cachix-action@v10
+        with:
+          name: walletconnect
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Deploy
         run: nix run .
