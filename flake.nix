@@ -37,7 +37,15 @@
     deploy-rs,
     ...
   }:
-    flake-utils.lib.eachDefaultSystem (
+  # I'm specifying the system for now
+  # because deploy-rs has an issue with
+  # glibc
+  # error: Package ‘glibc-2.34-210’ in
+  # /nix/store/aq4mhn....-glibc/pkgs/development/libraries/glibc/default.nix:157
+  # is not supported on ‘aarch64-darwin’, refusing to evaluate.
+  # Correct version:
+  #flake-utils.lib.eachDefaultSystem (
+    flake-utils.lib.eachSystem ["x86_64-linux"] (
       system: let
         pkgs = import nixpkgs {
           inherit system;
@@ -81,6 +89,10 @@
             pkgs.just
             deploy-rs.packages."${system}".deploy-rs
           ];
+        };
+        apps.default = {
+          type = "app";
+          program = "${deploy-rs.packages."${system}".deploy-rs}/bin/deploy";
         };
         packages.default =
           (naersk.lib.${system}.override {

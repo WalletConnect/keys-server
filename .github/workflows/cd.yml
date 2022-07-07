@@ -39,4 +39,4 @@ jobs:
             keep-derivations = true
 
       - name: Deploy
-        run: nix develop -c "deploy" "."
+        run: nix run .
