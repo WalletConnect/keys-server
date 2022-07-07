@@ -1,4 +1,3 @@
-//! Simple in-memory key/value store
 use axum::{
     error_handling::HandleErrorLayer,
     extract::{Extension, Json, Path, Query},
@@ -7,6 +6,7 @@ use axum::{
     routing::{delete, get, post},
     Router,
 };
+use tower_http::cors::CorsLayer;
 use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
@@ -18,6 +18,7 @@ use std::{
 use tower::{BoxError, ServiceBuilder};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use http::{HeaderValue, Method};
 
 #[tokio::main]
 async fn main() {
@@ -44,6 +45,12 @@ async fn main() {
                 .layer(TraceLayer::new_for_http())
                 .layer(Extension(SharedState::default()))
                 .into_inner(),
+        )
+        .layer(
+            CorsLayer::new()
+                .allow_headers([http::header::CONTENT_TYPE])
+                .allow_origin("*".parse::<HeaderValue>().unwrap())
+                .allow_methods([Method::GET, Method::POST]),
         );
 
     // Run our app with hyper

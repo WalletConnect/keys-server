@@ -67,7 +67,7 @@
         checks = deploy-rs.lib."${system}".deployChecks {
           nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
         };
-
+        
         devShells.default = pkgs.mkShell {
           inherit nativeBuildInputs;
           RUST_SRC_PATH = "${fenix.packages.${system}.stable.rust-src}/bin/rust-lib/src";
@@ -116,7 +116,7 @@
           profiles.system = {
             user = "root";
             path =
-              deploy-rs.lib.x86_64-linux.activate.nixos
+              inputs.deploy-rs.lib.x86_64-linux.activate.nixos
               self.nixosConfigurations."keys.walletconnect.com";
           };
         };
