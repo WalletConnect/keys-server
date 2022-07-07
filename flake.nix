@@ -90,7 +90,7 @@
             deploy-rs.packages."${system}".deploy-rs
           ];
         };
-        apps.default = {
+        apps.deploy = {
           type = "app";
           program = "${deploy-rs.packages."${system}".deploy-rs}/bin/deploy";
         };
