@@ -2,7 +2,7 @@ name: Nix
 
 on:
   push:
-    branches: 
+    branches:
       - ci
       - main
   pull_request:
@@ -15,14 +15,13 @@ on:
       ref:
         required: true
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: '${{ inputs.ref }}'
+          ref: "${{ inputs.ref }}"
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2.3.1
@@ -34,9 +33,10 @@ jobs:
         uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
+            experimental-features = nix-command flakes
+            keep-outputs = true
+            keep-derivations = true
             extra-platforms = aarch64-linux
 
       - name: Deploy
-        run: nix shell .#deploy-rs -c deploy -s
-      
-
+        run: nix shell -c deploy .
