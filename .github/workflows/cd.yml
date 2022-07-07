@@ -1,0 +1,42 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - ci
+      - main
+  pull_request:
+    branches:
+      - ci
+      - main
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "${{ inputs.ref }}"
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2.3.1
+        with:
+          key: ${{ secrets.PRIVATE_KEY }}
+          known_hosts: unnecessary
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.9.1/install
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            keep-outputs = true
+            keep-derivations = true
+
+      - name: Deploy
+        run: nix run .
