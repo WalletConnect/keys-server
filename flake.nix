@@ -118,6 +118,12 @@
                   keep-derivations = true
                 '';
                 trustedUsers = ["root"];
+                binaryCaches = [
+                  "https://walletconnect.cachix.org"
+                ];
+                binaryCachePublicKeys = [
+                  "walletconnect.cachix.org-1:gOjJFP3ijKWCpRP4Oax2IWxK8nCLJIt047NCBMtMYNQ="
+                ];
               };
               environment.systemPackages = [self.packages."${system}".default];
               networking.hostName = "keys-walletconnect-com";
