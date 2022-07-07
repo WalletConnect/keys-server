@@ -1,8 +1,8 @@
 # keyserver-rust
 
 ```sh
-RUST_SERVER_URL="keys.walletconnect.com" // Not available yet
-RUST_SERVER_URL="159.65.123.131:8080"
+# You can use direnv to automatically load the environment in .envrc
+RUST_SERVER_URL="keys.walletconnect.com"
 
 curl -i -X DELETE "$RUST_SERVER_URL/keys"
 
