@@ -96,12 +96,21 @@ nix run .#deploy
 
 ###### Cool features
 
-- automatic dev environment
+- automatic dev environment for all architectures
+  - aarch64-darwin
+  - aarch64-linux
+  - x86_64-darwin
+  - x86_64-linux
+  - i686-linux
+  - the only dependency is nix. Cargo is handled by nix
 - the keyserver is now a programmable unit within the nix language
   - this means that no matter the binary, I can put the keyserver in a:
     - podman container
     - systemd service
     - virtual image
+    - cloud disk image
     - firecracker vms
-- a binary cache that allows for a build once and deploy everywhere with bit by bit reprodusability
+    - nomad job spec
+- automatic binary cache that allows for a build once and deploy everywhere with bit by bit reprodusability
 - Full CI/CD can be implemented with some other nix libraries that call terraform
+  - https://github.com/tweag/terraform-nixos
