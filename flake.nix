@@ -66,7 +66,7 @@
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
           ];
-      in rec {
+      in {
         checks = deploy-rs.lib."${system}".deployChecks {
           nodes = pkgs.lib.filterAttrs (name: cfg: cfg.profiles.system.path.system == system) self.deploy.nodes;
         };
@@ -80,7 +80,6 @@
             -F${pkgs.darwin.apple_sdk.frameworks.CoreFoundation}/Library/Frameworks -framework CoreFoundation"}";
           buildInputs = with pkgs; [
             (fenix.packages."${system}".stable.withComponents ["clippy" "rustfmt"])
-            pkgs.just
             deploy-rs.packages."${system}".deploy-rs
           ];
         };
