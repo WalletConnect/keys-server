@@ -84,4 +84,24 @@ keep-outputs = true
 
 You can quickly deploy this code to the server by running:
 
-`nix develop && deploy`
+```
+nix develop && deploy
+```
+
+or
+
+```
+nix run .#deploy
+```
+
+###### Cool features
+
+- automatic dev environment
+- the keyserver is now a programmable unit within the nix language
+  - this means that no matter the binary, I can put the keyserver in a:
+    - podman container
+    - systemd service
+    - virtual image
+    - firecracker vms
+- a binary cache that allows for a build once and deploy everywhere with bit by bit reprodusability
+- Full CI/CD can be implemented with some other nix libraries that call terraform
