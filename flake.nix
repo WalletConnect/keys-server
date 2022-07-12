@@ -52,6 +52,7 @@
             pkgs.pkg-config
             pkgs.glib
             pkgs.openssl
+            deploy-rs.packages."${system}".deploy-rs
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             pkgs.glibc
