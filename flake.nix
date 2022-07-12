@@ -1,25 +1,19 @@
 {
-  description = "Rust broker-v2 dev environment";
+  description = "Rust keyserver nix tools";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     deploy-rs = {
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.naersk.follows = "naersk";
-      inputs.flake-compat.follows = "flake-compat";
       inputs.utils.follows = "flake-utils";
     };
     fenix = {
       url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    flake-utils = {
-      url = "github:numtide/flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     naersk = {
