@@ -62,7 +62,6 @@ in {
         extraConfig = ''
           add_header "Access-Control-Allow-Methods" "GET, POST, PUT, DELETE, OPTIONS";
           add_header "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Authorization";
-          add_header Access-Control-Allow-Origin *;
           proxy_buffering off;
         '';
       };
