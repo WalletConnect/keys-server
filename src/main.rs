@@ -1,25 +1,25 @@
 use axum::{
     error_handling::HandleErrorLayer,
-    extract::{Extension, Json, Path, Query, State},
+    extract::{Extension, Json, Path, Query},
     http::StatusCode,
     response::IntoResponse,
     routing::{delete, get, post},
     Router,
 };
-use http::{HeaderValue, Method};
+use tower_http::cors::CorsLayer;
 use serde::{Deserialize, Serialize};
-use sqlx::postgres::{PgPool, PgPoolOptions, PgQueryResult};
 use std::{
     borrow::Cow,
     collections::HashMap,
     net::SocketAddr,
     sync::{Arc, RwLock},
     time::Duration,
+    assert_eq
 };
 use tower::{BoxError, ServiceBuilder};
-use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use http::{HeaderValue, Method};
 
 #[tokio::main]
 async fn main() {
@@ -31,20 +31,11 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let db_connection_str = std::env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://postgres:password@localhost".to_string());
-
-    // setup connection pool
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect_timeout(Duration::from_secs(3))
-        .connect(&db_connection_str)
-        .await
-        .expect("can connect to database");
-
-    let app = Router::with_state(pool)
+    let app = Router::new()
         .route("/register", post(register))
         .route("/resolve", get(resolve))
+        .route("/remove/:key", delete(remove_key))
+        .route("/keys", get(count_accounts).delete(delete_all_keys)) //
         .layer(
             ServiceBuilder::new()
                 // Handle errors from middleware
@@ -53,6 +44,7 @@ async fn main() {
                 .concurrency_limit(1024)
                 .timeout(Duration::from_secs(10))
                 .layer(TraceLayer::new_for_http())
+                .layer(Extension(SharedState::default()))
                 .into_inner(),
         )
         .layer(
@@ -71,49 +63,63 @@ async fn main() {
         .unwrap();
 }
 
+type SharedState = Arc<RwLock<State>>;
+
+#[derive(Default)]
+struct State {
+    db: HashMap<String, String>,
+}
+
 #[derive(Deserialize)]
 struct ResolveParams {
     account: String,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Deserialize)]
+struct DeleteParams {
+    password: String,
+}
+
+#[derive(Serialize, Deserialize)]
 #[allow(non_snake_case)]
 struct Account {
     account: String,
     publicKey: String,
 }
-#[derive(Debug, thiserror::Error)]
-enum Error {
-    #[error(transparent)]
-    Database(#[from] sqlx::Error),
+
+async fn delete_all_keys(Extension(state): Extension<SharedState>, params: Query<DeleteParams>) {
+    let params = params.0;
+    assert_eq!(&params.password, "f9132ad791031307dcc9723809c87ff734b485820ec5cae21059c3711765207a");
+    state.write().unwrap().db.clear();
 }
 
-impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, "Database Error").into_response()
-    }
+async fn remove_key(Path(key): Path<String>, Extension(state): Extension<SharedState>) {
+    state.write().unwrap().db.remove(&key);
 }
 
 async fn resolve(
     params: Query<ResolveParams>,
-    State(pool): State<PgPool>,
-) -> Result<Account, Error> {
-    Ok(sqlx::query_as::<sqlx::postgres::Postgres, Account>(
-        "SELECT (1) FROM registry WHERE address = $1;",
-    )
-    .bind(&params.account)
-    .fetch_one(&pool)
-    .await?)
+    Extension(state): Extension<SharedState>,
+) -> Result<Json<Account>, StatusCode> {
+    let db = &state.read().unwrap().db;
+    let params = params.0;
+
+    if let Some(value) = db.get(&params.account) {
+        Ok(Json(Account {
+            account: params.account,
+            publicKey: value.clone(),
+        }))
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
 }
 
-async fn register(State(pool): State<PgPool>, Json(payload): Json<Account>) -> Result<(), Error> {
-    sqlx::query_as::<sqlx::postgres::Postgres, Account>("INSERT INTO registry VALUES ($1, $2) ON CONFLICT (address) DO UPDATE SET public_key = EXCLUDED.public_key RETURNING *;")
-    .bind(payload.account)
-    .bind(payload.publicKey)
-    .fetch_one(&pool)
-    .await?;
+async fn register(Json(payload): Json<Account>, Extension(state): Extension<SharedState>) {
+    state.write().unwrap().db.insert(payload.account, payload.publicKey);
+}
 
-    Ok(())
+async fn count_accounts(Extension(state): Extension<SharedState>) -> String {
+    state.read().unwrap().db.len().to_string()
 }
 
 async fn handle_error(error: BoxError) -> impl IntoResponse {
