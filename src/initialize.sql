@@ -1,1 +1,0 @@
-CREATE TABLE IF NOT EXISTS registry (address TEXT PRIMARY KEY NOT NULL, public_key TEXT NOT NULL);
