@@ -1,8 +1,8 @@
 locals {
-  app_name          = "keyserver"
+  app_name = "keyserver"
   // TODO: change to `chat.walletconnect.com`
-  hosted_zone_name  = "chat-keys.walletconnect.com"
-  fqdn              = terraform.workspace == "prod" ? local.hosted_zone_name : "${terraform.workspace}.${local.hosted_zone_name}"
+  hosted_zone_name = "chat-keys.walletconnect.com"
+  fqdn             = terraform.workspace == "prod" ? local.hosted_zone_name : "${terraform.workspace}.${local.hosted_zone_name}"
 }
 
 # tflint-ignore: terraform_unused_declarations

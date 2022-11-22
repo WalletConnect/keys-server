@@ -6,20 +6,20 @@ use axum::{
     routing::{delete, get, post},
     Router,
 };
-use tower_http::cors::CorsLayer;
+use http::{HeaderValue, Method};
 use serde::{Deserialize, Serialize};
 use std::{
+    assert_eq,
     borrow::Cow,
     collections::HashMap,
     net::SocketAddr,
     sync::{Arc, RwLock},
     time::Duration,
-    assert_eq
 };
 use tower::{BoxError, ServiceBuilder};
+use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use http::{HeaderValue, Method};
 
 #[tokio::main]
 async fn main() {
@@ -89,7 +89,10 @@ struct Account {
 
 async fn delete_all_keys(Extension(state): Extension<SharedState>, params: Query<DeleteParams>) {
     let params = params.0;
-    assert_eq!(&params.password, "f9132ad791031307dcc9723809c87ff734b485820ec5cae21059c3711765207a");
+    assert_eq!(
+        &params.password,
+        "f9132ad791031307dcc9723809c87ff734b485820ec5cae21059c3711765207a"
+    );
     state.write().unwrap().db.clear();
 }
 
@@ -115,7 +118,11 @@ async fn resolve(
 }
 
 async fn register(Json(payload): Json<Account>, Extension(state): Extension<SharedState>) {
-    state.write().unwrap().db.insert(payload.account, payload.publicKey);
+    state
+        .write()
+        .unwrap()
+        .db
+        .insert(payload.account, payload.publicKey);
 }
 
 async fn count_accounts(Extension(state): Extension<SharedState>) -> String {
