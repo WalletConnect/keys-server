@@ -3,3 +3,5 @@
 result
 .DS_Store
 .fleet
+.terraform
+.env

@@ -1,0 +1,20 @@
+# Automatically assigns new issues
+# to the project
+# https://github.com/orgs/WalletConnect/projects/9
+name: assign
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v0.3.0
+        with:
+          project-url: https://github.com/orgs/WalletConnect/projects/9
+          github-token: ${{ secrets.ASSIGN_TO_PROJECT_GITHUB_TOKEN }}
