@@ -39,7 +39,7 @@ module "ecs" {
   app_name            = "${terraform.workspace}_${local.app_name}"
   region              = var.region
   vpc_name            = "ops-${terraform.workspace}-vpc"
-  port                = 3000
+  port                = 8080
   acm_certificate_arn = module.dns.certificate_arn
   fqdn                = local.fqdn
   route53_zone_id     = module.dns.zone_id
