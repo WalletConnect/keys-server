@@ -10,9 +10,9 @@ on:
       - 'README.md'
 
   push:
-    branches: ['master', 'feat/ci']
+    branches: ['master']
     paths-ignore:
-      #- '.github/**'
+      - '.github/**'
       - 'terraform/**'
       - 'README.md'
 
