@@ -33,6 +33,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/register", post(register))
+        .route("/health", get(health))
         .route("/resolve", get(resolve))
         .route("/remove/:key", delete(remove_key))
         .route("/keys", get(count_accounts).delete(delete_all_keys)) //
@@ -99,6 +100,8 @@ async fn delete_all_keys(Extension(state): Extension<SharedState>, params: Query
 async fn remove_key(Path(key): Path<String>, Extension(state): Extension<SharedState>) {
     state.write().unwrap().db.remove(&key);
 }
+
+async fn health() -> StatusCode {StatusCode::OK}
 
 async fn resolve(
     params: Query<ResolveParams>,
