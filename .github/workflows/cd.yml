@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: infra/staging
-      url: https://staging.chat-keys.walletconnect.com/health
+      url: https://staging.keys.walletconnect.com/health
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: app/staging
-      url: https://staging.chat-keys.walletconnect.com/health
+      url: https://staging.keys.walletconnect.com/health
     steps:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -91,11 +91,11 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: app/staging
-      url: https://staging.chat-keys.walletconnect.com/health
+      url: https://staging.keys.walletconnect.com/health
     steps:
       - name: validate
         run: |
-          curl "https://staging.chat-keys.walletconnect.com/health"
+          curl "https://staging.keys.walletconnect.com/health"
 
   deployment_windows:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: app/prod
-      url: https://chat-keys.walletconnect.com/health
+      url: https://keys.walletconnect.com/health
     steps:
       - id: decide
         uses: cobot/deploy-window-action@v1
@@ -124,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: infra/prod
-      url: https://chat-keys.walletconnect.com/health
+      url: https://keys.walletconnect.com/health
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -151,7 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: app/prod
-      url: https://chat-keys.walletconnect.com/health
+      url: https://keys.walletconnect.com/health
     steps:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
