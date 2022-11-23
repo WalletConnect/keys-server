@@ -101,7 +101,9 @@ async fn remove_key(Path(key): Path<String>, Extension(state): Extension<SharedS
     state.write().unwrap().db.remove(&key);
 }
 
-async fn health() -> StatusCode {StatusCode::OK}
+async fn health() -> StatusCode {
+    StatusCode::OK
+}
 
 async fn resolve(
     params: Query<ResolveParams>,
