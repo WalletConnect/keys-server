@@ -5,3 +5,5 @@ result
 .fleet
 .terraform
 .env
+.idea
+.envrc
