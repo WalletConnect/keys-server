@@ -1,4 +1,7 @@
+#![feature(assert_matches)]
+
 use {
+    crate::storage::memory::MemoryStorage,
     axum::{
         error_handling::HandleErrorLayer,
         extract::Extension,
@@ -12,7 +15,7 @@ use {
     std::{
         borrow::Cow,
         net::SocketAddr,
-        sync::{Arc, RwLock},
+        sync::Arc,
         time::Duration,
     },
     tower::{BoxError, ServiceBuilder},
@@ -22,8 +25,9 @@ use {
 
 mod handler;
 mod state;
+mod storage;
 
-type SharedState = Arc<RwLock<State>>;
+type SharedState = Arc<State<MemoryStorage>>;
 
 #[tokio::main]
 async fn main() {

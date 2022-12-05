@@ -1,6 +1,9 @@
-use std::collections::HashMap;
+use crate::storage::Storage;
 
-#[derive(Default)]
-pub struct State {
-    pub db: HashMap<String, String>,
+#[derive(Debug, Default)]
+pub struct State<T>
+where
+    T: Storage,
+{
+    pub db: T,
 }

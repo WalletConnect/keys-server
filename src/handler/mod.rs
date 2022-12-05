@@ -1,5 +1,8 @@
 use {
-    crate::SharedState,
+    crate::{
+        storage::Storage,
+        SharedState,
+    },
     axum::{
         extract::{Path, Query},
         Extension,
@@ -7,6 +10,7 @@ use {
     },
     http::StatusCode,
     serde::{Deserialize, Serialize},
+    tracing::error,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -30,47 +34,75 @@ pub async fn health() -> StatusCode {
     StatusCode::OK
 }
 
-pub async fn register(Json(payload): Json<Account>, Extension(state): Extension<SharedState>) {
+pub async fn register(
+    Json(payload): Json<Account>,
+    Extension(state): Extension<SharedState>,
+) -> StatusCode {
     state
-        .write()
-        .unwrap()
         .db
-        .insert(payload.account, payload.publicKey);
+        .set(&payload.account, &payload.publicKey)
+        .await
+        .map(|_| StatusCode::CREATED)
+        .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 pub async fn resolve(
     params: Query<ResolveParams>,
     Extension(state): Extension<SharedState>,
 ) -> Result<Json<Account>, StatusCode> {
-    let db = &state.read().unwrap().db;
     let params = params.0;
-
-    if let Some(value) = db.get(&params.account) {
-        Ok(Json(Account {
+    match state.db.get(&params.account).await {
+        Ok(Some(value)) => Ok(Json(Account {
             account: params.account,
-            publicKey: value.clone(),
-        }))
-    } else {
-        Err(StatusCode::NOT_FOUND)
+            publicKey: value,
+        })),
+
+        Ok(None) => Err(StatusCode::NOT_FOUND),
+
+        Err(err) => {
+            error!(?err, "failed to query data store");
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
     }
 }
 
-pub async fn remove_key(Path(key): Path<String>, Extension(state): Extension<SharedState>) {
-    state.write().unwrap().db.remove(&key);
+pub async fn remove_key(
+    Path(key): Path<String>,
+    Extension(state): Extension<SharedState>,
+) -> StatusCode {
+    state
+        .db
+        .remove(&key)
+        .await
+        .map(|_| StatusCode::OK)
+        .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-pub async fn count_accounts(Extension(state): Extension<SharedState>) -> String {
-    state.read().unwrap().db.len().to_string()
+pub async fn count_accounts(
+    Extension(state): Extension<SharedState>,
+) -> Result<String, StatusCode> {
+    state
+        .db
+        .count()
+        .await
+        .map(|len| len.to_string())
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 pub async fn delete_all_keys(
     Extension(state): Extension<SharedState>,
     params: Query<DeleteParams>,
-) {
+) -> StatusCode {
     let params = params.0;
     assert_eq!(
         &params.password,
         "f9132ad791031307dcc9723809c87ff734b485820ec5cae21059c3711765207a"
     );
-    state.write().unwrap().db.clear();
+
+    state
+        .db
+        .clear()
+        .await
+        .map(|_| StatusCode::OK)
+        .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
 }
