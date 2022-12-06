@@ -1,8 +1,5 @@
 use {
-    crate::{
-        storage::Storage,
-        SharedState,
-    },
+    crate::SharedState,
     axum::{
         extract::{Path, Query},
         Extension,
@@ -39,7 +36,7 @@ pub async fn register(
     Extension(state): Extension<SharedState>,
 ) -> StatusCode {
     state
-        .db
+        .storage
         .set(&payload.account, &payload.publicKey)
         .await
         .map(|_| StatusCode::CREATED)
@@ -51,7 +48,7 @@ pub async fn resolve(
     Extension(state): Extension<SharedState>,
 ) -> Result<Json<Account>, StatusCode> {
     let params = params.0;
-    match state.db.get(&params.account).await {
+    match state.storage.get(&params.account).await {
         Ok(Some(value)) => Ok(Json(Account {
             account: params.account,
             publicKey: value,
@@ -71,7 +68,7 @@ pub async fn remove_key(
     Extension(state): Extension<SharedState>,
 ) -> StatusCode {
     state
-        .db
+        .storage
         .remove(&key)
         .await
         .map(|_| StatusCode::OK)
@@ -82,7 +79,7 @@ pub async fn count_accounts(
     Extension(state): Extension<SharedState>,
 ) -> Result<String, StatusCode> {
     state
-        .db
+        .storage
         .count()
         .await
         .map(|len| len.to_string())
@@ -100,7 +97,7 @@ pub async fn delete_all_keys(
     );
 
     state
-        .db
+        .storage
         .clear()
         .await
         .map(|_| StatusCode::OK)

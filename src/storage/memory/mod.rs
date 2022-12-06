@@ -1,11 +1,7 @@
 use {
     crate::storage::{Storage, StorageError},
     async_trait::async_trait,
-    std::{
-        collections::HashMap,
-        fmt::Debug,
-        sync::RwLock,
-    },
+    std::{collections::HashMap, fmt::Debug, sync::RwLock},
     tracing::error,
 };
 
@@ -18,34 +14,37 @@ pub struct MemoryStorage {
 }
 
 #[async_trait]
-impl Storage for MemoryStorage
-{
+impl Storage for MemoryStorage {
     async fn get(&self, key: &str) -> Result<Option<String>, StorageError> {
-        self.db.read()
-            .map(|db| {
-                db.get(key).cloned()
-            })
+        self.db
+            .read()
+            .map(|db| db.get(key).cloned())
             .map_err(|err| {
                 error!(?err, "failed to acquire read lock for memory store");
                 StorageError::Other(err.to_string())
             })
     }
 
-    async fn set(&self, key: &str, value: &str) -> Result<Option<String>, StorageError> {
+    async fn set(&self, key: &str, value: &str) -> Result<(), StorageError> {
         self.db
             .write()
             .map(|mut db| db.insert(key.to_string(), value.to_string()))
             .map_err(|err| {
                 error!(?err, "failed to acquire write lock for memory store");
                 StorageError::Other(err.to_string())
-            })
+            })?;
+        Ok(())
     }
 
-    async fn remove(&self, key: &str) -> Result<Option<String>, StorageError> {
-        self.db.write().map(|mut db| db.remove(key)).map_err(|err| {
-            error!(?err, "failed to acquire write lock for memory store");
-            StorageError::Other(err.to_string())
-        })
+    async fn remove(&self, key: &str) -> Result<(), StorageError> {
+        self.db
+            .write()
+            .map(|mut db| db.remove(key))
+            .map_err(|err| {
+                error!(?err, "failed to acquire write lock for memory store");
+                StorageError::Other(err.to_string())
+            })?;
+        Ok(())
     }
 
     async fn count(&self) -> Result<usize, StorageError> {

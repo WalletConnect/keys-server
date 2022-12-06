@@ -1,7 +1,5 @@
-#![feature(assert_matches)]
-
 use {
-    crate::storage::memory::MemoryStorage,
+    crate::{config::Config, error::KeyserverError, storage::Storage},
     axum::{
         error_handling::HandleErrorLayer,
         extract::Extension,
@@ -12,25 +10,35 @@ use {
     },
     http::{HeaderValue, Method},
     state::State,
-    std::{
-        borrow::Cow,
-        net::SocketAddr,
-        sync::Arc,
-        time::Duration,
-    },
+    std::{borrow::Cow, net::SocketAddr, sync::Arc, time::Duration},
     tower::{BoxError, ServiceBuilder},
     tower_http::{cors::CorsLayer, trace::TraceLayer},
     tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt},
 };
 
+mod config;
+mod error;
 mod handler;
 mod state;
 mod storage;
 
-type SharedState = Arc<State<MemoryStorage>>;
+#[cfg(test)]
+#[macro_use]
+extern crate assert_matches;
+
+type SharedState = Arc<State>;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), KeyserverError> {
+    let config = Config::from_env()?;
+    let addr: SocketAddr = format!("{}:{}", config.server.host, config.server.port).parse()?;
+
+    let concurrency_limit = config.server.concurrency_limit;
+    let timeout = config.server.timeout;
+
+    let storage = init_storage(&config).await?;
+    let state = Arc::new(State { config, storage });
+
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
             std::env::var("RUST_LOG")
@@ -53,10 +61,10 @@ async fn main() {
                 // Handle errors from middleware
                 .layer(HandleErrorLayer::new(handle_error))
                 .load_shed()
-                .concurrency_limit(1024)
-                .timeout(Duration::from_secs(10))
+                .concurrency_limit(concurrency_limit)
+                .timeout(Duration::from_secs(timeout))
                 .layer(TraceLayer::new_for_http())
-                .layer(Extension(SharedState::default()))
+                .layer(Extension(state))
                 .into_inner(),
         )
         .layer(
@@ -67,12 +75,25 @@ async fn main() {
         );
 
     // Run our app with hyper
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    tracing::debug!("listening on {}", addr);
+    tracing::info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
+
+    Ok(())
+}
+
+async fn init_storage(config: &Config) -> Result<Box<dyn Storage>, KeyserverError> {
+    if let Some(addr) = &config.mongo.addr {
+        tracing::info!("initializing mongodb store at {}", addr);
+        let st = storage::mongo::MongoStorage::new(addr, &config.mongo.database).await?;
+        Ok(Box::new(st))
+    } else {
+        tracing::info!("initializing in-memory store");
+        #[allow(clippy::box_default)]
+        Ok(Box::new(storage::memory::MemoryStorage::default()))
+    }
 }
 
 async fn handle_error(error: BoxError) -> impl IntoResponse {

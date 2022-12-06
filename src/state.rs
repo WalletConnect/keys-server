@@ -1,9 +1,7 @@
-use crate::storage::Storage;
+use crate::{config::Config, storage::Storage};
 
-#[derive(Debug, Default)]
-pub struct State<T>
-where
-    T: Storage,
-{
-    pub db: T,
+#[derive(Debug)]
+pub struct State {
+    pub config: Config,
+    pub storage: Box<dyn Storage>,
 }
