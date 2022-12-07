@@ -17,8 +17,8 @@ mod config;
 mod tests;
 
 const DB_COLLECTION_NAME: &str = "keys";
-const DB_FIELD_KEY: &str = "key";
-const DB_FIELD_VALUE: &str = "value";
+const DB_FIELD_KEY: &str = "account";
+const DB_FIELD_VALUE: &str = "key";
 
 #[derive(Debug)]
 pub struct MongoStorage {

@@ -10,12 +10,12 @@ terraform {
 }
 
 locals {
-  REDIS_MAX_CONNECTIONS = "128"
   // TODO: version the image so we can pin it
   # pinned_latest_tag     = sort(setsubtract(data.aws_ecr_image.service_image.image_tags, ["latest"]))[0]
   // TODO: allow caller to pin version
-  image_tag = data.aws_ecr_image.service_image.image_tags[0] # TODO: var.ecr_app_version == "latest" ? local.pinned_latest_tag : var.ecr_app_version
-  image     = "${var.ecr_repository_url}:${local.image_tag}"
+  image_tag = data.aws_ecr_image.service_image.image_tags[0]
+  # TODO: var.ecr_app_version == "latest" ? local.pinned_latest_tag : var.ecr_app_version
+  image = "${var.ecr_repository_url}:${local.image_tag}"
 }
 
 data "aws_ecr_image" "service_image" {
@@ -62,7 +62,11 @@ resource "aws_ecs_task_definition" "app_task" {
   container_definitions = jsonencode([
     {
       name : var.app_name,
-      environment : [],
+      environment : [
+        { "name" : "KEYSERVER_HOST", "value" : "0.0.0.0" },
+        { "name" : "KEYSERVER_PORT", "value" : var.port },
+        { "name" : "KEYSERVER_STORAGE_MONGO_ADDR", "value" : var.persistent_keystore_mongo_addr }
+      ],
       image : local.image,
       essential : true,
       portMappings : [
@@ -81,10 +85,12 @@ resource "aws_ecs_task_definition" "app_task" {
           "awslogs-stream-prefix" : "ecs"
         }
       },
-      dependsOn : [{
-        containerName : "aws-otel-collector",
-        condition : "START"
-      }]
+      dependsOn : [
+        {
+          containerName : "aws-otel-collector",
+          condition : "START"
+        }
+      ]
     },
     {
       name : "aws-otel-collector",
@@ -164,7 +170,7 @@ resource "aws_ecs_service" "app_service" {
   wait_for_steady_state = true
 
   network_configuration {
-    subnets          = data.aws_subnets.private_subnets.ids
+    subnets          = var.private_subnet_ids
     assign_public_ip = false                                                                     # We do public ingress through the LB
     security_groups  = [aws_security_group.tls_ingess.id, aws_security_group.vpc_app_ingress.id] # Setting the security group
   }
@@ -181,44 +187,12 @@ resource "aws_ecs_service" "app_service" {
   }
 }
 
-data "aws_vpc" "vpc" {
-  filter {
-    name   = "tag:Name"
-    values = [var.vpc_name]
-  }
-}
-
-# Providing a reference to our default subnets
-data "aws_subnets" "private_subnets" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
-  }
-
-  filter {
-    name   = "tag:Class"
-    values = ["private"]
-  }
-}
-
-data "aws_subnets" "public_subnets" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
-  }
-
-  filter {
-    name   = "tag:Class"
-    values = ["public"]
-  }
-}
-
 # Load Balancer
 #tfsec:ignore:aws-elb-alb-not-public
 resource "aws_alb" "network_load_balancer" {
   name               = replace("${var.app_name}-lb-${substr(uuid(), 0, 3)}", "_", "-")
   load_balancer_type = "network"
-  subnets            = data.aws_subnets.public_subnets.ids
+  subnets            = var.public_subnet_ids
 
   lifecycle {
     create_before_destroy = true
@@ -231,7 +205,7 @@ resource "aws_lb_target_group" "target_group" {
   port        = var.port
   protocol    = "TCP"
   target_type = "ip"
-  vpc_id      = data.aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   # Deregister quickly to allow for faster deployments
   deregistration_delay = 30 # Seconds
@@ -270,7 +244,7 @@ resource "aws_lb_listener" "listener" {
 resource "aws_security_group" "tls_ingess" {
   name        = "${var.app_name}-tls-ingress"
   description = "Allow tls ingress from everywhere"
-  vpc_id      = data.aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress { #tfsec:ignore:aws-ec2-add-description-to-security-group-rule
     from_port = 443
@@ -292,13 +266,13 @@ resource "aws_security_group" "tls_ingess" {
 resource "aws_security_group" "vpc_app_ingress" {
   name        = "${var.app_name}-vpc-ingress-to-app"
   description = "Allow app port ingress from vpc"
-  vpc_id      = data.aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress { #tfsec:ignore:aws-ec2-add-description-to-security-group-rule
     from_port   = var.port
     to_port     = var.port
     protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+    cidr_blocks = var.allowed_ingress_cidr_blocks
   }
 
   egress {           #tfsec:ignore:aws-ec2-add-description-to-security-group-rule

@@ -30,6 +30,7 @@ data "aws_ecr_repository" "repository" {
   name = local.app_name
 }
 
+
 # ECS Cluster, Task, Service, and Load Balancer for our app
 module "ecs" {
   source = "./ecs"
@@ -37,13 +38,35 @@ module "ecs" {
   ecr_repository_url  = data.aws_ecr_repository.repository.repository_url
   app_name            = "${terraform.workspace}_${local.app_name}"
   region              = var.region
-  vpc_name            = "ops-${terraform.workspace}-vpc"
   port                = 8080
   acm_certificate_arn = module.dns.certificate_arn
   fqdn                = local.fqdn
   route53_zone_id     = module.dns.zone_id
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
+
+  vpc_id                      = data.aws_vpc.vpc.id
+  public_subnet_ids           = data.aws_subnets.public_subnets.ids
+  private_subnet_ids          = data.aws_subnets.private_subnets.ids
+  allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+
+  persistent_keystore_mongo_addr = module.keystore-docdb.connection_url
 }
+
+module "keystore-docdb" {
+  source = "./docdb"
+
+  app_name                    = local.app_name
+  mongo_name                  = "keystore-docdb"
+  environment                 = terraform.workspace
+  default_database            = "keystore"
+  primary_instance_class      = var.keystore_docdb_primary_instance_class
+  primary_instances           = var.keystore_docdb_primary_instances
+  vpc_id                      = data.aws_vpc.vpc.id
+  private_subnet_ids          = data.aws_subnets.private_subnets.ids
+  allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+  allowed_egress_cidr_blocks  = [data.aws_vpc.vpc.cidr_block]
+}
+
 
 module "o11y" {
   source = "./monitoring"
