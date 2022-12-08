@@ -1,5 +1,4 @@
 use {
-    axum::routing::delete,
     http::{HeaderValue, Method},
     stores::keys::MongoPersistentStorage,
     tower_http::{
@@ -9,10 +8,10 @@ use {
     tracing::Level,
 };
 
+mod auth;
 mod config;
 mod error;
 mod handlers;
-mod models;
 mod state;
 mod stores;
 
@@ -108,9 +107,12 @@ async fn main() -> crate::error::Result<()> {
             .with_description("This is an example counter")
             .init();
 
-        state.set_telemetry(tracer, Metrics {
-            example: example_counter,
-        })
+        state.set_telemetry(
+            tracer,
+            Metrics {
+                example: example_counter,
+            },
+        )
     } else {
         // Only log to console if telemetry disabled
         tracing_subscriber::fmt()
@@ -143,24 +145,16 @@ async fn main() -> crate::error::Result<()> {
     let app = Router::new()
         .route("/health", get(handlers::health::handler))
         .route(
-            "/identityKey/:identity_key",
-            get(handlers::exists_identity_key::handler),
+            "/identity",
+            get(handlers::identity::resolve::handler)
+                .post(handlers::identity::register::handler)
+                .delete(handlers::identity::unregister::handler),
         )
         .route(
-            "/account/:account",
-            get(handlers::resolve_account::handler).delete(handlers::unregister_account::handler),
-        )
-        .route(
-            "/account/:account/identityKey",
-            post(handlers::register_identity_key::handler),
-        )
-        .route(
-            "/account/:account/identityKey/:identity_key",
-            delete(handlers::unregister_identity_key::handler),
-        )
-        .route(
-            "/account/:account/proposalEncryptionKey",
-            post(handlers::register_proposal_encryption_key::handler),
+            "/invite",
+            post(handlers::invite::register::handler)
+                .delete(handlers::invite::unregister::handler)
+                .get(handlers::invite::resolve::handler),
         )
         .layer(global_middleware)
         .layer(cors_layer)

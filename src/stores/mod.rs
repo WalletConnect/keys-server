@@ -1,7 +1,5 @@
 pub mod keys;
 
-type Result<T> = std::result::Result<T, StoreError>;
-
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {
     /// Not found error, params are entity name and identifier

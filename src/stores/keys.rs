@@ -1,6 +1,5 @@
 pub use {
     super::StoreError,
-    crate::models::keys::Keys,
     async_trait::async_trait,
     serde::{Deserialize, Serialize},
     std::sync::Arc,
@@ -8,43 +7,39 @@ pub use {
         bson::{self, doc, oid::ObjectId},
         mongodb::{
             options::{ClientOptions, FindOptions},
-            Client,
-            Database,
+            Client, Database,
         },
         Model,
     },
 };
 use {
-    crate::{config::Configuration, models::keys::IdentityKey},
-    std::str::FromStr,
-    wither::mongodb::options::{FindOneAndUpdateOptions, UpdateOptions},
+    crate::{auth::cacao::Cacao, config::Configuration},
+    wither::mongodb::options::FindOneAndUpdateOptions,
 };
 
 pub type KeysPersistentStorageArc = Arc<dyn KeysPersistentStorage + Send + Sync + 'static>;
 
 #[async_trait]
 pub trait KeysPersistentStorage: 'static + std::fmt::Debug + Send + Sync {
-    async fn upsert_proposal_encryption_key(
-        &self,
-        account: &String,
-        proposal_encryption_key: &String,
-    ) -> Result<(), StoreError>;
+    async fn upsert_invite_key(&self, account: &str, invite_key: &str) -> Result<(), StoreError>;
 
     async fn create_account_if_not_exists_and_add_identity_key(
         &self,
-        account: &String,
-        identity_key: &IdentityKey,
+        account: &str,
+        identity_key: &str,
+        cacao: &Cacao,
     ) -> Result<(), StoreError>;
 
     async fn remove_identity_key(
         &self,
-        account: &String,
-        identity_key: &IdentityKey,
+        account: &str,
+        identity_key: &str,
     ) -> Result<(), StoreError>;
 
-    async fn exists_identity_key(&self, identity_key: &String) -> Result<bool, StoreError>;
-    async fn retrieve(&self, account: &String) -> Result<Keys, StoreError>;
-    async fn remove(&self, account: &String) -> Result<(), StoreError>;
+    async fn get_cacao_by_identity_key(&self, identity_key: &str) -> Result<Cacao, StoreError>;
+    async fn remove_invite_key(&self, account: &str) -> Result<(), StoreError>;
+    async fn retrieve_invite_key(&self, account: &str) -> Result<String, StoreError>;
+    async fn remove(&self, account: &str) -> Result<(), StoreError>;
 }
 
 #[derive(Debug, Model, Serialize, Deserialize, PartialEq, Eq)]
@@ -52,7 +47,7 @@ pub trait KeysPersistentStorage: 'static + std::fmt::Debug + Send + Sync {
     collection_name = "keys",
     index(keys = r#"doc!{"account": 1}"#, options = r#"doc!{"unique": true}"#),
     index(
-        keys = r#"doc!{"identity_keys.identity_key": 1}"#,
+        keys = r#"doc!{"identities.identity_key": 1}"#,
         options = r#"doc!{"unique": true}"#
     )
 )]
@@ -66,46 +61,18 @@ struct MongoKeys {
     /// 0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826.
     pub account: String,
 
-    /// The identity key used by the client to authenticate payloads regarding
-    /// the proposals and responses.
-    pub identity_keys: Vec<MongoIdentityKey>,
+    /// TODO describe identities
+    pub identities: Vec<MongoIdentity>,
 
     /// The proposal encryption key used by a peer client to derive a shared DH
     /// symmetric key to encrypt proposals.
-    pub proposal_encryption_key: Option<String>,
+    pub invite_key: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
-pub struct MongoIdentityKey {
-    /// The identity key used by the client to authenticate payloads regarding
-    /// the proposals and responses.
+pub struct MongoIdentity {
     pub identity_key: String,
-}
-
-impl From<MongoKeys> for Keys {
-    fn from(value: MongoKeys) -> Self {
-        Self {
-            account: value.account,
-            identity_keys: value.identity_keys.into_iter().map(Into::into).collect(),
-            proposal_encryption_key: value.proposal_encryption_key,
-        }
-    }
-}
-
-impl From<IdentityKey> for MongoIdentityKey {
-    fn from(value: IdentityKey) -> Self {
-        Self {
-            identity_key: value.identity_key,
-        }
-    }
-}
-
-impl From<MongoIdentityKey> for IdentityKey {
-    fn from(value: MongoIdentityKey) -> Self {
-        Self {
-            identity_key: value.identity_key,
-        }
-    }
+    pub cacao: Cacao,
 }
 
 #[derive(Debug, Clone)]
@@ -131,108 +98,155 @@ impl MongoPersistentStorage {
 
 #[async_trait]
 impl KeysPersistentStorage for MongoPersistentStorage {
-    async fn upsert_proposal_encryption_key(
-        &self,
-        account: &String,
-        proposal_encryption_key: &String,
-    ) -> Result<(), StoreError> {
+    async fn upsert_invite_key(&self, account: &str, invite_key: &str) -> Result<(), StoreError> {
         let filter = doc! {
             "account": &account,
         };
 
         let update = doc! {
             "$set": {
-                "proposal_encryption_key": &proposal_encryption_key,
+                "invite_key": &invite_key,
             }
         };
 
         match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
             Some(_) => Ok(()),
-            None => Err(StoreError::NotFound("Account".to_string(), account.clone())),
+            None => Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            )),
         }
     }
 
     async fn create_account_if_not_exists_and_add_identity_key(
         &self,
-        account: &String,
-        identity_key: &IdentityKey,
+        account: &str,
+        identity_key: &str,
+        cacao: &Cacao,
     ) -> Result<(), StoreError> {
         let filter = doc! {
             "account": &account,
+            "identities.identity_key": {"$ne": &identity_key},
         };
 
-        let mongo_key = MongoIdentityKey::from(identity_key.clone());
+        let mongo_identity = MongoIdentity {
+            identity_key: identity_key.to_string(),
+            cacao: cacao.clone(),
+        };
 
         let update = doc! {
-            "$addToSet": {
-                "identity_keys": bson::to_bson(&mongo_key).unwrap()
+            "$push": {
+                "identities": bson::to_bson(&mongo_identity).unwrap()
             }
         };
 
         let option = FindOneAndUpdateOptions::builder().upsert(true).build();
 
-        MongoKeys::find_one_and_update(&self.db, filter, update, option).await?;
-
-        Ok(())
+        match MongoKeys::find_one_and_update(&self.db, filter, update, option).await {
+            Ok(Some(_)) => Ok(()),
+            Ok(None) => Ok(()),
+            Err(e) => if e.to_string().starts_with("Command failed (DuplicateKey): E11000 duplicate key error collection: keyserver.keys index: account_1") // Todo add better error matching 
+            {
+                Ok(())
+            } else {
+                Err(StoreError::Database(e))
+            }
+        }
     }
 
     async fn remove_identity_key(
         &self,
-        account: &String,
-        identity_key: &IdentityKey,
+        account: &str,
+        identity_key: &str,
     ) -> Result<(), StoreError> {
         let filter = doc! {
             "account": &account,
         };
 
-        let mongo_key = MongoIdentityKey::from(identity_key.clone());
-
         let update = doc! {
             "$pull": {
-                "identity_keys": bson::to_bson(&mongo_key).unwrap()
+                "identities" : {
+                    "identity_key": &identity_key,
+                }
             }
         };
 
-        let option = FindOneAndUpdateOptions::builder().upsert(true).build();
-
-        match MongoKeys::find_one_and_update(&self.db, filter, update, option).await? {
+        match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
             Some(_) => Ok(()),
-            None => Err(StoreError::NotFound("Account".to_string(), account.clone())),
+            None => Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            )),
         }
     }
 
-    async fn exists_identity_key(&self, identity_key: &String) -> Result<bool, StoreError> {
+    async fn remove_invite_key(&self, account: &str) -> Result<(), StoreError> {
         let filter = doc! {
-            "identity_keys.identity_key": identity_key,
+            "account": &account,
         };
 
-        match MongoKeys::find_one(&self.db, Some(filter), None).await? {
-            Some(_) => Ok(true),
-            // note(Szymon): A little conflicted if this should be Succes with false value or
-            // NotFound error.
-            None => Ok(false),
+        let update = doc! {
+            "$unset": {
+                "invite_key": 1,
+            }
+        };
+
+        match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
+            Some(_) => Ok(()),
+            None => Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            )),
         }
     }
 
-    async fn retrieve(&self, account: &String) -> Result<Keys, StoreError> {
+    async fn get_cacao_by_identity_key(&self, identity_key: &str) -> Result<Cacao, StoreError> {
+        let filter = doc! {
+            "identities.identity_key": identity_key,
+        };
+
+        let not_found = StoreError::NotFound("Identity key".to_string(), identity_key.to_string());
+
+        match MongoKeys::find_one(&self.db, Some(filter), None).await? {
+            Some(mongo_keys) => {
+                let mongo_identity = mongo_keys
+                    .identities
+                    .into_iter()
+                    .find(|i| i.identity_key == *identity_key)
+                    .ok_or(not_found)?;
+                Ok(mongo_identity.cacao)
+            }
+            None => Err(not_found),
+        }
+    }
+
+    async fn retrieve_invite_key(&self, account: &str) -> Result<String, StoreError> {
         let filter = doc! {
             "account": account,
         };
 
         match MongoKeys::find_one(&self.db, Some(filter), None).await? {
-            Some(keys) => Ok(keys.into()),
-            None => Err(StoreError::NotFound("Account".to_string(), account.clone())),
+            Some(keys) => Ok(keys.invite_key.ok_or_else(|| {
+                StoreError::NotFound("Invite key".to_string(), account.to_string())
+            })?),
+            None => Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            )),
         }
     }
 
-    async fn remove(&self, account: &String) -> Result<(), StoreError> {
+    async fn remove(&self, account: &str) -> Result<(), StoreError> {
         let filter = doc! {
             "account": account,
         };
 
         match MongoKeys::find_one_and_delete(&self.db, filter, None).await? {
             Some(_) => Ok(()),
-            None => Err(StoreError::NotFound("Account".to_string(), account.clone())),
+            None => Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            )),
         }
     }
 }

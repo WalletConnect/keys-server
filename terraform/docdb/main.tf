@@ -15,15 +15,7 @@ terraform {
 
 locals {
   name_prefix     = replace("${var.environment}-${var.app_name}-${var.mongo_name}", "_", "-")
-  master_password = data.aws_secretsmanager_secret_version.master_password.secret_string
-}
-
-data "aws_secretsmanager_secret" "master_password" {
-  arn = aws_secretsmanager_secret.master_password.arn
-}
-
-data "aws_secretsmanager_secret_version" "master_password" {
-  secret_id = data.aws_secretsmanager_secret.master_password.arn
+  master_password = aws_secretsmanager_secret_version.master_password.secret_string
 }
 
 resource "random_password" "master_password" {

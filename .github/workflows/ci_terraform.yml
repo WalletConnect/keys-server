@@ -128,4 +128,5 @@ jobs:
     with:
       deploy_app: false
       deploy_infra: true
+      deploy_prod: false
     secrets: inherit

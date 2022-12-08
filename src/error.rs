@@ -1,8 +1,5 @@
 use {
-    crate::{
-        handlers::{ErrorField, ErrorLocation, ResponseError},
-        stores::StoreError,
-    },
+    crate::{auth, handlers::ResponseError, stores::StoreError},
     axum::response::{IntoResponse, Response},
     hyper::StatusCode,
 };
@@ -29,11 +26,17 @@ pub enum Error {
     #[error(transparent)]
     Store(#[from] crate::stores::StoreError),
 
-    #[error("the `{0}` field must not be empty")]
-    EmptyField(String),
-
     #[error(transparent)]
     Validation(#[from] validator::ValidationErrors),
+
+    #[error(transparent)]
+    JwtVerification(#[from] auth::jwt::JwtError),
+
+    #[error(transparent)]
+    Did(#[from] auth::did::DidError),
+
+    #[error(transparent)]
+    Cacao(#[from] auth::cacao::CacaoError),
 }
 
 impl IntoResponse for Error {
@@ -41,43 +44,58 @@ impl IntoResponse for Error {
         match self {
             Error::Database(e) => crate::handlers::Response::new_failure(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                vec![ResponseError {
+                ResponseError {
                     name: "mongodb".to_string(),
                     message: e.to_string(),
-                }],
-                vec![],
+                },
             ),
             Error::Store(e) => match e {
                 StoreError::Database(e) => crate::handlers::Response::new_failure(
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    vec![ResponseError {
+                    ResponseError {
                         name: "mongodb".to_string(),
                         message: e.to_string(),
-                    }],
-                    vec![],
+                    },
                 ),
                 StoreError::NotFound(entity, id) => crate::handlers::Response::new_failure(
                     StatusCode::NOT_FOUND,
-                    vec![ResponseError {
+                    ResponseError {
                         name: format!("{} not found", &entity),
                         message: format!("Cannot find {} with specified identifier {}", entity, id),
-                    }],
-                    vec![],
+                    },
                 ),
             },
             Error::Validation(e) => crate::handlers::Response::new_failure(
                 StatusCode::BAD_REQUEST,
-                vec![ResponseError {
+                ResponseError {
                     name: "validation".to_string(),
                     message: e.to_string(),
-                }],
-                vec![]),
-            _ => crate::handlers::Response::new_failure(StatusCode::INTERNAL_SERVER_ERROR, vec![
+                }),
+            Error::JwtVerification(e) => crate::handlers::Response::new_failure(
+                StatusCode::BAD_REQUEST,
+                ResponseError {
+                    name: "jwt_verification".to_string(),
+                    message: e.to_string(),
+                }),
+            Error::Did(e) => crate::handlers::Response::new_failure(
+                StatusCode::BAD_REQUEST,
+                ResponseError {
+                    name: "did".to_string(),
+                    message: e.to_string(),
+                }),
+            Error::Cacao(e) => crate::handlers::Response::new_failure(
+                StatusCode::BAD_REQUEST,
+                ResponseError {
+                    name: "cacao".to_string(),
+                    message: e.to_string(),
+                }),
+            _ => crate::handlers::Response::new_failure(
+                StatusCode::INTERNAL_SERVER_ERROR,
                 ResponseError {
                     name: "unknown_error".to_string(),
                     message: "This error should not have occurred. Please file an issue at: https://github.com/walletconnect/keyserver".to_string(),
                 }
-            ], vec![])
+            ),
         }.into_response()
     }
 }
