@@ -1,153 +1,176 @@
-use axum::{
-    error_handling::HandleErrorLayer,
-    extract::{Extension, Json, Path, Query},
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{delete, get, post},
-    Router,
+use {
+    axum::routing::delete,
+    http::{HeaderValue, Method},
+    stores::keys::MongoPersistentStorage,
+    tower_http::{
+        cors::CorsLayer,
+        trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
+    },
+    tracing::Level,
 };
-use http::{HeaderValue, Method};
-use serde::{Deserialize, Serialize};
-use std::{
-    assert_eq,
-    borrow::Cow,
-    collections::HashMap,
-    net::SocketAddr,
-    sync::{Arc, RwLock},
-    time::Duration,
+
+mod config;
+mod error;
+mod handlers;
+mod models;
+mod state;
+mod stores;
+
+use {
+    crate::{
+        config::Configuration,
+        state::{AppState, Metrics},
+    },
+    axum::{
+        routing::{get, post},
+        Router,
+    },
+    dotenv::dotenv,
+    opentelemetry::{
+        sdk::{
+            metrics::selectors,
+            trace::{self, IdGenerator, Sampler},
+            Resource,
+        },
+        KeyValue,
+    },
+    opentelemetry_otlp::{Protocol, WithExportConfig},
+    std::{net::SocketAddr, sync::Arc, time::Duration},
+    tower::ServiceBuilder,
+    tracing_subscriber::fmt::format::FmtSpan,
 };
-use tower::{BoxError, ServiceBuilder};
-use tower_http::cors::CorsLayer;
-use tower_http::trace::TraceLayer;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+build_info::build_info!(fn build_info);
 
 #[tokio::main]
-async fn main() {
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG")
-                .unwrap_or_else(|_| "example_key_value_store=debug,tower_http=debug".into()),
-        ))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+async fn main() -> crate::error::Result<()> {
+    dotenv().ok();
 
+    let config = Configuration::new().expect("Failed to load config!");
+
+    let keys_persitent_storage = Arc::new(MongoPersistentStorage::new(&config).await?);
+
+    let mut state = AppState::new(config, keys_persitent_storage)?;
+
+    // Telemetry
+    if state.config.telemetry_enabled.unwrap_or(false) {
+        let grpc_url = state
+            .config
+            .telemetry_grpc_url
+            .clone()
+            .unwrap_or_else(|| "http://localhost:4317".to_string());
+
+        let tracing_exporter = opentelemetry_otlp::new_exporter()
+            .tonic()
+            .with_endpoint(grpc_url.clone())
+            .with_timeout(Duration::from_secs(5))
+            .with_protocol(Protocol::Grpc);
+
+        let tracer = opentelemetry_otlp::new_pipeline()
+            .tracing()
+            .with_exporter(tracing_exporter)
+            .with_trace_config(
+                trace::config()
+                    .with_sampler(Sampler::AlwaysOn)
+                    .with_id_generator(IdGenerator::default())
+                    .with_max_events_per_span(64)
+                    .with_max_attributes_per_span(16)
+                    .with_max_events_per_span(16)
+                    .with_resource(Resource::new(vec![
+                        KeyValue::new("service.name", state.build_info.crate_info.name.clone()),
+                        KeyValue::new(
+                            "service.version",
+                            state.build_info.crate_info.version.clone().to_string(),
+                        ),
+                    ])),
+            )
+            .install_batch(opentelemetry::runtime::Tokio)?;
+
+        let metrics_exporter = opentelemetry_otlp::new_exporter()
+            .tonic()
+            .with_endpoint(grpc_url)
+            .with_timeout(Duration::from_secs(5))
+            .with_protocol(Protocol::Grpc);
+
+        let meter_provider = opentelemetry_otlp::new_pipeline()
+            .metrics(tokio::spawn, opentelemetry::util::tokio_interval_stream)
+            .with_exporter(metrics_exporter)
+            .with_period(Duration::from_secs(3))
+            .with_timeout(Duration::from_secs(10))
+            .with_aggregator_selector(selectors::simple::Selector::Exact)
+            .build()?;
+
+        opentelemetry::global::set_meter_provider(meter_provider.provider());
+
+        let meter = opentelemetry::global::meter("rust-http-starter");
+        let example_counter = meter
+            .i64_up_down_counter("example")
+            .with_description("This is an example counter")
+            .init();
+
+        state.set_telemetry(tracer, Metrics {
+            example: example_counter,
+        })
+    } else {
+        // Only log to console if telemetry disabled
+        tracing_subscriber::fmt()
+            .with_max_level(state.config.log_level())
+            .with_span_events(FmtSpan::CLOSE)
+            .init();
+    }
+
+    let port = state.config.port;
+
+    let state_arc = Arc::new(state);
+
+    let global_middleware = ServiceBuilder::new().layer(
+        TraceLayer::new_for_http()
+            .make_span_with(DefaultMakeSpan::new().include_headers(true))
+            .on_request(DefaultOnRequest::new().level(Level::INFO))
+            .on_response(
+                DefaultOnResponse::new()
+                    .level(Level::INFO)
+                    .include_headers(true),
+            ),
+    );
+
+    let cors_layer = CorsLayer::new()
+        .allow_headers([http::header::CONTENT_TYPE])
+        .allow_origin("*".parse::<HeaderValue>().unwrap())
+        .allow_methods([Method::GET, Method::POST]);
+
+    // note (Szymon): routes will propably be changed with proper Keyserver Specs
     let app = Router::new()
-        .route("/register", post(register))
-        .route("/health", get(health))
-        .route("/resolve", get(resolve))
-        .route("/remove/:key", delete(remove_key))
-        .route("/keys", get(count_accounts).delete(delete_all_keys)) //
-        .layer(
-            ServiceBuilder::new()
-                // Handle errors from middleware
-                .layer(HandleErrorLayer::new(handle_error))
-                .load_shed()
-                .concurrency_limit(1024)
-                .timeout(Duration::from_secs(10))
-                .layer(TraceLayer::new_for_http())
-                .layer(Extension(SharedState::default()))
-                .into_inner(),
+        .route("/health", get(handlers::health::handler))
+        .route(
+            "/identityKey/:identity_key",
+            get(handlers::exists_identity_key::handler),
         )
-        .layer(
-            CorsLayer::new()
-                .allow_headers([http::header::CONTENT_TYPE])
-                .allow_origin("*".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::GET, Method::POST]),
-        );
+        .route(
+            "/account/:account",
+            get(handlers::resolve_account::handler).delete(handlers::unregister_account::handler),
+        )
+        .route(
+            "/account/:account/identityKey",
+            post(handlers::register_identity_key::handler),
+        )
+        .route(
+            "/account/:account/identityKey/:identity_key",
+            delete(handlers::unregister_identity_key::handler),
+        )
+        .route(
+            "/account/:account/proposalEncryptionKey",
+            post(handlers::register_proposal_encryption_key::handler),
+        )
+        .layer(global_middleware)
+        .layer(cors_layer)
+        .with_state(state_arc);
 
-    // Run our app with hyper
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    tracing::debug!("listening on {}", addr);
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
-}
 
-type SharedState = Arc<RwLock<State>>;
-
-#[derive(Default)]
-struct State {
-    db: HashMap<String, String>,
-}
-
-#[derive(Deserialize)]
-struct ResolveParams {
-    account: String,
-}
-
-#[derive(Deserialize)]
-struct DeleteParams {
-    password: String,
-}
-
-#[derive(Serialize, Deserialize)]
-#[allow(non_snake_case)]
-struct Account {
-    account: String,
-    publicKey: String,
-}
-
-async fn delete_all_keys(Extension(state): Extension<SharedState>, params: Query<DeleteParams>) {
-    let params = params.0;
-    assert_eq!(
-        &params.password,
-        "f9132ad791031307dcc9723809c87ff734b485820ec5cae21059c3711765207a"
-    );
-    state.write().unwrap().db.clear();
-}
-
-async fn remove_key(Path(key): Path<String>, Extension(state): Extension<SharedState>) {
-    state.write().unwrap().db.remove(&key);
-}
-
-async fn health() -> StatusCode {
-    StatusCode::OK
-}
-
-async fn resolve(
-    params: Query<ResolveParams>,
-    Extension(state): Extension<SharedState>,
-) -> Result<Json<Account>, StatusCode> {
-    let db = &state.read().unwrap().db;
-    let params = params.0;
-
-    if let Some(value) = db.get(&params.account) {
-        Ok(Json(Account {
-            account: params.account,
-            publicKey: value.clone(),
-        }))
-    } else {
-        Err(StatusCode::NOT_FOUND)
-    }
-}
-
-async fn register(Json(payload): Json<Account>, Extension(state): Extension<SharedState>) {
-    state
-        .write()
-        .unwrap()
-        .db
-        .insert(payload.account, payload.publicKey);
-}
-
-async fn count_accounts(Extension(state): Extension<SharedState>) -> String {
-    state.read().unwrap().db.len().to_string()
-}
-
-async fn handle_error(error: BoxError) -> impl IntoResponse {
-    if error.is::<tower::timeout::error::Elapsed>() {
-        return (StatusCode::REQUEST_TIMEOUT, Cow::from("request timed out"));
-    }
-
-    if error.is::<tower::load_shed::error::Overloaded>() {
-        return (
-            StatusCode::SERVICE_UNAVAILABLE,
-            Cow::from("service is overloaded, try again later"),
-        );
-    }
-
-    (
-        StatusCode::INTERNAL_SERVER_ERROR,
-        Cow::from(format!("Unhandled internal error: {}", error)),
-    )
+    Ok(())
 }

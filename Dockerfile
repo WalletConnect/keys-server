@@ -1,29 +1,80 @@
-FROM rust:1.65-buster as build
+################################################################################
+#
+# Build args
+#
+################################################################################
+ARG                 base="rust:buster"
+ARG                 runtime="debian:buster-slim"
+ARG                 bin="keyserver"
+ARG                 version="unknown"
+ARG                 sha="unknown"
+ARG                 maintainer="WalletConnect"
+ARG                 release=""
 
-# create a new empty shell project
-RUN USER=root cargo new --bin keyserver
-WORKDIR /keyserver
+################################################################################
+#
+# Install cargo-chef
+#
+################################################################################
+FROM                ${base} AS chef
 
-# copy over your manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
+WORKDIR             /app
+RUN                 cargo install cargo-chef
 
-# this build step will cache your dependencies
-RUN cargo build --release
-RUN rm src/*.rs
+################################################################################
+#
+# Generate recipe file
+#
+################################################################################
+FROM                chef AS plan
 
-# copy your source tree
-COPY ./src ./src
+WORKDIR             /app
+COPY                Cargo.lock Cargo.toml ./
+COPY                src ./src
+RUN                 cargo chef prepare --recipe-path recipe.json
 
-# build for release
-RUN rm ./target/release/deps/keyserver*
-RUN cargo build --release
+################################################################################
+#
+# Build the binary
+#
+################################################################################
+FROM                chef AS build
 
-# our final base
-FROM debian:buster-slim
+ARG                 release
+ENV                 RELEASE=${release:+--release}
 
-# copy the build artifact from the build stage
-COPY --from=build /keyserver/target/release/keyserver .
+WORKDIR             /app
+# Cache dependancies
+COPY --from=plan    /app/recipe.json recipe.json
+RUN                 cargo chef cook --recipe-path recipe.json ${RELEASE}
+# Build the local binary
+COPY                . .
+RUN                 cargo build --bin keyserver ${RELEASE}
 
-# set the startup command to run your binary
-CMD ["./keyserver"]
+################################################################################
+#
+# Runtime image
+#
+################################################################################
+FROM                ${runtime} AS runtime
+
+ARG                 bin
+ARG                 version
+ARG                 sha
+ARG                 maintainer
+ARG                 release
+ARG                 binpath=${release:+release}
+
+LABEL               version=${version}
+LABEL               sha=${sha}
+LABEL               maintainer=${maintainer}
+
+WORKDIR             /app
+COPY --from=build   /app/target/${binpath:-debug}/keyserver /usr/local/bin/keyserver
+RUN                 apt-get update \
+                        && apt-get install -y --no-install-recommends ca-certificates libssl-dev \
+                        && apt-get clean \
+                        && rm -rf /var/lib/apt/lists/*
+
+USER                1001:1001
+ENTRYPOINT          ["/usr/local/bin/keyserver"]
