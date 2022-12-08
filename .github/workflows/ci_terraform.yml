@@ -44,10 +44,9 @@ jobs:
       matrix:
         source:
           - 'terraform'
+          - 'terraform/docdb'
           - 'terraform/ecs'
           - 'terraform/monitoring'
-          - 'terraform/private_zone'
-          - 'terraform/redis'
     steps:
       - name: Checkout
         uses: actions/checkout@v3

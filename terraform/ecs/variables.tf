@@ -10,8 +10,20 @@ variable "region" {
   type = string
 }
 
-variable "vpc_name" {
+variable "vpc_id" {
   type = string
+}
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "public_subnet_ids" {
+  type = list(string)
+}
+
+variable "allowed_ingress_cidr_blocks" {
+  type = list(string)
 }
 
 variable "port" {
@@ -31,5 +43,9 @@ variable "route53_zone_id" {
 }
 
 variable "prometheus_endpoint" {
+  type = string
+}
+
+variable "persistent_keystore_mongo_addr" {
   type = string
 }

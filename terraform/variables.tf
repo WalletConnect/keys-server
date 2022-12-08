@@ -6,3 +6,11 @@ variable "region" {
 variable "grafana_endpoint" {
   type = string
 }
+
+variable "keystore_docdb_primary_instance_class" {
+  type = string
+}
+
+variable "keystore_docdb_primary_instances" {
+  type = number
+}
