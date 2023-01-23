@@ -39,7 +39,7 @@ resource "aws_kms_key" "docdb_encryption" {
 
 resource "aws_docdb_cluster" "docdb_primary" {
   cluster_identifier              = "${local.name_prefix}-primary-cluster"
-  master_username                 = "relay"
+  master_username                 = "keyserver"
   master_password                 = local.master_password
   port                            = 27017
   db_subnet_group_name            = aws_docdb_subnet_group.private_subnets.name
