@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  jaeger:
+    image: jaegertracing/opentelemetry-all-in-one:latest
+    ports:
+      - "3001:16686"
+
+  keyserver:
+    build:
+      dockerfile: ./Dockerfile
+      context: ../
+    image: keyserver
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "localhost:8080/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      mongo:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    environment:
+      - PORT=8080
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=mongodb://admin:admin@mongo:27017/keyserver?authSource=admin
+      - TELEMETRY_ENABLED=true
+      - TELEMETRY_GRPC_URL=http://jaeger:4317

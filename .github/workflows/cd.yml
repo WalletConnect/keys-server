@@ -13,12 +13,20 @@ on:
         default: true
         required: true
         type: boolean
+      deploy_prod:
+        description: 'Whether to deploy to production environment after sucessfull staging deployment'
+        default: false
+        required: true
+        type: boolean
   workflow_call:
     inputs:
       deploy_infra:
         required: true
         type: boolean
       deploy_app:
+        required: true
+        type: boolean
+      deploy_prod:
         required: true
         type: boolean
     secrets:
@@ -119,7 +127,7 @@ jobs:
   deploy-infra-prod:
     # Only deploy if tests passed and deployment windows are open
     # Ignore deployment windows if workflow was started manually
-    if: ${{ always() && inputs.deploy_infra && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ always() && inputs.deploy_infra && inputs.deploy_prod && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
     needs: [validate, deployment_windows]
     runs-on: ubuntu-latest
     environment:
@@ -146,7 +154,7 @@ jobs:
   deploy-app-prod:
     # Only deploy if tests passed and deployment windows are open
     # Ignore deployment windows if workflow was started manually
-    if: ${{ always() && inputs.deploy_app && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ always() && inputs.deploy_app && inputs.deploy_prod && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
     needs: [validate, deployment_windows]
     runs-on: ubuntu-latest
     environment:

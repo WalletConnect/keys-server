@@ -186,8 +186,9 @@ jobs:
 
   kick-off-cd:
     needs: [publish]
-    uses: ./.github/workflows/cd.yaml
+    uses: ./.github/workflows/cd.yml
     with:
       deploy_app: true
       deploy_infra: false
+      deploy_prod: false
     secrets: inherit
