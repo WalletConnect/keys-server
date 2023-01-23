@@ -31,7 +31,6 @@ serde_json = "1.0"
 jsonwebtoken = "8"
 
 # Env Vars
-dotenv = "0.15"
 envy = "0.4"
 
 # Telemetry

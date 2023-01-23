@@ -24,7 +24,6 @@ use {
         routing::{get, post},
         Router,
     },
-    dotenv::dotenv,
     opentelemetry::{
         sdk::{
             metrics::selectors,
@@ -43,8 +42,6 @@ build_info::build_info!(fn build_info);
 
 #[tokio::main]
 async fn main() -> crate::error::Result<()> {
-    dotenv().ok();
-
     let config = Configuration::new().expect("Failed to load config!");
 
     let keys_persitent_storage = Arc::new(MongoPersistentStorage::new(&config).await?);
