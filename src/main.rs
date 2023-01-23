@@ -115,6 +115,7 @@ async fn main() -> crate::error::Result<()> {
         tracing_subscriber::fmt()
             .with_max_level(state.config.log_level())
             .with_span_events(FmtSpan::CLOSE)
+            .with_ansi(false)
             .init();
     }
 
