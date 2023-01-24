@@ -50,6 +50,7 @@ resource "aws_docdb_cluster" "docdb_primary" {
   vpc_security_group_ids = [
     aws_security_group.service_security_group.id
   ]
+  skip_final_snapshot = true
 }
 
 #tfsec:ignore:aws-documentdb-encryption-customer-key
