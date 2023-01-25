@@ -57,7 +57,7 @@ impl Eip191 {
 
         let address_encoded = hex::encode(add);
 
-        if address_encoded != guarantee_no_hex_prefix(address) {
+        if address_encoded.to_lowercase() != guarantee_no_hex_prefix(address).to_lowercase() {
             Err(CacaoError::Verification)
         } else {
             Ok(true)
