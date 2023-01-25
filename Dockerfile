@@ -73,7 +73,7 @@ LABEL               maintainer=${maintainer}
 
 WORKDIR             /app
 COPY --from=build   /app/target/${binpath:-debug}/keyserver /usr/local/bin/keyserver
-COPY --from=build   ${WORK_DIR}/rds-combined-ca-bundle.pem ${WORK_DIR}/rds-combined-ca-bundle.pem
+COPY --from=build   /app/rds-combined-ca-bundle.pem ${WORK_DIR}/rds-combined-ca-bundle.pem
 
 RUN                 apt-get update \
                         && apt-get install -y --no-install-recommends ca-certificates libssl-dev \
