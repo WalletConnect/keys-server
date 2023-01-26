@@ -145,11 +145,17 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         match MongoKeys::find_one_and_update(&self.db, filter, update, option).await {
             Ok(Some(_)) => Ok(()),
             Ok(None) => Ok(()),
-            Err(e) => if e.to_string().starts_with("Command failed (DuplicateKey): E11000 duplicate key error collection: keyserver.keys index: account_1") // Todo add better error matching 
-            {
-                Ok(())
-            } else {
-                Err(StoreError::Database(e))
+            Err(e) => {
+                if e.to_string().starts_with(
+                    "Command failed (DuplicateKey): E11000 duplicate key error collection: \
+                     keyserver.keys index: account_1",
+                )
+                // Todo add better error matching
+                {
+                    Ok(())
+                } else {
+                    Err(StoreError::Database(e))
+                }
             }
         }
     }

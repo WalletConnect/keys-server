@@ -36,7 +36,7 @@ pub async fn handler(
     Json(payload): Json<RegisterInviteKeyPayload>,
 ) -> error::Result<Response> {
     // Errors with invalid jwt claims
-    let jwt = Jwt::<InviteKeyClaims>::new(&payload.id_auth);
+    let jwt = Jwt::<InviteKeyClaims>::new(&payload.id_auth)?;
     jwt.verify()?;
 
     let claims: InviteKeyClaims = jwt.claims;

@@ -119,13 +119,13 @@ pub trait JwtClaims: DeserializeOwned + Serialize + JwtVerifierByIssuer {
 impl<T: JwtClaims> Jwt<T> {
     /// Create a new JWT from a string
     /// Errors if the JWT is invalid
-    pub fn new(string: &str) -> Self {
-        let (header, claims) = Self::decode(string).unwrap();
-        Jwt {
+    pub fn new(string: &str) -> Result<Self, JwtError> {
+        let (header, claims) = Self::decode(string)?;
+        Ok(Jwt {
             token: string.to_string(),
             header,
             claims,
-        }
+        })
     }
 
     /// Verify the JWT
