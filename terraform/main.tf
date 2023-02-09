@@ -36,6 +36,7 @@ module "ecs" {
   source = "./ecs"
 
   ecr_repository_url  = data.aws_ecr_repository.repository.repository_url
+  image_version       = var.image_version
   app_name            = "${terraform.workspace}_${local.app_name}"
   region              = var.region
   port                = 8080
