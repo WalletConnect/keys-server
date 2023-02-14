@@ -2,6 +2,10 @@ variable "ecr_repository_url" {
   type = string
 }
 
+variable "image_version" {
+  type = string
+}
+
 variable "app_name" {
   type = string
 }
