@@ -8,13 +8,7 @@ on:
       - 'terraform/**'
       - 'docs/**'
       - 'README.md'
-
-  push:
-    branches: ['master']
-    paths-ignore:
-      - '.github/**'
-      - 'terraform/**'
-      - 'README.md'
+    
 
 concurrency:
   # Support push/pr as event types with different behaviors each:
