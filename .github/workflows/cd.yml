@@ -89,7 +89,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
       - id: deploy-staging
         uses: WalletConnect/actions/actions/deploy-terraform/@master
         with:
@@ -98,6 +97,8 @@ jobs:
           aws-region: eu-central-1
           environment: staging
           app-name: ${{ github.event.repository.name }}
+          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
+
 
   deploy-app-staging:
     if: ${{ inputs.deploy_app }}
@@ -177,7 +178,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
       - id: deploy-prod
         uses: WalletConnect/actions/actions/deploy-terraform/@master
         with:
@@ -186,6 +186,8 @@ jobs:
           aws-region: eu-central-1
           environment: prod
           app-name: ${{ github.event.repository.name }}
+          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
+
 
   deploy-app-prod:
     # Only deploy if tests passed and deployment windows are open
