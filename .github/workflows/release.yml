@@ -2,7 +2,17 @@ name: release
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy_prod:
+        description: "Whether to deploy to production environment after sucessfull staging deployment"
+        default: false
+        required: true
+        type: boolean
   workflow_call:
+    inputs:
+      deploy_prod:
+        required: true
+        type: boolean
 
 permissions:
   contents: write
@@ -134,7 +144,7 @@ jobs:
     needs: [build-container]
     uses: ./.github/workflows/cd.yml
     with:
-      deploy_app: false
-      deploy_infra: false
-      deploy_prod: true
+      deploy_app: true
+      deploy_infra: true
+      deploy_prod: ${{ inputs.deploy_prod }}
     secrets: inherit
