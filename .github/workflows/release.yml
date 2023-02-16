@@ -89,7 +89,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ release.outputs.version }}
+          ref: ${{ needs.release.outputs.version }}
           fetch-depth: 0
 
       - name: Configure AWS Credentials
