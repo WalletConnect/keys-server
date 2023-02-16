@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.1.1 - 2023-02-16
+#### Bug Fixes
+- Checkout at tag - (4c28512) - szymon
+- checkout at tag - (8e0a2cd) - szymon
+- Add missing image_version var - (60a6fb5) - szymon
+- Add missing image_version var - (3004220) - szymon
+- Dont run ci.yml on version bump commits - (3c8ec25) - szymon
+#### Miscellaneous Chores
+- Update Readme - (cceb07f) - szymon
+- - -
+
 ## 1.1.0 - 2023-02-15
 #### Bug Fixes
 - Fix release - (9de2e16) - szymon
