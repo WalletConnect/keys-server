@@ -1,6 +1,16 @@
 use {
-    super::super::{validate_caip10_account, validate_identity_key, Response},
-    crate::{auth::cacao::Cacao, error, state::AppState},
+    super::{
+        super::{validate_caip10_account, validate_identity_key, Response},
+        IdentityKeyClaims,
+    },
+    crate::{
+        auth::{
+            did::{extract_did_data, DID_METHOD_KEY, DID_METHOD_PKH},
+            jwt::Jwt,
+        },
+        error,
+        state::AppState,
+    },
     axum::{extract::State, Json},
     serde::Deserialize,
     std::sync::Arc,
@@ -9,7 +19,8 @@ use {
 
 #[derive(Deserialize)]
 pub struct UnregisterIdentityPayload {
-    pub cacao: Cacao,
+    #[serde(rename = "idAuth")]
+    id_auth: String,
 }
 
 #[derive(Validate)]
@@ -24,17 +35,17 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<UnregisterIdentityPayload>,
 ) -> error::Result<Response> {
-    let cacao = payload.cacao;
-    cacao.verify()?;
+    let jwt = Jwt::<IdentityKeyClaims>::new(&payload.id_auth)?;
+    jwt.verify()?;
 
-    let identity_key = cacao.p.identity_key()?;
-    let account = cacao.p.caip_10_address()?;
+    let claims: IdentityKeyClaims = jwt.claims;
+    let account = extract_did_data(&claims.pkh, DID_METHOD_PKH)?;
+    let identity_key = extract_did_data(&claims.iss, DID_METHOD_KEY)?;
 
     let params = UnregisterIdentityParams {
-        account,
-        identity_key,
+        account: account.to_string(),
+        identity_key: identity_key.to_string(),
     };
-
     params.validate()?;
 
     state
