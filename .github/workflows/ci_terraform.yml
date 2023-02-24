@@ -128,12 +128,3 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-
-
-  kick-off-cd:
-    needs: [fmt, tfsec, tflint]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/release.yml
-    with:
-      deploy_prod: false
-    secrets: inherit

@@ -112,10 +112,3 @@ jobs:
 
       - name: "Stop sccache server"
         run: sccache --stop-server || true
-
-  kick-off-cd:
-    needs: [tasks]
-    uses: ./.github/workflows/release.yml
-    with:
-      deploy_prod: false
-    secrets: inherit
