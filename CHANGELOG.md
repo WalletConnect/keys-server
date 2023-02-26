@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.2.0 - 2023-02-26
+#### Bug Fixes
+- Do not kick-off cd on ci - (1f03d28) - szymon
+#### Features
+- Unregister Identity with did-jwt (#52) - (bc0f5a5) - Szymon Rząd
+- - -
+
 ## 1.1.1 - 2023-02-16
 #### Bug Fixes
 - Checkout at tag - (4c28512) - szymon
