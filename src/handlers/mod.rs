@@ -83,7 +83,7 @@ impl Default for Response {
 
 /// Minimum length of 5 characters as per CAIP-10 specs: https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md
 fn validate_caip10_account(account: &str) -> Result<(), ValidationError> {
-    if account.len() < 5 || account.len() > 104 {
+    if account.len() < 5 || account.len() > 168 {
         return Err(ValidationError::new("invalid lenght"));
     }
 
