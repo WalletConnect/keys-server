@@ -83,17 +83,17 @@ impl Default for Response {
 
 /// Minimum length of 5 characters as per CAIP-10 specs: https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md
 fn validate_caip10_account(account: &str) -> Result<(), ValidationError> {
-    if account.len() < 5 || account.len() > 104 {
+    if account.len() < 5 || account.len() > 168 {
         return Err(ValidationError::new("invalid lenght"));
     }
 
     Ok(())
 }
 
-/// Minimum length of 5 characters as per CAIP-10 specs: https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md
+/// https://w3c-ccg.github.io/did-method-key/#ed25519-x25519
 fn validate_identity_key(identity_key: &str) -> Result<(), ValidationError> {
-    if identity_key.len() != 48 {
-        return Err(ValidationError::new("invalid lenght"));
+    if !identity_key.starts_with("z6Mk") {
+        return Err(ValidationError::new("invalid prefix"));
     }
 
     Ok(())
