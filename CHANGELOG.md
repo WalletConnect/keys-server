@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.4.0 - 2023-03-29
+#### Features
+- Ensure invite keys are in did:key format (#56) - (076bdb5) - xDarksome
+- - -
+
 ## 1.3.0 - 2023-03-15
 #### Features
 - Adjust caip10 account lenght (#54) - (eb6b2f8) - Szymon Rząd
