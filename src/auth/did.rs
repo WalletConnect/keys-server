@@ -29,3 +29,11 @@ pub fn extract_did_data<'a>(did: &'a str, method: &'a str) -> Result<&'a str, Di
         .ok_or(DidError::Format)?;
     Ok(data)
 }
+
+/// Checks whether the provided string is a valid `did` according to the
+/// X25519[1] spec.
+///
+/// [1]: https://w3c-ccg.github.io/did-method-key/#x25519
+pub fn validate_x25519(did: &str) -> bool {
+    did.starts_with("did:key:z6LS")
+}
