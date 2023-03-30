@@ -48,7 +48,7 @@ pub trait KeysPersistentStorage: 'static + std::fmt::Debug + Send + Sync {
     index(keys = r#"doc!{"account": 1}"#, options = r#"doc!{"unique": true}"#),
     index(
         keys = r#"doc!{"identities.identity_key": 1}"#,
-        options = r#"doc!{"unique": true}"#
+        options = r#"doc!{"unique": true, "sparse": true}"#
     )
 )]
 struct MongoKeys {
