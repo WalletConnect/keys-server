@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.4.1 - 2023-03-30
+#### Bug Fixes
+- Fix empty duplicates on identity keys - (21d1516) - szymon
+- - -
+
 ## 1.4.0 - 2023-03-29
 #### Features
 - Ensure invite keys are in did:key format (#56) - (076bdb5) - xDarksome
