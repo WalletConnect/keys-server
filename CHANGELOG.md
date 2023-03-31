@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.5.0 - 2023-03-31
+#### Features
+- Add act to unregister identity (#57) - (8bf0e36) - Szymon Rząd
+- - -
+
 ## 1.4.1 - 2023-03-30
 #### Bug Fixes
 - Fix empty duplicates on identity keys - (21d1516) - szymon
