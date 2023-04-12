@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.5.1 - 2023-04-12
+#### Bug Fixes
+- Add second ecs instance (#60) - (8a2019f) - Szymon Rząd
+#### Revert
+- "feat: Ensure accounts stored as lowercase (#53)" (#64) - (6e01291) - Szymon Rząd
+- - -
+
 ## 1.5.0 - 2023-03-31
 #### Features
 - Add act to unregister identity (#57) - (8bf0e36) - Szymon Rząd
