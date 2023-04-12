@@ -100,7 +100,7 @@ impl MongoPersistentStorage {
 impl KeysPersistentStorage for MongoPersistentStorage {
     async fn upsert_invite_key(&self, account: &str, invite_key: &str) -> Result<(), StoreError> {
         let filter = doc! {
-            "account": &account.to_lowercase(),
+            "account": &account,
         };
 
         let update = doc! {
@@ -125,7 +125,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         cacao: &Cacao,
     ) -> Result<(), StoreError> {
         let filter = doc! {
-            "account": &account.to_lowercase(),
+            "account": &account,
             "identities.identity_key": {"$ne": &identity_key},
         };
 
@@ -166,7 +166,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         identity_key: &str,
     ) -> Result<(), StoreError> {
         let filter = doc! {
-            "account": &account.to_lowercase(),
+            "account": &account,
         };
 
         let update = doc! {
@@ -188,7 +188,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
 
     async fn remove_invite_key(&self, account: &str) -> Result<(), StoreError> {
         let filter = doc! {
-            "account": &account.to_lowercase(),
+            "account": &account,
         };
 
         let update = doc! {
@@ -228,7 +228,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
 
     async fn retrieve_invite_key(&self, account: &str) -> Result<String, StoreError> {
         let filter = doc! {
-            "account": account.to_lowercase(),
+            "account": account,
         };
 
         match MongoKeys::find_one(&self.db, Some(filter), None).await? {
@@ -244,7 +244,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
 
     async fn remove(&self, account: &str) -> Result<(), StoreError> {
         let filter = doc! {
-            "account": account.to_lowercase(),
+            "account": account,
         };
 
         match MongoKeys::find_one_and_delete(&self.db, filter, None).await? {
