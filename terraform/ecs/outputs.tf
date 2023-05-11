@@ -7,5 +7,11 @@ output "target_group_arn" {
 }
 
 output "load_balancer_arn" {
-  value = aws_alb.network_load_balancer.arn
+  description = "The ARN of the load balancer"
+  value       = aws_alb.network_load_balancer.arn
+}
+
+output "service_name" {
+  description = "The name of the service"
+  value       = aws_ecs_service.app_service.name
 }
