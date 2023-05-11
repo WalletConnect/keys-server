@@ -81,8 +81,10 @@ jobs:
       name: infra/staging
       url: https://staging.keys.walletconnect.com/health
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -171,8 +173,10 @@ jobs:
       name: infra/prod
       url: https://keys.walletconnect.com/health
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
