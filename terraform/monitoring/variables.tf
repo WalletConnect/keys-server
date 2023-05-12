@@ -11,7 +11,7 @@ variable "ecs_service_name" {
   type = string
 }
 
-variable "loadbalancer_arn" {
+variable "load_balancer" {
   type = string
 }
 

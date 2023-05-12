@@ -75,7 +75,7 @@ module "o11y" {
   prometheus_workspace_id = aws_prometheus_workspace.prometheus.id
   environment             = terraform.workspace
   ecs_service_name        = module.ecs.service_name
-  loadbalancer_arn        = module.ecs.load_balancer_arn
+  load_balancer           = module.ecs.load_balancer_arn
   docdb_cluster_id        = module.keystore-docdb.cluster_id
 }
 

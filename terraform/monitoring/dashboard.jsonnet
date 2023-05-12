@@ -14,9 +14,11 @@ local ds    = {
   }
 };
 local vars  = {
+  notifications:    std.parseJson(std.extVar('notifications')),
   environment:      std.extVar('environment'),
   ecs_service_name: std.extVar('ecs_service_name'),
-  loadbalancer:     std.extVar('loadbalancer_arn'),
+  load_balancer:    std.extVar('load_balancer'),
+  docdb_cluster_id: std.extVar('docdb_cluster_id'),
 };
 
 ////////////////////////////////////////////////////////////////////////////////

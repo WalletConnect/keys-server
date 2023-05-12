@@ -8,9 +8,10 @@ data "jsonnet_file" "dashboard" {
     prometheus_uid = grafana_data_source.prometheus.uid
     cloudwatch_uid = grafana_data_source.cloudwatch.uid
 
+    notifications    = jsonencode(local.notifications)
     environment      = var.environment
     ecs_service_name = var.ecs_service_name
-    loadbalancer_arn = var.loadbalancer_arn
+    load_balancer    = var.load_balancer
     docdb_cluster_id = var.docdb_cluster_id
   }
 }
