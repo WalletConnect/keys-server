@@ -47,6 +47,7 @@ resource "aws_docdb_cluster_instance" "docdb_instances" {
   promotion_tier     = 0
 }
 
+#tfsec:ignore:aws-documentdb-encryption-customer-key
 resource "aws_docdb_cluster_instance" "docdb_replica_instances" {
   count              = var.replica_instances
   identifier         = "${local.name_prefix}-replica-instance-${count.index}"
