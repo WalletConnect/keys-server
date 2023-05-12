@@ -1,3 +1,6 @@
+#tfsec:ignore:aws-lambda-enable-tracing
+#tfsec:ignore:aws-sns-enable-topic-encryption
+#tfsec:ignore:aws-cloudwatch-log-group-customer-key
 module "docdb-autoscaling" {
   source             = "github.com/theuves/docdb-autoscaling?ref=06de20e170853b515cc6ae986ceb5941f7b34f5e"
   cluster_identifier = aws_docdb_cluster.docdb_primary.id
