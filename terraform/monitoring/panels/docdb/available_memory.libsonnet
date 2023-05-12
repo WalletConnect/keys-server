@@ -6,8 +6,8 @@ local alertCondition  = grafana.alertCondition;
 
 local defaults        = import '../defaults.libsonnet';
 
-local mem_threshold = 5000000000;   // 5GiB
-local max_memory    = 64000000000;  // 64GiB (AWS DocDB max on db.r6g.2xlarge)
+local mem_threshold = 4000000000;   // 4GiB
+local max_memory    = 16000000000;  // 16GiB (AWS DocDB max on db.r6g.large)
 
 local _configuration = defaults.configuration.timeseries
   .withThresholdStyle('area')

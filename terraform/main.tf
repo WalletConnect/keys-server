@@ -68,7 +68,6 @@ module "keystore-docdb" {
   allowed_egress_cidr_blocks  = [data.aws_vpc.vpc.cidr_block]
 }
 
-
 module "o11y" {
   source = "./monitoring"
 
