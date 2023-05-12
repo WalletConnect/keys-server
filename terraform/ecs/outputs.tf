@@ -11,6 +11,11 @@ output "load_balancer_arn" {
   value       = aws_alb.network_load_balancer.arn
 }
 
+output "load_balancer_arn_suffix" {
+  description = "The ARN suffix of the load balancer"
+  value       = aws_alb.network_load_balancer.arn_suffix
+}
+
 output "service_name" {
   description = "The name of the service"
   value       = aws_ecs_service.app_service.name
