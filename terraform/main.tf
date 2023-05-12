@@ -4,12 +4,6 @@ locals {
   fqdn             = terraform.workspace == "prod" ? local.hosted_zone_name : "${terraform.workspace}.${local.hosted_zone_name}"
 }
 
-# tflint-ignore: terraform_unused_declarations
-data "assert_test" "workspace" {
-  test  = terraform.workspace != "default"
-  throw = "default workspace is not valid in this project"
-}
-
 module "tags" {
   # tflint-ignore: terraform_module_pinned_source
   source = "github.com/WalletConnect/terraform-modules/modules/tags"
@@ -50,10 +44,15 @@ module "ecs" {
   private_subnet_ids          = data.aws_subnets.private_subnets.ids
   allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]
 
-  persistent_keystore_mongo_addr = module.keystore-docdb.connection_url
+  persistent_keystore_mongo_addr = module.keystore_docdb.connection_url
 }
 
-module "keystore-docdb" {
+moved {
+  from = module.keystore-docdb
+  to   = module.keystore_docdb
+}
+
+module "keystore_docdb" {
   source = "./docdb"
 
   app_name                    = local.app_name
@@ -78,7 +77,7 @@ module "o11y" {
   ecs_service_name        = module.ecs.service_name
   target_group            = module.ecs.target_group_arn
   load_balancer           = module.ecs.load_balancer_arn_suffix
-  docdb_cluster_id        = module.keystore-docdb.cluster_id
+  docdb_cluster_id        = module.keystore_docdb.cluster_id
 }
 
 resource "aws_prometheus_workspace" "prometheus" {

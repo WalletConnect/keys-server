@@ -1,4 +1,4 @@
-name: ci_terraform
+name: ci-infra
 on:
   push:
     branches:

@@ -73,64 +73,29 @@ jobs:
           version=$(echo "${{ steps.get_value.outputs.result }}" | sed 's/v//g')
           echo "version=$version" >> $GITHUB_OUTPUT
 
+
   deploy-infra-staging:
     if: ${{ inputs.deploy_infra }}
-    needs: [get-version]
-    runs-on: ubuntu-latest
-    environment:
-      name: infra/staging
-      url: https://staging.keys.walletconnect.com/health
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - id: deploy-staging
-        uses: WalletConnect/actions/actions/deploy-terraform/@master
-        env:
-          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-          environment: staging
-          app-name: ${{ github.event.repository.name }}
-
+    needs:
+      - get-version
+    uses: ./.github/workflows/deploy-infra.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.get-version.outputs.version }}
+      environment: 'staging'
+      environment_url: https://staging.keys.walletconnect.com/health
 
   deploy-app-staging:
     if: ${{ inputs.deploy_app }}
-    needs: [get-version]
-    runs-on: ubuntu-latest
-    environment:
-      name: app/staging
-      url: https://staging.keys.walletconnect.com/health
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - uses: aws-actions/amazon-ecr-login@v1
-        id: login-ecr
-      - id: deploy
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ENVIRONMENT: staging
-        uses: WalletConnect/actions/actions/deploy-ecs/@master
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-          cluster-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}_cluster
-          service-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}-service
-          task-definition-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}
-          image-name: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.get-version.outputs.version }}
+    needs:
+      - get-version
+    uses: ./.github/workflows/deploy-app.yml
+    secrets: inherit
+    with:
+      image_name: ${{ env.IMAGE_NAME }}
+      version: ${{ needs.get-version.outputs.version }}
+      environment: 'staging'
+      environment_url: https://staging.keys.walletconnect.com/health
 
   validate:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
@@ -143,6 +108,8 @@ jobs:
       - name: validate
         run: |
           curl "https://staging.keys.walletconnect.com/health"
+
+
 
   deployment_windows:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
@@ -167,61 +134,29 @@ jobs:
     # Only deploy if tests passed and deployment windows are open
     # Ignore deployment windows if workflow was started manually
     if: ${{ always() && inputs.deploy_infra && inputs.deploy_prod && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
-    needs: [validate, deployment_windows, get-version]
-    runs-on: ubuntu-latest
-    environment:
-      name: infra/prod
-      url: https://keys.walletconnect.com/health
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - id: deploy-prod
-        uses: WalletConnect/actions/actions/deploy-terraform/@master
-        env:
-          TF_VAR_image_version: ${{ needs.get-version.outputs.version }}
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-          environment: prod
-          app-name: ${{ github.event.repository.name }}
-
+    needs:
+      - validate
+      - deployment_windows
+      - get-version
+    uses: ./.github/workflows/deploy-infra.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.get-version.outputs.version }}
+      environment: 'prod'
+      environment_url: https://keys.walletconnect.com/health
 
   deploy-app-prod:
     # Only deploy if tests passed and deployment windows are open
     # Ignore deployment windows if workflow was started manually
     if: ${{ always() && inputs.deploy_app && inputs.deploy_prod && needs.validate.result == 'success' && (needs.deployment_windows.outputs.result == 'yes' || github.event_name == 'workflow_dispatch') }}
-    needs: [validate, deployment_windows, get-version]
-    runs-on: ubuntu-latest
-    environment:
-      name: app/prod
-      url: https://keys.walletconnect.com/health
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-      - uses: aws-actions/amazon-ecr-login@v1
-        id: login-ecr
-      - id: deploy
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ENVIRONMENT: prod
-        uses: WalletConnect/actions/actions/deploy-ecs/@master
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-          cluster-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}_cluster
-          service-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}-service
-          task-definition-name: ${{ env.ENVIRONMENT }}_${{ env.IMAGE_NAME }}
-          image-name: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.get-version.outputs.version }}
+    needs:
+      - validate
+      - deployment_windows
+      - get-version
+    uses: ./.github/workflows/deploy-app.yml
+    secrets: inherit
+    with:
+      image_name: ${{ env.IMAGE_NAME }}
+      version: ${{ needs.get-version.outputs.version }}
+      environment: 'prod'
+      environment_url: https://keys.walletconnect.com/health
