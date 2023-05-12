@@ -1,26 +1,10 @@
-name: deploy-infra
+name: plan-infra
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'the environment to deploy to'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - prod
-          - staging
-          - dev
-      environment_url:
-        description: 'the URL of the environment'
-        required: true
-        type: string
-        default: https://keys.walletconnect.com/health
   workflow_call:
     inputs:
       environment:
-        description: 'the environment to deploy to'
+        description: 'the environment to plan against'
         required: true
         type: string
         default: 'staging'
@@ -35,7 +19,7 @@ on:
         type: string
 
 jobs:
-  deploy-infra:
+  plan:
     runs-on: ubuntu-latest
     environment:
       name: infra/${{ inputs.environment }}
@@ -83,15 +67,16 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
 
-      - name: Deploy Terraform to ${{ inputs.environment }}
-        id: tf-apply
-        uses: WalletConnect/actions/terraform/apply/@1.0.0
+      - name: Run Terraform Plan
+        id: tf-plan-staging
+        uses: WalletConnect/actions/terraform/plan/@1.0.0
         env:
           GRAFANA_AUTH: ${{ steps.grafana-get-key.outputs.key }}
           TF_VAR_grafana_endpoint: ${{ steps.grafana-get-details.outputs.endpoint }}
+          TF_VAR_image_version: ${{ inputs.version }}
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           environment: ${{ inputs.environment }}
-          app-name: ${{ github.event.repository.name }}
 
       - name: Delete Grafana key
         id: grafana-delete-key
