@@ -1,3 +1,13 @@
+variable "min_capacity" {
+  type    = number
+  default = 2
+}
+
+variable "max_capacity" {
+  type    = number
+  default = 8
+}
+
 variable "ecr_repository_url" {
   type = string
 }
