@@ -60,8 +60,10 @@ module "keystore-docdb" {
   mongo_name                  = "keystore-docdb"
   environment                 = terraform.workspace
   default_database            = "keystore"
-  primary_instance_class      = var.keystore_docdb_primary_instance_class
   primary_instances           = var.keystore_docdb_primary_instances
+  primary_instance_class      = var.keystore_docdb_primary_instance_class
+  replica_instances           = var.keystore_docdb_replica_instances
+  replica_instance_class      = var.keystore_docdb_replica_instance_class
   vpc_id                      = data.aws_vpc.vpc.id
   private_subnet_ids          = data.aws_subnets.private_subnets.ids
   allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]

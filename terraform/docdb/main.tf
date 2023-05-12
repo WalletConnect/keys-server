@@ -1,18 +1,3 @@
-terraform {
-  required_version = "~> 1.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.4.3"
-    }
-  }
-}
-
 locals {
   name_prefix     = replace("${var.environment}-${var.app_name}-${var.mongo_name}", "_", "-")
   master_password = aws_secretsmanager_secret_version.master_password.secret_string
@@ -61,6 +46,15 @@ resource "aws_docdb_cluster_instance" "docdb_instances" {
   instance_class     = var.primary_instance_class
   promotion_tier     = 0
 }
+
+resource "aws_docdb_cluster_instance" "docdb_replica_instances" {
+  count              = var.replica_instances
+  identifier         = "${local.name_prefix}-replica-instance-${count.index}"
+  cluster_identifier = aws_docdb_cluster.docdb_primary.id
+  instance_class     = var.replica_instance_class
+  promotion_tier     = 1
+}
+
 
 resource "aws_docdb_subnet_group" "private_subnets" {
   name       = "${local.name_prefix}-private-subnet-group"
