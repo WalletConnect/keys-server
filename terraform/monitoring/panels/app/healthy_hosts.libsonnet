@@ -19,10 +19,11 @@ local _configuration = defaults.configuration.timeseries
     .configure(_configuration)
 
     .addTarget(targets.cloudwatch(
+      alias           = 'Hosts Count',
       metricQueryType = grafana.target.cloudwatch.metricQueryTypes.query,
       datasource      = ds.cloudwatch,
-      namespace     = 'AWS/NetworkELB',
-      metricName    = 'HealthyHostCount',
+      namespace       = 'AWS/NetworkELB',
+      metricName      = 'HealthyHostCount',
 
       sql           = {
         from: {

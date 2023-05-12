@@ -1,39 +1,59 @@
-variable "mongo_name" {
-  type = string
+variable "environment" {
+  description = "The environment to deploy to"
+  type        = string
 }
 
 variable "app_name" {
-  type = string
+  description = "The name of the application"
+  type        = string
 }
 
-variable "environment" {
-  type = string
-}
-
-variable "primary_instance_class" {
-  type = string
+variable "mongo_name" {
+  description = "The name of the mongo database"
+  type        = string
 }
 
 variable "primary_instances" {
-  type = number
+  description = "The number of primary instances to create"
+  type        = number
+}
+
+variable "primary_instance_class" {
+  description = "The instance class of the primary instances"
+  type        = string
+}
+
+variable "replica_instances" {
+  description = "The number of replica instances to create"
+  type        = number
+}
+
+variable "replica_instance_class" {
+  description = "The instance class of the replica instances"
+  type        = string
 }
 
 variable "allowed_ingress_cidr_blocks" {
-  type = list(string)
+  description = "The CIDR blocks to allow ingress from"
+  type        = list(string)
 }
 
 variable "allowed_egress_cidr_blocks" {
-  type = list(string)
-}
-
-variable "private_subnet_ids" {
-  type = list(string)
+  description = "The CIDR blocks to allow egress to"
+  type        = list(string)
 }
 
 variable "vpc_id" {
-  type = string
+  description = "The ID of the VPC to deploy to"
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "The IDs of the private subnets to deploy to"
+  type        = list(string)
 }
 
 variable "default_database" {
-  type = string
+  description = "The name of the default database to create"
+  type        = string
 }
