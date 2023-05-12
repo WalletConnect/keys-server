@@ -11,6 +11,10 @@ variable "ecs_service_name" {
   type = string
 }
 
+variable "target_group" {
+  type = string
+}
+
 variable "load_balancer" {
   type = string
 }
