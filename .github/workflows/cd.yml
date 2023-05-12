@@ -1,6 +1,23 @@
 name: cd
 
 on:
+  release:
+    inputs:
+      deploy_infra:
+        description: "Deploy infrastructure"
+        default: true
+        required: true
+        type: boolean
+      deploy_app:
+        description: "Deploy app"
+        default: true
+        required: true
+        type: boolean
+      deploy_prod:
+        description: "Deploy to production environment after successful staging deployment"
+        default: false
+        required: true
+        type: boolean
   workflow_dispatch:
     inputs:
       deploy_infra:
@@ -37,9 +54,6 @@ on:
 
 concurrency: cd
 
-env:
-  IMAGE_NAME: "keyserver"
-
 jobs:
   get-version:
     runs-on: ubuntu-latest
@@ -68,7 +82,7 @@ jobs:
     uses: ./.github/workflows/deploy-app.yml
     secrets: inherit
     with:
-      image_name: ${{ env.IMAGE_NAME }}
+      image_name: "keyserver"
       version: ${{ needs.get-version.outputs.version }}
       environment: 'staging'
       environment_url: https://staging.keys.walletconnect.com/health
@@ -130,7 +144,7 @@ jobs:
     uses: ./.github/workflows/deploy-app.yml
     secrets: inherit
     with:
-      image_name: ${{ env.IMAGE_NAME }}
+      image_name: "keyserver"
       version: ${{ needs.get-version.outputs.version }}
       environment: 'prod'
       environment_url: https://keys.walletconnect.com/health

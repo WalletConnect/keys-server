@@ -1,0 +1,56 @@
+name: ci-app
+
+on:
+  workflow_call:
+
+env:
+  RUST_BACKTRACE: full
+
+jobs:
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: './.github/actions/install-rust'
+      - uses: './.github/actions/rust-cache-start'
+
+      - name: Check wrapper
+        run: echo $RUSTC_WRAPPER
+
+      - name: "Clippy"
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
+
+      - uses: './.github/actions/rust-cache-stop'
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: './.github/actions/install-rust'
+      - uses: './.github/actions/rust-cache-start'
+
+      - name: "Check Formatting"
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
+
+      - uses: './.github/actions/rust-cache-stop'
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: './.github/actions/install-rust'
+      - uses: './.github/actions/rust-cache-start'
+
+      - name: "Unit Tests"
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features
+
+      - uses: './.github/actions/rust-cache-stop'
