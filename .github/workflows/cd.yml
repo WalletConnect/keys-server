@@ -65,7 +65,7 @@ jobs:
     steps:
       - name: Get latest release
         id: get_version
-        uses: WalletConnect/actions/github/latest_release/@1.0.1
+        uses: WalletConnect/actions/github/latest_release/@1.0.2
 
   deploy-infra-staging:
     if: ${{ inputs.deploy_infra }}
