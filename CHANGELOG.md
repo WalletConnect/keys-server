@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.7.0 - 2023-05-17
+#### Features
+- Add read permission GITHUB_TOKEN (#79) - (b370a5f) - Szymon Rząd
+- - -
+
 ## 1.6.0 - 2023-05-17
 #### Bug Fixes
 - Fix CAIP122 message generation (#78) - (464746d) - Szymon Rząd
