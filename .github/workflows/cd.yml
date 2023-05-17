@@ -54,6 +54,9 @@ on:
 
 concurrency: cd
 
+permissions:
+  contents: read
+
 jobs:
   get-version:
     runs-on: ubuntu-latest
