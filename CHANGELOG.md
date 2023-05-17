@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.6.0 - 2023-05-17
+#### Bug Fixes
+- Fix CAIP122 message generation (#78) - (464746d) - Szymon Rząd
+- trigger deploy from CI (#77) - (df4c945) - Xavier Basty
+- use lb arn suffix in grafana dashboard (#69) - (0e0ec6d) - Xavier Basty
+#### Features
+- move state management to TF Cloud (#76) - (3bf3c10) - Xavier Basty
+- add autoscaling (#75) - (8048d2c) - Xavier Basty
+- add Grafana dashboard (#68) - (6355c90) - Xavier Basty
+- - -
+
 ## 1.5.1 - 2023-04-12
 #### Bug Fixes
 - Add second ecs instance (#60) - (8a2019f) - Szymon Rząd
