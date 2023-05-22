@@ -24,13 +24,13 @@ jobs:
 
       - name: Init Terraform
         id: tf-init
-        uses: WalletConnect/actions/terraform/init/@1.0.0
+        uses: WalletConnect/actions/terraform/init/@1.0.3
         with:
           environment: staging
 
       - name: Check Terraform Formatting
         id: tf-fmt
-        uses: WalletConnect/actions/terraform/check-fmt/@1.0.0
+        uses: WalletConnect/actions/terraform/check-fmt/@1.0.3
 
   tfsec:
     name: tfsec
@@ -71,7 +71,7 @@ jobs:
 
       - name: Init Terraform
         id: tf-init
-        uses: WalletConnect/actions/terraform/init/@1.0.0
+        uses: WalletConnect/actions/terraform/init/@1.0.3
         with:
           environment: staging
 
