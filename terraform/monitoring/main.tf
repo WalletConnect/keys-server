@@ -1,5 +1,5 @@
 locals {
-  opsgenie_notification_channel = "l_iaPw6nk"
+  opsgenie_notification_channel = "NNOynGwVz"
   notifications = (
     var.environment == "prod" ?
     [{ uid : local.opsgenie_notification_channel }] :
