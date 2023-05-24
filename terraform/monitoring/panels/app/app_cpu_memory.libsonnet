@@ -14,8 +14,8 @@ local _configuration = defaults.configuration.timeseries_resource
   );
 
 local cpu_alert(vars) = alert.new(
-  name        = "%s App CPU/Memory alert" % vars.environment,
-  message     = "%s App CPU/Memory" % vars.environment,
+  name        = "%s Keyserver App CPU/Memory alert" % vars.environment,
+  message     = "%s Keyserver App CPU/Memory" % vars.environment,
   period      = '25m',
   frequency   = '1m',
   conditions  = [
