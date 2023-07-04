@@ -15,6 +15,7 @@ local _configuration = defaults.configuration.timeseries_resource
 
 
 local cpu_alert(vars) = alert.new(
+  namespace     = vars.namespace,
   name        = "%s Keyserver DocumentDB CPU alert" % vars.environment,
   message     = "%s Keyserver DocumentDB CPU alert" % vars.environment,
   period      = '5m',

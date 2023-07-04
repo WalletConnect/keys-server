@@ -45,6 +45,7 @@ local _configuration = defaults.configuration.timeseries
 
 
 local mem_alert(vars) = alert.new(
+  namespace     = vars.namespace,
   name        = "%s Keyserver DocumentDB Freeable Memory Alert" % vars.environment,
   message     = "%s Keyserver DocumentDB Freeable Memory" % vars.environment,
   period      = '5m',
