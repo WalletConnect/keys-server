@@ -5,8 +5,8 @@ resource "aws_route53_record" "dns_load_balancer" {
   type    = "A"
 
   alias {
-    name                   = aws_alb.network_load_balancer.dns_name
-    zone_id                = aws_alb.network_load_balancer.zone_id
+    name                   = aws_alb.application_load_balancer.dns_name
+    zone_id                = aws_alb.application_load_balancer.zone_id
     evaluate_target_health = true
   }
 }

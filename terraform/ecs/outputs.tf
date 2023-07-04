@@ -10,12 +10,12 @@ output "target_group_arn" {
 
 output "load_balancer_arn" {
   description = "The ARN of the load balancer"
-  value       = aws_alb.network_load_balancer.arn
+  value       = aws_alb.application_load_balancer.arn
 }
 
 output "load_balancer_arn_suffix" {
   description = "The ARN suffix of the load balancer"
-  value       = aws_alb.network_load_balancer.arn_suffix
+  value       = aws_alb.application_load_balancer.arn_suffix
 }
 
 output "service_name" {
