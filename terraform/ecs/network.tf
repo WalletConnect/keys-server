@@ -39,7 +39,7 @@ resource "aws_lb_target_group" "target_group" {
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_alb.application_load_balancer.arn
   port              = "443"
-  protocol          = "HTTP"
+  protocol          = "HTTPS"
   certificate_arn   = var.acm_certificate_arn
 
   default_action {
