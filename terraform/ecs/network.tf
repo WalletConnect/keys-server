@@ -1,6 +1,7 @@
 # Load Balancer
 #tfsec:ignore:aws-elb-alb-not-public
-resource "aws_alb" "network_load_balancer" {
+
+resource "aws_alb" "application_load_balancer" {
   name               = replace("${var.app_name}-lb-${substr(uuid(), 0, 3)}", "_", "-")
   load_balancer_type = "network"
   subnets            = var.public_subnet_ids
@@ -14,7 +15,7 @@ resource "aws_alb" "network_load_balancer" {
 resource "aws_lb_target_group" "target_group" {
   name        = replace("${var.app_name}-${substr(uuid(), 0, 3)}", "_", "-")
   port        = var.port
-  protocol    = "TCP"
+  protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
 
@@ -36,11 +37,11 @@ resource "aws_lb_target_group" "target_group" {
 }
 
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn = aws_alb.network_load_balancer.arn
+  load_balancer_arn = aws_alb.application_load_balancer.arn
   port              = "443"
-  protocol          = "TLS"
+  protocol          = "HTTP"
   certificate_arn   = var.acm_certificate_arn
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.target_group.arn
@@ -48,6 +49,22 @@ resource "aws_lb_listener" "listener" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+resource "aws_lb_listener" "listener-http" {
+  load_balancer_arn = aws_lb.application_load_balancer.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
