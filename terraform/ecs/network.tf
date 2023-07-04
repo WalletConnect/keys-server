@@ -1,6 +1,5 @@
 # Load Balancer
-#tfsec:ignore:aws-elb-alb-not-public
-
+# tfsec:ignore:aws-elb-alb-not-public
 resource "aws_alb" "application_load_balancer" {
   name               = replace("${var.app_name}-lb-${substr(uuid(), 0, 3)}", "_", "-")
   load_balancer_type = "network"
@@ -41,7 +40,7 @@ resource "aws_lb_listener" "listener" {
   port              = "443"
   protocol          = "HTTP"
   certificate_arn   = var.acm_certificate_arn
-  
+
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.target_group.arn
