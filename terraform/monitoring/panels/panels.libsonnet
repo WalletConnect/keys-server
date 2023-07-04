@@ -5,12 +5,12 @@
   },
 
   db: {
-    buffer_cache_hit_ratio:         (import 'db/buffer_cache_hit_ratio.libsonnet'   ).new,
-    cpu:                            (import 'db/cpu.libsonnet'                      ).new,
-    volume:                         (import 'db/volume.libsonnet'                   ).new,
-    available_memory:               (import 'db/available_memory.libsonnet'         ).new,
-    connections:                    (import 'db/connections.libsonnet'              ).new,
-    low_mem_op_throttled:           (import 'db/low_mem_op_throttled.libsonnet'     ).new,
+    available_memory:               (import 'docdb/available_memory.libsonnet'         ).new,
+    buffer_cache_hit_ratio:         (import 'docdb/buffer_cache_hit_ratio.libsonnet'   ).new,
+    connections:                    (import 'docdb/connections.libsonnet'              ).new,
+    cpu:                            (import 'docdb/cpu.libsonnet'                      ).new,
+    low_mem_op_throttled:           (import 'docdb/low_mem_op_throttled.libsonnet'     ).new,
+    volume:                         (import 'docdb/volume.libsonnet'                   ).new,
   },
 
   lb: {
