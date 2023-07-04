@@ -44,7 +44,7 @@ dashboard.new(
     },
   )
 )
-.addPanels(layout.generate_grid([
+.addPanels(dashboard.generate_grid([
   row.new('Application'),
     panels.app.cpu(ds, vars)                    { gridPos: pos._2 },
     panels.app.memory(ds, vars)                 { gridPos: pos._2 },
