@@ -16,10 +16,12 @@ local ds    = {
   }
 };
 local vars  = {
+  namespace:        'Keyserver',
   notifications:    std.parseJson(std.extVar('notifications')),
   environment:      std.extVar('environment'),
   ecs_service_name: std.extVar('ecs_service_name'),
   load_balancer:    std.extVar('load_balancer'),
+  target_group:     std.extVar('target_group'),
   docdb_cluster_id: std.extVar('docdb_cluster_id'),
 };
 
