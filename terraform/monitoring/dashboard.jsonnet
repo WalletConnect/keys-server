@@ -3,6 +3,7 @@ local panels      = import 'panels/panels.libsonnet';
 
 local dashboard   = grafana.dashboard;
 local row         = grafana.row;
+local layout      = grafana.layout;
 
 local ds    = {
   prometheus: {
@@ -45,7 +46,7 @@ dashboard.new(
     },
   )
 )
-.addPanels(dashboard.generate_grid([
+.addPanels(layout.generate_grid([
   row.new('Application'),
     panels.app.cpu(ds, vars)                    { gridPos: pos._2 },
     panels.app.memory(ds, vars)                 { gridPos: pos._2 },
