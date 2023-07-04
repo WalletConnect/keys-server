@@ -2,6 +2,7 @@ local grafana     = import 'grafonnet-lib/grafana.libsonnet';
 local panels      = import 'panels/panels.libsonnet';
 
 local dashboard   = grafana.dashboard;
+local row         = grafana.row;
 
 local ds    = {
   prometheus: {
