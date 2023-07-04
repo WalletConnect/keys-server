@@ -9,6 +9,7 @@ resource "aws_alb" "application_load_balancer" {
     create_before_destroy = true
     ignore_changes        = [name]
   }
+  drop_invalid_header_fields = true
 }
 
 resource "aws_lb_target_group" "target_group" {
