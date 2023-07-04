@@ -2,7 +2,7 @@
 # tfsec:ignore:aws-elb-alb-not-public
 resource "aws_alb" "application_load_balancer" {
   name               = replace("${var.app_name}-lb-${substr(uuid(), 0, 3)}", "_", "-")
-  load_balancer_type = "network"
+  load_balancer_type = "application"
   subnets            = var.public_subnet_ids
 
   lifecycle {
