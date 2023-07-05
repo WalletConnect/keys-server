@@ -39,6 +39,8 @@ on:
         required: true
         type: string
 
+concurrency: infra-${{ inputs.environment }}
+
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest

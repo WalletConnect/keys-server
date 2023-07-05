@@ -18,6 +18,8 @@ on:
         required: true
         type: string
 
+concurrency: infra-${{ inputs.environment }}
+
 jobs:
   plan:
     runs-on: ubuntu-latest

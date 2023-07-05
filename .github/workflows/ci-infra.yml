@@ -3,6 +3,8 @@ name: ci-infra
 on:
   workflow_call:
 
+concurrency: ci-infra
+
 jobs:
   check-fmt:
     runs-on: ubuntu-latest

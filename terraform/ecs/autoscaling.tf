@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "ecs_autoscaling_policy" {
   }
 }
 resource "aws_iam_role" "ecs_autoscaling_role" {
-  name = "${var.app_name}-ecs-scale-application"
+  name = "${local.app_name}-ecs-scale-application"
 
   assume_role_policy = data.aws_iam_policy_document.ecs_autoscaling_policy.json
 }

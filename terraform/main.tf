@@ -29,21 +29,28 @@ data "aws_ecr_repository" "repository" {
 module "ecs" {
   source = "./ecs"
 
-  ecr_repository_url  = data.aws_ecr_repository.repository.repository_url
-  image_version       = var.image_version
-  app_name            = "${terraform.workspace}_${local.app_name}"
-  region              = var.region
-  port                = 8080
+  app_name           = local.app_name
+  region             = var.region
+  environment        = terraform.workspace
+  ecr_repository_url = data.aws_ecr_repository.repository.repository_url
+  image_version      = var.image_version
+  task_cpu           = 512
+  task_memory        = 1024
+  min_capacity       = 2
+  max_capacity       = 8
+  port               = 8080
+
   acm_certificate_arn = module.dns.certificate_arn
-  fqdn                = local.fqdn
+  route53-fqdn        = local.fqdn
   route53_zone_id     = module.dns.zone_id
-  prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
 
-  vpc_id                      = data.aws_vpc.vpc.id
-  public_subnet_ids           = data.aws_subnets.public_subnets.ids
-  private_subnet_ids          = data.aws_subnets.private_subnets.ids
-  allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+  vpc_id                          = data.aws_vpc.vpc.id
+  public_subnets                  = data.aws_subnets.public_subnets.ids
+  private_subnets                 = data.aws_subnets.private_subnets.ids
+  allowed_app_ingress_cidr_blocks = data.aws_vpc.vpc.cidr_block
+  allowed_lb_ingress_cidr_blocks  = data.aws_vpc.vpc.cidr_block
 
+  prometheus_endpoint            = aws_prometheus_workspace.prometheus.prometheus_endpoint
   persistent_keystore_mongo_addr = module.keystore_docdb.connection_url
 }
 

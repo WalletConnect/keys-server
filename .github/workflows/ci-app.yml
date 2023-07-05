@@ -6,6 +6,8 @@ on:
 env:
   RUST_BACKTRACE: full
 
+concurrency: ci-app
+
 jobs:
   clippy:
     runs-on: ubuntu-latest
