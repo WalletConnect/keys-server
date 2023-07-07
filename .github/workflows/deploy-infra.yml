@@ -17,6 +17,11 @@ on:
         required: true
         type: string
         default: https://keys.walletconnect.com/health
+      version:
+        description: 'The ECR tag to deploy e.g. 1.7.0'
+        required: true
+        default: '1.7.0'
+        type: string
   workflow_call:
     inputs:
       environment:
