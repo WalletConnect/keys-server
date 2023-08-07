@@ -4,6 +4,12 @@ variable "region" {
   default     = "eu-central-1"
 }
 
+variable "azs" {
+  description = "AWS availability zones to deploy to"
+  type        = list(string)
+  default     = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+}
+
 variable "grafana_endpoint" {
   description = "The endpoint of the Grafana instance"
   type        = string
