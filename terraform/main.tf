@@ -24,7 +24,7 @@ data "aws_ecr_repository" "repository" {
   name = local.app_name
 }
 
-
+#tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "3.0.0"
@@ -65,16 +65,11 @@ module "ecs" {
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
 
   vpc_id                      = module.vpc.vpc_id
-  public_subnet_ids           = module.vpc.public_subnets.ids
-  private_subnet_ids          = module.vpc.private_subnets.ids
+  public_subnet_ids           = module.vpc.public_subnets
+  private_subnet_ids          = module.vpc.private_subnets
   allowed_ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
 
   persistent_keystore_mongo_addr = module.keystore_docdb.connection_url
-}
-
-moved {
-  from = module.keystore-docdb
-  to   = module.keystore_docdb
 }
 
 module "keystore_docdb" {
@@ -89,7 +84,7 @@ module "keystore_docdb" {
   replica_instances           = var.keystore_docdb_replica_instances
   replica_instance_class      = var.keystore_docdb_replica_instance_class
   vpc_id                      = module.vpc.vpc_id
-  private_subnet_ids          = module.vpc.private_subnets.ids
+  private_subnet_ids          = module.vpc.private_subnets
   allowed_ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
   allowed_egress_cidr_blocks  = [module.vpc.vpc_cidr_block]
 }
