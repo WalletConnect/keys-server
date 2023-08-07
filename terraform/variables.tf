@@ -6,8 +6,8 @@ variable "region" {
 
 variable "azs" {
   description = "AWS availability zones to deploy to"
-  type    = list(string)
-  default = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+  type        = list(string)
+  default     = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
 }
 
 variable "grafana_endpoint" {
