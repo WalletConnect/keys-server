@@ -10,7 +10,7 @@ resource "random_password" "master_password" {
 
 #tfsec:ignore:aws-ssm-secret-use-customer-key
 resource "aws_secretsmanager_secret" "master_password" {
-  name = "${local.name_prefix}-master-password"
+  name = "${local.name_prefix}-docdb-master-password"
 }
 
 resource "aws_secretsmanager_secret_version" "master_password" {
