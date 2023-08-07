@@ -27,13 +27,13 @@ resource "aws_docdb_cluster" "docdb_primary" {
   master_username                 = "keyserver"
   master_password                 = local.master_password
   port                            = 27017
-  db_subnet_group_name            = aws_docdb_subnet_group.private_subnets.name
+  db_subnet_group_name            = aws_docdb_subnet_group.new_private_subnets.name
   storage_encrypted               = true
   kms_key_id                      = aws_kms_key.docdb_encryption.arn
   enabled_cloudwatch_logs_exports = ["audit"]
 
   vpc_security_group_ids = [
-    aws_security_group.service_security_group.id
+    aws_security_group.new_service_security_group.id
   ]
   skip_final_snapshot = true
 }
@@ -56,13 +56,39 @@ resource "aws_docdb_cluster_instance" "docdb_replica_instances" {
   promotion_tier     = 1
 }
 
-
 resource "aws_docdb_subnet_group" "private_subnets" {
   name       = "${local.name_prefix}-private-subnet-group"
+  subnet_ids = var.legacy_private_subnet_ids
+}
+
+resource "aws_docdb_subnet_group" "new_private_subnets" {
+  name       = "${local.name_prefix}-new-private-subnet-group"
   subnet_ids = var.private_subnet_ids
 }
 
 resource "aws_security_group" "service_security_group" {
+  name        = "${local.name_prefix}-service"
+  description = "Allow ingress from the application"
+  vpc_id      = var.legacy_vpc_id
+
+  ingress {
+    description = "Allow inbound traffic to the DocDB cluster"
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "TCP"
+    cidr_blocks = var.legacy_allowed_ingress_cidr_blocks
+  }
+
+  egress {
+    description = "Allow outbound traffic from the DocDB cluster"
+    from_port   = 0    # Allowing any incoming port
+    to_port     = 0    # Allowing any outgoing port
+    protocol    = "-1" # Allowing any outgoing protocol
+    cidr_blocks = var.legacy_allowed_egress_cidr_blocks
+  }
+}
+
+resource "aws_security_group" "new_service_security_group" {
   name        = "${local.name_prefix}-service"
   description = "Allow ingress from the application"
   vpc_id      = var.vpc_id

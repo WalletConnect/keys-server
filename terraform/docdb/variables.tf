@@ -43,12 +43,32 @@ variable "allowed_egress_cidr_blocks" {
   type        = list(string)
 }
 
+variable "legacy_allowed_ingress_cidr_blocks" {
+  description = "The CIDR blocks to allow ingress from"
+  type        = list(string)
+}
+
+variable "legacy_allowed_egress_cidr_blocks" {
+  description = "The CIDR blocks to allow egress to"
+  type        = list(string)
+}
+
 variable "vpc_id" {
   description = "The ID of the VPC to deploy to"
   type        = string
 }
 
+variable "legacy_vpc_id" {
+  description = "The ID of the VPC to deploy to"
+  type        = string
+}
+
 variable "private_subnet_ids" {
+  description = "The IDs of the private subnets to deploy to"
+  type        = list(string)
+}
+
+variable "legacy_private_subnet_ids" {
   description = "The IDs of the private subnets to deploy to"
   type        = list(string)
 }

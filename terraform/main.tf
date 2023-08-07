@@ -76,18 +76,22 @@ module "ecs" {
 module "keystore_docdb" {
   source = "./docdb"
 
-  app_name                    = local.app_name
-  mongo_name                  = "keystore-docdb"
-  environment                 = terraform.workspace
-  default_database            = "keystore"
-  primary_instances           = var.keystore_docdb_primary_instances
-  primary_instance_class      = var.keystore_docdb_primary_instance_class
-  replica_instances           = var.keystore_docdb_replica_instances
-  replica_instance_class      = var.keystore_docdb_replica_instance_class
-  vpc_id                      = module.vpc.vpc_id
-  private_subnet_ids          = module.vpc.private_subnets
-  allowed_ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
-  allowed_egress_cidr_blocks  = [module.vpc.vpc_cidr_block]
+  app_name                           = local.app_name
+  mongo_name                         = "keystore-docdb"
+  environment                        = terraform.workspace
+  default_database                   = "keystore"
+  primary_instances                  = var.keystore_docdb_primary_instances
+  primary_instance_class             = var.keystore_docdb_primary_instance_class
+  replica_instances                  = var.keystore_docdb_replica_instances
+  replica_instance_class             = var.keystore_docdb_replica_instance_class
+  vpc_id                             = module.vpc.vpc_id
+  private_subnet_ids                 = module.vpc.private_subnets
+  allowed_ingress_cidr_blocks        = [module.vpc.vpc_cidr_block]
+  allowed_egress_cidr_blocks         = [module.vpc.vpc_cidr_block]
+  legacy_vpc_id                      = data.aws_vpc.vpc.id
+  legacy_private_subnet_ids          = data.aws_subnets.private_subnets.ids
+  legacy_allowed_ingress_cidr_blocks = [data.aws_vpc.vpc.cidr_block]
+  legacy_allowed_egress_cidr_blocks  = [data.aws_vpc.vpc.cidr_block]
 }
 
 module "o11y" {
