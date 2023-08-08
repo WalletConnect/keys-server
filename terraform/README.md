@@ -18,7 +18,6 @@ Now you can apply the changes:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.0 |
-| <a name="requirement_assert"></a> [assert](#requirement\_assert) | ~> 0.0.1 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.27 |
 | <a name="requirement_grafana"></a> [grafana](#requirement\_grafana) | ~> 1.24 |
 
@@ -26,7 +25,6 @@ Now you can apply the changes:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_assert"></a> [assert](#provider\_assert) | ~> 0.0.1 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.27 |
 
 ## Modules
@@ -35,25 +33,23 @@ Now you can apply the changes:
 |------|--------|---------|
 | <a name="module_dns"></a> [dns](#module\_dns) | github.com/WalletConnect/terraform-modules/modules/dns | n/a |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | ./ecs | n/a |
-| <a name="module_keystore-docdb"></a> [keystore-docdb](#module\_keystore-docdb) | ./docdb | n/a |
+| <a name="module_keystore"></a> [keystore](#module\_keystore) | ./doc_db | n/a |
 | <a name="module_o11y"></a> [o11y](#module\_o11y) | ./monitoring | n/a |
 | <a name="module_tags"></a> [tags](#module\_tags) | github.com/WalletConnect/terraform-modules/modules/tags | n/a |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 3.0.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [aws_prometheus_workspace.prometheus](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/prometheus_workspace) | resource |
-| [assert_test.workspace](https://registry.terraform.io/providers/bwoznicki/assert/latest/docs/data-sources/test) | data source |
 | [aws_ecr_repository.repository](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecr_repository) | data source |
-| [aws_subnets.private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
-| [aws_subnets.public_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
-| [aws_vpc.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_azs"></a> [azs](#input\_azs) | AWS availability zones to deploy to | `list(string)` | <pre>[<br>  "eu-central-1a",<br>  "eu-central-1b",<br>  "eu-central-1c"<br>]</pre> | no |
 | <a name="input_grafana_endpoint"></a> [grafana\_endpoint](#input\_grafana\_endpoint) | The endpoint of the Grafana instance | `string` | n/a | yes |
 | <a name="input_image_version"></a> [image\_version](#input\_image\_version) | The version of the image to deploy | `string` | n/a | yes |
 | <a name="input_keystore_docdb_primary_instance_class"></a> [keystore\_docdb\_primary\_instance\_class](#input\_keystore\_docdb\_primary\_instance\_class) | The instance class of the primary docdb instances | `string` | n/a | yes |
