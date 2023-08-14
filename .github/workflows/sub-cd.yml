@@ -20,6 +20,10 @@ on:
         type: string
         required: false
     secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
       AWS_ACCESS_KEY_ID_WL_STAGING:
         required: true
       AWS_SECRET_ACCESS_KEY_WL_STAGING:

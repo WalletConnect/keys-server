@@ -15,6 +15,10 @@ on:
         description: 'The ECR tag to deploy e.g. 1.7.0'
         type: string
     secrets:
+      AWS_ACCESS_KEY_ID_MAIN:
+        required: true
+      AWS_SECRET_ACCESS_KEY_MAIN:
+        required: true
       TF_API_TOKEN:
         required: true
 
@@ -34,6 +38,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Configure AWS Credentials for Main account
+        uses: './.github/actions/aws-login'
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_MAIN }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_MAIN }}
 
       - name: Get Grafana details
         id: grafana-get-details
