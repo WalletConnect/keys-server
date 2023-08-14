@@ -1,0 +1,24 @@
+name: ⚡ Project
+run-name: 'Project / ${{ github.event.head_commit.message }}'
+
+on:
+  pull_request_target:
+    types:
+      - opened        # A pull request was created.
+      - reopened      # A closed pull request was reopened.
+      - edited        # A pull request's title, body, or labels are edited.
+      - synchronize   # A pull request's branch was synchronized with its base branch.
+      - unlocked      # Conversation on a pull request was unlocked.
+
+permissions:
+  issues: read
+  pull-requests: write
+
+jobs:
+  check__linked_issues:
+    name: Check linked issues
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    if: github.event_name == 'pull_request_target'
+    steps:
+      - uses: nearform-actions/github-action-check-linked-issues@v1

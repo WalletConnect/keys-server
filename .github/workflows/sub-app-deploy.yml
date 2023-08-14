@@ -1,0 +1,61 @@
+name: ❖ App - Deploy
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: 'the name of the image to deploy'
+        type: string
+        default: 'keyserver'
+      version:
+        description: 'the release version'
+        type: string
+        required: true
+      environment:
+        description: 'the environment to deploy to'
+        type: string
+        default: 'staging'
+      environment_url:
+        description: 'the URL of the environment'
+        type: string
+        default: https://keyserver.walletconnect.com/health
+    secrets:
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
+jobs:
+  deploy-app:
+    name: Deploy App `${{ inputs.environment }}`
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    environment:
+      name: app/${{ inputs.environment }}
+      url: ${{ inputs.environment_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: './.github/actions/aws-login'
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+      - name: Login to ECR repository
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Deploy image to ECS
+        id: deploy
+        uses: WalletConnect/actions/actions/deploy-ecs/@2.1.2
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: ${{ inputs.environment }}_${{ inputs.image_name }}_cluster
+          service-name: ${{ inputs.environment }}_${{ inputs.image_name }}-service
+          task-definition-name: ${{ inputs.environment }}_${{ inputs.image_name }}
+          image-name: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.image_name }}:${{ inputs.version }}

@@ -1,0 +1,87 @@
+name: ⚙️ Publish
+run-name: "Publish: ${{ github.sha }} ➠ ${{ inputs.version }}${{ inputs.deploy_to != 'none' && format(' ❱❱ {0}', inputs.deploy_to) || ''}}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release Version"
+        type: string
+        required: true
+        default: '1.0.0' #TODO: Remove
+      deploy_to:
+        description: "Deploy published image to"
+        type: choice
+        options:
+          - none
+          - staging
+          - prod
+        default: staging
+        required: true
+
+concurrency: deploy
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/sub-ci.yml
+    secrets: inherit
+    with:
+      infra: false
+      app: true
+
+  update_version:
+    name: Update Version
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    if: ${{ needs.paths_filter.outputs.app == 'true' }}
+    needs: [ci]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: './.github/actions/update-version'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+
+  publish_image-staging:
+    name: Publish Image - Staging
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [ update_version ]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_STAGING }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_STAGING }}
+
+  publish_image-prod:
+    name: Publish Image - Prod
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [ update_version ]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_PROD }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_PROD }}
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/sub-cd.yml
+    if: ${{ inputs.deploy_to == 'staging' || inputs.deploy_to == 'prod' }}
+    needs: [publish_image-staging, publish_image-prod]
+    secrets: inherit
+    with:
+      deploy_infra: false
+      deploy_app: true
+      deploy_prod: ${{ inputs.deploy_to == 'prod' }}

@@ -1,0 +1,37 @@
+name: ⚙️ Deploy
+run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy_infra && !inputs.deploy_app) && '👀 deploy nothing' || ''}}${{ inputs.deploy_infra && ' ❱❱  infra' || '' }}${{ inputs.deploy_app && ' ❱❱  app' || '' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_infra:
+        description: "Deploy infrastructure"
+        default: true
+        required: true
+        type: boolean
+      deploy_app:
+        description: "Deploy app"
+        default: true
+        required: true
+        type: boolean
+
+concurrency: deploy
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/sub-ci.yml
+    secrets: inherit
+    with:
+      infra: ${{ inputs.deploy_infra }}
+      app: ${{ inputs.deploy_app }}
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/sub-cd.yml
+    needs: [ci]
+    secrets: inherit
