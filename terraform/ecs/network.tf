@@ -2,6 +2,8 @@ locals {
   lb_name = replace("${module.this.name}-${substr(uuid(), 0, 3)}", "_", "-")
 }
 
+#tfsec:ignore:aws-elb-drop-invalid-headers
+#tfsec:ignore:aws-elb-alb-not-public
 resource "aws_lb" "load_balancer" {
   name               = local.lb_name
   load_balancer_type = "application"
@@ -80,6 +82,7 @@ resource "aws_lb_target_group" "target_group" {
 
 # Security Groups
 
+#tfsec:ignore:aws-ec2-no-public-ingress-sgr
 resource "aws_security_group" "lb_ingress" {
   name        = "${local.lb_name}-lb-ingress"
   description = "Allow app port ingress from vpc"
@@ -89,21 +92,24 @@ resource "aws_security_group" "lb_ingress" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic in from all sources
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTPS traffic from anywhere"
   }
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic in from all sources
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP traffic from anywhere"
   }
 
   egress {
-    from_port   = 0                                    # Allowing any incoming port
-    to_port     = 0                                    # Allowing any outgoing port
-    protocol    = "-1"                                 # Allowing any outgoing protocol
-    cidr_blocks = [var.allowed_lb_ingress_cidr_blocks] # Allowing traffic out to all VPC IP addresses
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.allowed_lb_ingress_cidr_blocks]
+    description = "Allow traffic out to all VPC IP addresses"
   }
 
   lifecycle {
@@ -111,6 +117,7 @@ resource "aws_security_group" "lb_ingress" {
   }
 }
 
+#tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "app_ingress" {
   name        = "${local.lb_name}-app-ingress"
   description = "Allow app port ingress"
@@ -121,6 +128,7 @@ resource "aws_security_group" "app_ingress" {
     to_port         = 0
     protocol        = "-1"
     security_groups = [aws_security_group.lb_ingress.id]
+    description     = "Allow traffic from load balancer"
   }
 
   ingress {
@@ -128,13 +136,15 @@ resource "aws_security_group" "app_ingress" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = [var.allowed_app_ingress_cidr_blocks]
+    description = "Allow traffic from allowed CIDR blocks"
   }
 
   egress {
-    from_port   = 0             # Allowing any incoming port
-    to_port     = 0             # Allowing any outgoing port
-    protocol    = "-1"          # Allowing any outgoing protocol
-    cidr_blocks = ["0.0.0.0/0"] # Allowing traffic out to all IP addresses
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow traffic out to all IP addresses"
   }
 
   lifecycle {

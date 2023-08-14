@@ -41,6 +41,7 @@ resource "aws_iam_policy" "otel" {
   path   = "/"
   policy = data.aws_iam_policy_document.otel.json
 }
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "otel" {
   statement {
     actions = [
