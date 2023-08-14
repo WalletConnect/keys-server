@@ -14,6 +14,18 @@ on:
         default: true
         required: true
         type: boolean
+      environment:
+        description: 'the environment to deploy to'
+        type: choice
+        options:
+          - 'wl-staging'
+          - 'wl-prod'
+        default: staging
+        required: true
+      version:
+        description: "The release version, otherwise latest is used"
+        type: string
+        required: false
 
 concurrency: deploy
 
@@ -35,3 +47,8 @@ jobs:
     uses: ./.github/workflows/sub-cd.yml
     needs: [ci]
     secrets: inherit
+    with:
+      deploy_infra: ${{ inputs.deploy_infra == 'true' }}
+      deploy_app: ${{ inputs.deploy_app == 'true' }}
+      deploy_prod: ${{ inputs.environment == 'wl-prod' }}
+      version: ${{ inputs.version }}
