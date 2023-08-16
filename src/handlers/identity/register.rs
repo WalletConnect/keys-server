@@ -84,6 +84,6 @@ pub async fn handler(
         payload.cacao
     );
     increment_counter!(state.metrics, identity_register);
-    
+
     Ok(Response::default())
 }

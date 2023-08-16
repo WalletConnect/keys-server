@@ -1,7 +1,8 @@
 use {
     super::super::{validate_caip10_account, Response},
     crate::{
-        error, increment_counter,
+        error,
+        increment_counter,
         log::prelude::{info, warn},
         state::AppState,
     },

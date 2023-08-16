@@ -1,8 +1,6 @@
 use {
     crate::{config::Configuration, metrics::Metrics, stores::keys::KeysPersistentStorageArc},
     build_info::BuildInfo,
-    opentelemetry::{metrics::UpDownCounter, sdk::trace::Tracer},
-    tracing_subscriber::prelude::*,
 };
 
 #[derive(Clone)]

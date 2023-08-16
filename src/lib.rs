@@ -6,17 +6,8 @@ use {
         Router,
     },
     http::{HeaderValue, Method},
-    metrics::Metrics,
-    opentelemetry::{
-        sdk::{
-            metrics::selectors,
-            trace::{self, IdGenerator, Sampler},
-            Resource,
-        },
-        KeyValue,
-    },
-    opentelemetry_otlp::{Protocol, WithExportConfig},
-    std::{net::SocketAddr, sync::Arc, time::Duration},
+    opentelemetry::{sdk::Resource, KeyValue},
+    std::{net::SocketAddr, sync::Arc},
     stores::keys::MongoPersistentStorage,
     tokio::{select, sync::broadcast},
     tower::ServiceBuilder,
@@ -25,7 +16,6 @@ use {
         trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     },
     tracing::Level,
-    tracing_subscriber::fmt::format::FmtSpan,
 };
 
 pub mod auth;
