@@ -5,6 +5,13 @@ locals {
   otel_memory = 128
 }
 
+module "ecs_cpu_mem" {
+  source  = "app.terraform.io/wallet-connect/ecs_cpu_mem/aws"
+  version = "1.0.0"
+  cpu     = var.task_cpu + local.otel_cpu
+  memory  = var.task_memory + local.otel_memory
+}
+
 #-------------------------------------------------------------------------------
 # Cloudwatch - Log Group for the application
 
@@ -43,12 +50,12 @@ resource "aws_ecs_cluster" "app_cluster" {
 # ECS Task definition
 
 resource "aws_ecs_task_definition" "app_task" {
-  family = module.this.id
+  family = module.this.name
 
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc" # Using awsvpc as our network mode as this is required for Fargate
-  memory                   = var.task_memory
-  cpu                      = var.task_cpu
+  cpu                      = module.ecs_cpu_mem.cpu
+  memory                   = module.ecs_cpu_mem.memory
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
 
@@ -60,9 +67,9 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name      = module.this.name,
       image     = local.image,
+      cpu       = var.task_cpu,
+      memory    = var.task_memory,
       essential = true,
-      cpu       = var.task_cpu - local.otel_cpu,
-      memory    = var.task_memory - local.otel_memory,
 
       environment = [
         { "name" = "DATABASE_URL", "value" = var.keystore_addr }
@@ -75,12 +82,11 @@ resource "aws_ecs_task_definition" "app_task" {
         }
       ],
 
-
       logConfiguration : {
         logDriver = "awslogs",
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.cluster_logs.name,
-          "awslogs-region"        = var.region,
+          "awslogs-region"        = module.this.region,
           "awslogs-stream-prefix" = "ecs"
         }
       },
@@ -93,9 +99,9 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name      = "aws-otel-collector",
       image     = "public.ecr.aws/aws-observability/aws-otel-collector:latest",
-      essential = true,
       cpu       = local.otel_cpu,
       memory    = local.otel_memory,
+      essential = true,
 
       command = [
         "--config=/etc/ecs/ecs-amp-prometheus.yaml"
@@ -112,7 +118,7 @@ resource "aws_ecs_task_definition" "app_task" {
         options = {
           "awslogs-create-group"  = "True",
           "awslogs-group"         = "/ecs/${module.this.name}-ecs-aws-otel-sidecar-collector",
-          "awslogs-region"        = var.region,
+          "awslogs-region"        = module.this.region,
           "awslogs-stream-prefix" = "ecs"
         }
       }

@@ -1,5 +1,5 @@
 locals {
-  lb_name = replace("${module.this.name}-${substr(uuid(), 0, 3)}", "_", "-")
+  lb_name = replace("${module.this.stage}-${module.this.name}-${random_pet.this.id}", "_", "-")
 }
 
 #tfsec:ignore:aws-elb-drop-invalid-headers
@@ -13,17 +13,20 @@ resource "aws_lb" "load_balancer" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [name]
   }
 }
 
-resource "aws_lb_listener" "listener-https" {
-  for_each = var.route53_zones_certificates
+locals {
+  main_certificate_key    = keys(var.route53_zones_certificates)[0]
+  main_certificate        = var.route53_zones_certificates[local.main_certificate_key]
+  additional_certificates = { for k, v in var.route53_zones_certificates : k => v if k != local.main_certificate_key }
+}
 
+resource "aws_lb_listener" "listener-https" {
   load_balancer_arn = aws_lb.load_balancer.arn
   port              = "443"
   protocol          = "HTTPS"
-  certificate_arn   = each.value
+  certificate_arn   = local.main_certificate
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
   default_action {
@@ -34,6 +37,12 @@ resource "aws_lb_listener" "listener-https" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_lb_listener_certificate" "listener-https" {
+  for_each        = local.additional_certificates
+  listener_arn    = aws_lb_listener.listener-https.arn
+  certificate_arn = each.value
 }
 
 resource "aws_lb_listener" "listener-http" {
@@ -76,7 +85,6 @@ resource "aws_lb_target_group" "target_group" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = [name]
   }
 }
 

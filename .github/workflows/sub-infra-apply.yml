@@ -77,8 +77,8 @@ jobs:
         id: configure-tfvars
         working-directory: ${{ vars.TF_DIRECTORY }}
         run: |
-          echo 'grafana_auth="${{ steps.grafana-get-key.outputs.key }}"' >> plan.auto.tfvars
           echo 'image_version="${{ inputs.version }}"' >> plan.auto.tfvars
+          echo 'grafana_auth="${{ steps.grafana-get-key.outputs.key }}"' >> plan.auto.tfvars
 
       - name: Apply on ${{ inputs.environment }}
         id: tf-plan-apply

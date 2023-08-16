@@ -81,13 +81,20 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
           use-tfvars: false
+      - name: Init Terraform (tfvars)
+        if: ${{ inputs.use-tfvars }}
+        id: init-tfvars
+        env:
+          TF_WORKSPACE: ${{ inputs.environment }}
+        shell: bash
+        run: terraform -chdir=${{ inputs.terraform-path }} init -var-file="vars/${{ inputs.environment }}.tfvars" -no-color
 
       - name: Configure Terraform Variables
         id: configure-tfvars
         working-directory: ${{ vars.TF_DIRECTORY }}
         run: |
-          echo 'grafana_auth="${{ steps.grafana-get-key.outputs.key }}"' >> plan.auto.tfvars
           echo 'image_version="${{ inputs.version }}"' >> plan.auto.tfvars
+          echo 'grafana_auth="${{ steps.grafana-get-key.outputs.key }}"' >> plan.auto.tfvars
 
       - name: Plan ${{ inputs.environment }}
         id: tf-plan-staging

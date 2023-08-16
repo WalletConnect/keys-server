@@ -1,10 +1,4 @@
 locals {
-  zones              = merge([for k, v in tomap(data.terraform_remote_state.dns.outputs.zones.keyserver[local.stage]) : { (v.id) = v.name }]...)
-  zones_certificates = merge([for k, v in module.dns_certificate : { (v.zone_id) = v.certificate_arn }]...)
-}
-
-# Network settings
-locals {
   ports = {
     http  = 80
     https = 443
@@ -15,141 +9,6 @@ locals {
   vpc_cidr                = "10.0.0.0/16"
   vpc_azs                 = slice(data.aws_availability_zones.available.names, 0, 3)
   vpc_flow_s3_bucket_name = "vpc-flow-logs-${random_pet.this.id}"
-
-  network_acls = {
-    default_inbound  = []
-    default_outbound = []
-
-    public_inbound = [
-      {
-        rule_number = 100
-        rule_action = "allow"
-        from_port   = local.ports.http
-        to_port     = local.ports.http
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-      },
-      {
-        rule_number = 110
-        rule_action = "allow"
-        from_port   = local.ports.https
-        to_port     = local.ports.https
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-      },
-      {
-        rule_number     = 140
-        rule_action     = "allow"
-        from_port       = local.ports.http
-        to_port         = local.ports.http
-        protocol        = "tcp"
-        ipv6_cidr_block = "::/0"
-      },
-      {
-        rule_number     = 150
-        rule_action     = "allow"
-        from_port       = local.ports.https
-        to_port         = local.ports.https
-        protocol        = "tcp"
-        ipv6_cidr_block = "::/0"
-      },
-    ]
-    public_outbound = [
-      {
-        rule_number = 100
-        rule_action = "allow"
-        from_port   = local.ports.http
-        to_port     = local.ports.http
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-      },
-      {
-        rule_number = 110
-        rule_action = "allow"
-        from_port   = local.ports.https
-        to_port     = local.ports.https
-        protocol    = "tcp"
-        cidr_block  = "0.0.0.0/0"
-      },
-      {
-        rule_number = 140
-        rule_action = "allow"
-        icmp_code   = -1
-        icmp_type   = 8
-        protocol    = "icmp"
-        cidr_block  = "10.0.0.0/22"
-      },
-    ]
-
-    intra_inbound = [
-      {
-        rule_number = 100
-        rule_action = "allow"
-        from_port   = local.ports.http
-        to_port     = local.ports.http
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 110
-        rule_action = "allow"
-        from_port   = local.ports.https
-        to_port     = local.ports.https
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 120
-        rule_action = "allow"
-        from_port   = local.ports.ssh
-        to_port     = local.ports.ssh
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 140
-        rule_action = "allow"
-        from_port   = local.ports.docdb
-        to_port     = local.ports.docdb
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-    ]
-    intra_outbound = [
-      {
-        rule_number = 100
-        rule_action = "allow"
-        from_port   = local.ports.http
-        to_port     = local.ports.http
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 110
-        rule_action = "allow"
-        from_port   = local.ports.https
-        to_port     = local.ports.https
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 130
-        rule_action = "allow"
-        from_port   = local.ports.ssh
-        to_port     = local.ports.ssh
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-      {
-        rule_number = 140
-        rule_action = "allow"
-        from_port   = local.ports.docdb
-        to_port     = local.ports.docdb
-        protocol    = "tcp"
-        cidr_block  = local.vpc_cidr
-      },
-    ]
-  }
 }
 
 #-------------------------------------------------------------------------------
@@ -170,25 +29,23 @@ module "vpc" {
   manage_default_network_acl = true
   intra_subnets              = [for k, v in local.vpc_azs : cidrsubnet(local.vpc_cidr, 8, k)]
   public_subnets             = [for k, v in local.vpc_azs : cidrsubnet(local.vpc_cidr, 8, k + 4)]
-
-  public_dedicated_network_acl = true
-  public_inbound_acl_rules     = concat(local.network_acls.default_inbound, local.network_acls.public_inbound)
-  public_outbound_acl_rules    = concat(local.network_acls.default_outbound, local.network_acls.public_outbound)
-
-  intra_dedicated_network_acl = true
-  intra_inbound_acl_rules     = concat(local.network_acls.default_inbound, local.network_acls.intra_inbound)
-  intra_outbound_acl_rules    = concat(local.network_acls.default_outbound, local.network_acls.intra_outbound)
-
+  private_subnets            = [for k, v in local.vpc_azs : cidrsubnet(local.vpc_cidr, 8, k + 8)]
 
   intra_subnet_tags = {
-    Visibility = "private"
+    Visibility = "intra"
   }
   public_subnet_tags = {
     Visibility = "public"
   }
+  private_subnet_tags = {
+    Visibility = "private"
+  }
 
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  enable_dns_support     = true
+  enable_dns_hostnames   = true
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
+  one_nat_gateway_per_az = false
 
   enable_flow_log           = true
   flow_log_file_format      = "parquet"
@@ -232,18 +89,6 @@ module "vpc_endpoints" {
       service = "s3"
     },
   }
-}
-
-#-------------------------------------------------------------------------------
-# DNS
-
-module "dns_certificate" {
-  for_each         = local.zones
-  source           = "app.terraform.io/wallet-connect/dns/aws"
-  version          = "0.1.3"
-  context          = module.this
-  hosted_zone_name = each.value
-  fqdn             = each.value
 }
 
 #-------------------------------------------------------------------------------
