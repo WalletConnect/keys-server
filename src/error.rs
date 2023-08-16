@@ -21,6 +21,9 @@ pub enum Error {
     Metrics(#[from] opentelemetry::metrics::MetricsError),
 
     #[error(transparent)]
+    Prometheus(#[from] prometheus_core::Error),
+
+    #[error(transparent)]
     Database(#[from] wither::mongodb::error::Error),
 
     #[error(transparent)]

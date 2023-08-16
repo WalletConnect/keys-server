@@ -3,6 +3,8 @@ use {
     crate::{
         auth::cacao::Cacao,
         error::{self},
+        increment_counter,
+        log::prelude::{info, warn},
         state::AppState,
     },
     axum::extract::{Json, State},
@@ -16,7 +18,7 @@ pub struct RegisterIdentityPayload {
     pub cacao: Cacao,
 }
 
-#[derive(Validate)]
+#[derive(Validate, Debug)]
 pub struct RegisterIdentityParams {
     #[validate(custom = "validate_caip10_account")]
     account: String,
@@ -29,19 +31,37 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<RegisterIdentityPayload>,
 ) -> error::Result<Response> {
-    let cacao = payload.cacao;
-    cacao.verify()?;
+    let cacao = payload.cacao.clone();
+
+    info!(
+        "Handling - Register identity with cacao: {:?}",
+        payload.cacao
+    );
+
+    cacao.verify().map_err(|error| {
+        increment_counter!(state.metrics, invalid_identity_register_cacao);
+        info!(
+            "Failure - Register identity with cacao: {:?}, error: {:?}",
+            payload.cacao, error
+        );
+        error
+    })?;
 
     let identity_key = cacao.p.identity_key()?;
     let account = cacao.p.caip_10_address()?;
-
     let params = RegisterIdentityParams {
         account,
         identity_key,
         cacao,
     };
 
-    params.validate()?;
+    params.validate().map_err(|error| {
+        info!(
+            "Failure - Register identity with cacao: {:?}, error: {:?}",
+            payload.cacao, error
+        );
+        error
+    })?;
 
     state
         .keys_persitent_storage
@@ -50,7 +70,20 @@ pub async fn handler(
             &params.identity_key,
             &params.cacao,
         )
-        .await?;
+        .await
+        .map_err(|error| {
+            warn!(
+                "Failure - Register identity with cacao: {:?}, error: {:?}",
+                payload.cacao, error
+            );
+            error
+        })?;
 
+    info!(
+        "Success - Register identity with cacao: {:?}",
+        payload.cacao
+    );
+    increment_counter!(state.metrics, identity_register);
+    
     Ok(Response::default())
 }

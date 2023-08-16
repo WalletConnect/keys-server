@@ -1,14 +1,9 @@
 use {
-    crate::{config::Configuration, stores::keys::KeysPersistentStorageArc},
+    crate::{config::Configuration, metrics::Metrics, stores::keys::KeysPersistentStorageArc},
     build_info::BuildInfo,
     opentelemetry::{metrics::UpDownCounter, sdk::trace::Tracer},
     tracing_subscriber::prelude::*,
 };
-
-#[derive(Clone)]
-pub struct Metrics {
-    pub example: UpDownCounter<i64>,
-}
 
 #[derive(Clone)]
 pub struct AppState {
@@ -35,13 +30,7 @@ impl AppState {
         })
     }
 
-    pub fn set_telemetry(&mut self, tracer: Tracer, metrics: Metrics) {
-        let otel_tracing_layer = tracing_opentelemetry::layer().with_tracer(tracer);
-
-        tracing_subscriber::registry()
-            .with(otel_tracing_layer)
-            .init();
-
+    pub fn set_metrics(&mut self, metrics: Metrics) {
         self.metrics = Some(metrics);
     }
 }

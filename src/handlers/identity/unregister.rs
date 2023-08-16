@@ -5,7 +5,8 @@ use {
             did::{extract_did_data, DID_METHOD_KEY, DID_METHOD_PKH},
             jwt::{Jwt, JwtClaims, JwtVerifierByIssuer},
         },
-        error,
+        error, increment_counter,
+        log::prelude::{info, warn},
         state::AppState,
     },
     axum::{extract::State, Json},
@@ -20,7 +21,7 @@ pub struct UnregisterIdentityPayload {
     id_auth: String,
 }
 
-#[derive(Validate)]
+#[derive(Validate, Debug)]
 pub struct UnregisterIdentityParams {
     #[validate(custom = "validate_caip10_account")]
     account: String,
@@ -46,7 +47,6 @@ impl JwtClaims for UnregisterIdentityKeyClaims {
         // iat must be in past
         // iss must be valid did:key
         // pkh must be valid did:pkh
-        println!("act: {}", self.act);
         self.act == "unregister_identity"
     }
 }
@@ -61,8 +61,28 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<UnregisterIdentityPayload>,
 ) -> error::Result<Response> {
-    let jwt = Jwt::<UnregisterIdentityKeyClaims>::new(&payload.id_auth)?;
-    jwt.verify()?;
+    info!(
+        "Handling - Unregister identity with jwt: {:?}",
+        payload.id_auth
+    );
+
+    let jwt = Jwt::<UnregisterIdentityKeyClaims>::new(&payload.id_auth).map_err(|error| {
+        increment_counter!(state.metrics, invalid_identity_unregister_jwt);
+        info!(
+            "Failure - Unregister identity with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
+
+    jwt.verify().map_err(|error| {
+        increment_counter!(state.metrics, invalid_identity_unregister_jwt);
+        info!(
+            "Failure - Unregister identity with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
 
     let claims: UnregisterIdentityKeyClaims = jwt.claims;
     let account = extract_did_data(&claims.pkh, DID_METHOD_PKH)?;
@@ -72,12 +92,32 @@ pub async fn handler(
         account: account.to_string(),
         identity_key: identity_key.to_string(),
     };
-    params.validate()?;
+
+    params.validate().map_err(|error| {
+        info!(
+            "Failure - Unregister identity with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
 
     state
         .keys_persitent_storage
         .remove_identity_key(&params.account, &params.identity_key)
-        .await?;
+        .await
+        .map_err(|error| {
+            warn!(
+                "Failure - Unregister identity with jwt: {:?}, error: {:?}",
+                payload.id_auth, error
+            );
+            error
+        })?;
+
+    info!(
+        "Success - Unregister identity with jwt: {:?}",
+        payload.id_auth
+    );
+    increment_counter!(state.metrics, identity_unregister);
 
     Ok(Response::default())
 }
