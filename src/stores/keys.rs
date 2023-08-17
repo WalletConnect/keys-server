@@ -1,5 +1,6 @@
 pub use {
     super::StoreError,
+    crate::log::prelude::info,
     async_trait::async_trait,
     serde::{Deserialize, Serialize},
     std::sync::Arc,
@@ -215,6 +216,13 @@ impl KeysPersistentStorage for MongoPersistentStorage {
 
         match MongoKeys::find_one(&self.db, Some(filter), None).await? {
             Some(mongo_keys) => {
+                info!(
+                    "Account:{:?} has {:?} identities. Returned entity: {:?}",
+                    mongo_keys.account,
+                    mongo_keys.identities.len(),
+                    mongo_keys
+                );
+
                 let mongo_identity = mongo_keys
                     .identities
                     .into_iter()
