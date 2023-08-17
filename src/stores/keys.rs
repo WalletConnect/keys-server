@@ -7,8 +7,7 @@ pub use {
         bson::{self, doc, oid::ObjectId},
         mongodb::{
             options::{ClientOptions, FindOptions},
-            Client,
-            Database,
+            Client, Database,
         },
         Model,
     },
