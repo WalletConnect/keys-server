@@ -1,4 +1,4 @@
-########################################
+#-------------------------------------------------------------------------------
 # Configuration
 
 variable "grafana_auth" {
@@ -7,7 +7,7 @@ variable "grafana_auth" {
   default     = ""
 }
 
-########################################
+#-------------------------------------------------------------------------------
 # Application
 
 variable "name" {
@@ -27,7 +27,7 @@ variable "image_version" {
 }
 
 
-########################################
+#-------------------------------------------------------------------------------
 # Keystore
 
 variable "keystore_primary_instance_count" {
@@ -50,10 +50,11 @@ variable "keystore_replica_instance_class" {
   type        = string
 }
 
-########################################
+#-------------------------------------------------------------------------------
 # Monitoring
 
-variable "grafana_endpoint" {
-  description = "The endpoint of the Grafana instance"
-  type        = string
+variable "notification_channels" {
+  description = "The notification channels to send alerts to"
+  type        = list(any)
+  default     = []
 }

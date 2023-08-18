@@ -18,6 +18,16 @@ data "terraform_remote_state" "dns" {
   }
 }
 
+data "terraform_remote_state" "monitoring" {
+  backend = "remote"
+  config = {
+    organization = "wallet-connect"
+    workspaces = {
+      name = "monitoring"
+    }
+  }
+}
+
 resource "random_pet" "this" {
   length = 2
 }

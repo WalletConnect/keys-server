@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.0"
+  required_version = ">= 1.0"
 
   required_providers {
     grafana = {
@@ -13,6 +13,6 @@ terraform {
   }
 }
 
-provider "jsonnet" {
-  jsonnet_path = "./grafonnet-lib,./panels"
-}
+#provider "jsonnet" {
+#  jsonnet_path = "./grafonnet-lib,./panels"
+#}

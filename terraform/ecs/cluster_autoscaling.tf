@@ -1,18 +1,19 @@
-data "aws_iam_policy_document" "ecs_autoscaling_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    effect  = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["application-autoscaling.amazonaws.com"]
-    }
-  }
-}
 resource "aws_iam_role" "ecs_autoscaling_role" {
   name = "${module.this.name}-ecs-scale-application"
 
-  assume_role_policy = data.aws_iam_policy_document.ecs_autoscaling_policy.json
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "GrantAssumeRole"
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "application-autoscaling.amazonaws.com"
+        }
+      },
+    ]
+  })
 }
 
 resource "aws_appautoscaling_target" "ecs_target" {

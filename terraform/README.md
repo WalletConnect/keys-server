@@ -52,6 +52,7 @@ Now you can apply the changes:
 | [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_iam_policy_document.vpc_flow_log_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [terraform_remote_state.dns](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state) | data source |
+| [terraform_remote_state.monitoring](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state) | data source |
 | [terraform_remote_state.org](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state) | data source |
 
 ## Inputs
@@ -59,13 +60,13 @@ Now you can apply the changes:
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_grafana_auth"></a> [grafana\_auth](#input\_grafana\_auth) | The API Token for the Grafana instance | `string` | `""` | no |
-| <a name="input_grafana_endpoint"></a> [grafana\_endpoint](#input\_grafana\_endpoint) | The endpoint of the Grafana instance | `string` | n/a | yes |
 | <a name="input_image_version"></a> [image\_version](#input\_image\_version) | The version of the image to deploy | `string` | n/a | yes |
 | <a name="input_keystore_primary_instance_class"></a> [keystore\_primary\_instance\_class](#input\_keystore\_primary\_instance\_class) | The instance class of the primary docdb instances | `string` | n/a | yes |
 | <a name="input_keystore_primary_instance_count"></a> [keystore\_primary\_instance\_count](#input\_keystore\_primary\_instance\_count) | The number of primary docdb instances to deploy | `number` | n/a | yes |
 | <a name="input_keystore_replica_instance_class"></a> [keystore\_replica\_instance\_class](#input\_keystore\_replica\_instance\_class) | The instance class of the replica docdb instances | `string` | n/a | yes |
 | <a name="input_keystore_replica_instance_count"></a> [keystore\_replica\_instance\_count](#input\_keystore\_replica\_instance\_count) | The number of replica docdb instances to deploy | `number` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The name of the application | `string` | `"keyserver"` | no |
+| <a name="input_notification_channels"></a> [notification\_channels](#input\_notification\_channels) | The notification channels to send alerts to | `list(any)` | `[]` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region to deploy to | `string` | n/a | yes |
 
 ## Outputs
