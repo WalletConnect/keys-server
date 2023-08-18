@@ -20,23 +20,21 @@ Creates a DocumentDB cluster with auto-scaled read replicas.
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_docdb-autoscaling"></a> [docdb-autoscaling](#module\_docdb-autoscaling) | github.com/theuves/docdb-autoscaling | 06de20e170853b515cc6ae986ceb5941f7b34f5e |
+No modules.
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_docdb_cluster.docdb_primary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster) | resource |
+| [aws_docdb_cluster.docdb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster) | resource |
 | [aws_docdb_cluster_instance.docdb_instances](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster_instance) | resource |
 | [aws_docdb_cluster_instance.docdb_replica_instances](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_cluster_instance) | resource |
 | [aws_docdb_subnet_group.private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/docdb_subnet_group) | resource |
-| [aws_kms_key.docdb_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_secretsmanager_secret.master_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
 | [aws_secretsmanager_secret_version.master_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [aws_security_group.service_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [random_password.master_password](https://registry.terraform.io/providers/hashicorp/random/3.4.3/docs/resources/password) | resource |
+| [aws_kms_key.docdb_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_key) | data source |
 
 ## Inputs
 

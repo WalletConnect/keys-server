@@ -1,6 +1,5 @@
 locals {
-  name_prefix     = replace("${var.environment}-${var.app_name}-${var.mongo_name}", "_", "-")
-  master_password = aws_secretsmanager_secret_version.master_password.secret_string
+  name_prefix = replace("${var.environment}-${var.app_name}-${var.mongo_name}", "_", "-")
 }
 
 resource "random_password" "master_password" {
@@ -18,19 +17,21 @@ resource "aws_secretsmanager_secret_version" "master_password" {
   secret_string = random_password.master_password.result
 }
 
-resource "aws_kms_key" "docdb_encryption" {
-  enable_key_rotation = true
+data "aws_kms_key" "docdb_encryption" {
+  key_id = "alias/aws/rds"
 }
 
-resource "aws_docdb_cluster" "docdb_primary" {
-  cluster_identifier              = "${local.name_prefix}-primary-cluster"
+resource "aws_docdb_cluster" "docdb" {
+  #  cluster_identifier              = "${local.name_prefix}-primary-cluster"
+  cluster_identifier              = "prod-keyserver-keystore-primary-cluster"
   master_username                 = "keyserver"
-  master_password                 = local.master_password
+  master_password                 = aws_secretsmanager_secret_version.master_password.secret_string
   port                            = 27017
   db_subnet_group_name            = aws_docdb_subnet_group.private_subnets.name
   storage_encrypted               = true
-  kms_key_id                      = aws_kms_key.docdb_encryption.arn
+  kms_key_id                      = data.aws_kms_key.docdb_encryption.arn
   enabled_cloudwatch_logs_exports = ["audit"]
+  deletion_protection             = true
 
   vpc_security_group_ids = [
     aws_security_group.service_security_group.id
@@ -42,7 +43,7 @@ resource "aws_docdb_cluster" "docdb_primary" {
 resource "aws_docdb_cluster_instance" "docdb_instances" {
   count              = var.primary_instances
   identifier         = "${local.name_prefix}-primary-instance-${count.index}"
-  cluster_identifier = aws_docdb_cluster.docdb_primary.id
+  cluster_identifier = aws_docdb_cluster.docdb.id
   instance_class     = var.primary_instance_class
   promotion_tier     = 0
 }
@@ -51,19 +52,19 @@ resource "aws_docdb_cluster_instance" "docdb_instances" {
 resource "aws_docdb_cluster_instance" "docdb_replica_instances" {
   count              = var.replica_instances
   identifier         = "${local.name_prefix}-replica-instance-${count.index}"
-  cluster_identifier = aws_docdb_cluster.docdb_primary.id
+  cluster_identifier = aws_docdb_cluster.docdb.id
   instance_class     = var.replica_instance_class
   promotion_tier     = 1
 }
 
-
 resource "aws_docdb_subnet_group" "private_subnets" {
-  name       = "${local.name_prefix}-private-subnet-group"
+  #  name       = "${local.name_prefix}-private-subnet-group"
+  name       = "prod-keyserver-remove-me-keystore-docdb-private-subnet-group"
   subnet_ids = var.private_subnet_ids
 }
 
 resource "aws_security_group" "service_security_group" {
-  name        = "${local.name_prefix}-service"
+  name        = local.name_prefix
   description = "Allow ingress from the application"
   vpc_id      = var.vpc_id
 

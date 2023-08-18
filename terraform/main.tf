@@ -50,7 +50,6 @@ module "vpc" {
   one_nat_gateway_per_az = false
 }
 
-
 # ECS Cluster, Task, Service, and Load Balancer for our app
 module "ecs" {
   source = "./ecs"
@@ -70,11 +69,12 @@ module "ecs" {
   private_subnet_ids          = module.vpc.private_subnets
   allowed_ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
 
-  persistent_keystore_mongo_addr = module.keystore_docdb.connection_url
+  persistent_keystore_mongo_addr = module.keystore.connection_url
 }
 
-module "keystore_docdb" {
-  source = "./docdb"
+
+module "keystore" {
+  source = "./doc_db"
 
   app_name                    = local.app_name
   mongo_name                  = "keystore-docdb"
@@ -98,7 +98,7 @@ module "o11y" {
   ecs_service_name        = module.ecs.service_name
   target_group            = module.ecs.target_group_arn
   load_balancer           = module.ecs.load_balancer_arn_suffix
-  docdb_cluster_id        = module.keystore_docdb.cluster_id
+  docdb_cluster_id        = module.keystore.cluster_id
 }
 
 resource "aws_prometheus_workspace" "prometheus" {
