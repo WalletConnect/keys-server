@@ -1,5 +1,5 @@
 locals {
-  lb_name = replace("${module.this.stage}-${module.this.name}-${random_pet.this.id}", "_", "-")
+  lb_name = substr(replace("${module.this.stage}-${module.this.name}-${random_pet.this.id}", "_", "-"), 0, 32)
 }
 
 #tfsec:ignore:aws-elb-drop-invalid-headers
