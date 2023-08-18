@@ -12,6 +12,9 @@ on:
         type: boolean
         default: true
 
+permissions:
+  id-token: write
+
 jobs:
   check-infra:
     name: Infra CI
@@ -35,7 +38,7 @@ jobs:
     with:
       version: 'latest'
       environment: 'wl-staging'
-      environment_url: https://staging.keyserver.walletconnect.com/health
+      environment-url: https://staging.keyserver.walletconnect.com/health
 
   plan-prod:
     name: Infra Plan Prod
@@ -45,4 +48,4 @@ jobs:
     with:
       version: 'latest'
       environment: 'wl-prod'
-      environment_url: https://keyserver.walletconnect.com/health
+      environment-url: https://keyserver.walletconnect.com/health

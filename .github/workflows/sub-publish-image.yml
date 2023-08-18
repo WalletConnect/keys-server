@@ -7,15 +7,13 @@ on:
         description: 'The version to publish'
         type: string
         required: true
-    secrets:
-      aws-access-key-id:
-        description: 'AWS Access Key ID'
-        required: true
-      aws-secret-access-key:
-        description: 'AWS Secret Access Key'
-        required: true
+      aws-role-arn:
+        description: 'the ARN of the AWS role to assume'
+        type: string
+        default: https://keyserver.walletconnect.com/health
 
 permissions:
+  id-token: write
   contents: write
   packages: write
 
@@ -31,10 +29,10 @@ jobs:
           ref: ${{ inputs.version }}
 
       - name: Configure AWS Credentials
-        uses: './.github/actions/aws-login'
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          role-to-assume: ${{ inputs.aws-role-arn }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr

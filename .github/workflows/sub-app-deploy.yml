@@ -3,7 +3,7 @@ name: ❖ App - Deploy
 on:
   workflow_call:
     inputs:
-      image_name:
+      image-name:
         description: 'the name of the image to deploy'
         type: string
         default: 'keyserver'
@@ -15,17 +15,18 @@ on:
         description: 'the environment to deploy to'
         type: string
         default: 'staging'
-      environment_url:
+      environment-url:
         description: 'the URL of the environment'
         type: string
         default: https://keyserver.walletconnect.com/health
-    secrets:
-      aws-access-key-id:
-        description: 'AWS Access Key ID'
-        required: true
-      aws-secret-access-key:
-        description: 'AWS Secret Access Key'
-        required: true
+      aws-role-arn:
+        description: 'the ARN of the AWS role to assume'
+        type: string
+        default: https://keyserver.walletconnect.com/health
+
+permissions:
+  id-token: write
+
 jobs:
   deploy-app:
     name: Deploy App `${{ inputs.environment }}`
@@ -39,10 +40,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
-        uses: './.github/actions/aws-login'
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          role-to-assume: ${{ inputs.aws-role-arn }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to ECR repository
         id: login-ecr
@@ -55,7 +56,7 @@ jobs:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ env.AWS_REGION }}
-          cluster-name: ${{ inputs.environment }}_${{ inputs.image_name }}_cluster
-          service-name: ${{ inputs.environment }}_${{ inputs.image_name }}-service
-          task-definition-name: ${{ inputs.environment }}_${{ inputs.image_name }}
-          image-name: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.image_name }}:${{ inputs.version }}
+          cluster-name: ${{ inputs.environment }}_${{ inputs.image-name }}_cluster
+          service-name: ${{ inputs.environment }}_${{ inputs.image-name }}-service
+          task-definition-name: ${{ inputs.environment }}_${{ inputs.image-name }}
+          image-name: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.image-name }}:${{ inputs.version }}

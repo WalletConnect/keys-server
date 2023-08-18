@@ -3,15 +3,15 @@ name: ❖ CD
 on:
   workflow_call:
     inputs:
-      deploy_infra:
+      deploy-infra:
         description: "Deploy infrastructure"
         type: boolean
         default: true
-      deploy_app:
+      deploy-app:
         description: "Deploy app"
         type: boolean
         default: true
-      deploy_prod:
+      deploy-prod:
         description: "Continue with production environment after successful staging deployment"
         type: boolean
         default: false
@@ -19,22 +19,10 @@ on:
         description: "The release version"
         type: string
         required: false
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      AWS_ACCESS_KEY_ID_WL_STAGING:
-        required: true
-      AWS_SECRET_ACCESS_KEY_WL_STAGING:
-        required: true
-      AWS_ACCESS_KEY_ID_WL_PROD:
-        required: true
-      AWS_SECRET_ACCESS_KEY_WL_PROD:
-        required: true
 concurrency: cd
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -62,27 +50,25 @@ jobs:
   deploy-infra-staging:
     name: Deploy Infra Staging
     uses: ./.github/workflows/sub-infra-apply.yml
-    if: ${{ inputs.deploy_infra }}
+    if: ${{ inputs.deploy-infra }}
     needs: [get_version]
     secrets: inherit
     with:
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-staging'
-      environment_url: https://staging.keyserver.walletconnect.com/health
+      environment-url: https://staging.keyserver.walletconnect.com/health
 
   deploy-app-staging:
     name: Deploy App Staging
     uses: ./.github/workflows/sub-app-deploy.yml
-    if: ${{ (always() && !failure() && !cancelled()) && inputs.deploy_app }}
+    if: ${{ (always() && !failure() && !cancelled()) && inputs.deploy-app }}
     needs: [get_version, deploy-infra-staging]
     with:
-      image_name: ${{ vars.IMAGE_NAME }}
+      image-name: ${{ vars.IMAGE_NAME }}
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-staging'
-      environment_url: https://staging.keyserver.walletconnect.com/health
-    secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_STAGING }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_STAGING }}
+      environment-url: https://staging.keyserver.walletconnect.com/health
+      aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   health-check-staging:
     name: Health Check
@@ -122,24 +108,22 @@ jobs:
   deploy-infra-prod:
     name: Deploy Infra Prod
     uses: ./.github/workflows/sub-infra-apply.yml
-    if: ${{ always() && !failure() && !cancelled() && inputs.deploy_infra && inputs.deploy_prod && needs.deployment_window.outputs.result == 'true' }}
+    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-infra && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
     needs: [health-check-staging, deployment_window, get_version]
     secrets: inherit
     with:
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-prod'
-      environment_url: https://keyserver.walletconnect.com/health
+      environment-url: https://keyserver.walletconnect.com/health
 
   deploy-app-prod:
     name: Deploy App Prod
     uses: ./.github/workflows/sub-app-deploy.yml
-    if: ${{ always() && !failure() && !cancelled() && inputs.deploy_app && inputs.deploy_prod && needs.deployment_window.outputs.result == 'true' }}
+    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-app && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
     needs: [health-check-staging, deployment_window, get_version, deploy-infra-prod]
     with:
-      image_name: ${{ vars.IMAGE_NAME }}
+      image-name: ${{ vars.IMAGE_NAME }}
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-prod'
-      environment_url: https://keyserver.walletconnect.com/health
-    secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_PROD }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_PROD }}
+      environment-url: https://keyserver.walletconnect.com/health
+      aws-role-arn: ${{ vars.AWS_ROLE_PROD }}

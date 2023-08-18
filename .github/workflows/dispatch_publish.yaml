@@ -1,5 +1,5 @@
 name: ⚙️ Publish
-run-name: "Publish: ${{ github.sha }} ➠ ${{ inputs.version }}${{ inputs.deploy_to != 'none' && format(' ❱❱ {0}', inputs.deploy_to) || ''}}"
+run-name: "Publish: ${{ github.sha }} ➠ ${{ inputs.version }}${{ inputs.deploy-to != 'none' && format(' ❱❱ {0}', inputs.deploy-to) || ''}}"
 
 on:
   workflow_dispatch:
@@ -8,8 +8,7 @@ on:
         description: "Release Version"
         type: string
         required: true
-        default: '1.0.0' #TODO: Remove
-      deploy_to:
+      deploy-to:
         description: "Deploy published image to"
         type: choice
         options:
@@ -22,6 +21,7 @@ on:
 concurrency: deploy
 
 permissions:
+  id-token: write
   contents: write
   packages: write
   pull-requests: write
@@ -61,9 +61,7 @@ jobs:
     needs: [ update_version ]
     with:
       version: ${{ needs.update_version.outputs.version }}
-    secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_STAGING }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_STAGING }}
+      aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   publish_image-prod:
     name: Publish Image - Prod
@@ -71,17 +69,15 @@ jobs:
     needs: [ update_version ]
     with:
       version: ${{ needs.update_version.outputs.version }}
-    secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_WL_PROD }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_WL_PROD }}
+      aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
 
   cd:
     name: CD
     uses: ./.github/workflows/sub-cd.yml
-    if: ${{ inputs.deploy_to == 'staging' || inputs.deploy_to == 'prod' }}
+    if: ${{ inputs.deploy-to == 'staging' || inputs.deploy-to == 'prod' }}
     needs: [publish_image-staging, publish_image-prod]
     secrets: inherit
     with:
-      deploy_infra: false
-      deploy_app: true
-      deploy_prod: ${{ inputs.deploy_to == 'prod' }}
+      deploy-infra: false
+      deploy-app: true
+      deploy-prod: ${{ inputs.deploy-to == 'prod' }}

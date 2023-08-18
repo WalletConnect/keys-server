@@ -1,15 +1,15 @@
 name: ⚙️ Deploy
-run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy_infra && !inputs.deploy_app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy_infra && ' ❱❱  infra' || '' }}${{ inputs.deploy_app && ' ❱❱  app' || '' }}"
+run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
 
 on:
   workflow_dispatch:
     inputs:
-      deploy_infra:
+      deploy-infra:
         description: "Deploy infrastructure"
         default: true
         required: true
         type: boolean
-      deploy_app:
+      deploy-app:
         description: "Deploy app"
         default: true
         required: true
@@ -30,6 +30,7 @@ on:
 concurrency: deploy
 
 permissions:
+  id-token: write
   contents: read
   pull-requests: write
 
@@ -39,8 +40,8 @@ jobs:
     uses: ./.github/workflows/sub-ci.yml
     secrets: inherit
     with:
-      infra: ${{ inputs.deploy_infra }}
-      app: ${{ inputs.deploy_app }}
+      infra: ${{ inputs.deploy-infra }}
+      app: ${{ inputs.deploy-app }}
 
   cd:
     name: CD
@@ -48,7 +49,7 @@ jobs:
     needs: [ci]
     secrets: inherit
     with:
-      deploy_infra: ${{ inputs.deploy_infra == 'true' }}
-      deploy_app: ${{ inputs.deploy_app == 'true' }}
-      deploy_prod: ${{ inputs.environment == 'wl-prod' }}
+      deploy-infra: ${{ inputs.deploy-infra == 'true' }}
+      deploy-app: ${{ inputs.deploy-app == 'true' }}
+      deploy-prod: ${{ inputs.environment == 'wl-prod' }}
       version: ${{ inputs.version }}

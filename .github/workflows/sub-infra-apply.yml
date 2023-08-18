@@ -7,7 +7,7 @@ on:
         description: 'the environment to deploy to'
         type: string
         default: 'wl-staging'
-      environment_url:
+      environment-url:
         description: 'the URL of the environment'
         type: string
         default: https://keyserver.walletconnect.com/health
@@ -15,12 +15,11 @@ on:
         description: 'The ECR tag to deploy e.g. 1.7.0'
         type: string
     secrets:
-      AWS_ACCESS_KEY_ID_MAIN:
-        required: true
-      AWS_SECRET_ACCESS_KEY_MAIN:
-        required: true
       TF_API_TOKEN:
         required: true
+
+permissions:
+  id-token: write
 
 jobs:
   apply-infra:
@@ -29,7 +28,7 @@ jobs:
       group: ${{ vars.RUN_GROUP }}
     environment:
       name: infra/${{ inputs.environment }}
-      url: ${{ inputs.environment_url }}
+      url: ${{ inputs.environment-url }}
     env:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_WORKSPACE: ${{ inputs.environment }}
@@ -40,10 +39,10 @@ jobs:
           submodules: recursive
 
       - name: Configure AWS Credentials for Monitoring account
-        uses: './.github/actions/aws-login'
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_MONITORING }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_MONITORING }}
+          role-to-assume: ${{ vars.AWS_ROLE_MONITORING }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Get Grafana details
         id: grafana-get-details
