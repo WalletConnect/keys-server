@@ -50,7 +50,7 @@ jobs:
 
       - name: Deploy image to ECS
         id: deploy
-        uses: WalletConnect/actions/actions/deploy-ecs/@2.1.2
+        uses: WalletConnect/actions/actions/deploy-ecs/@2.1.3
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}

@@ -28,7 +28,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Check Formatting
-        uses: WalletConnect/actions/terraform/check-fmt/@2.1.2
+        uses: WalletConnect/actions/terraform/check-fmt/@2.1.3
         with:
           terraform-path: ${{ vars.TF_DIRECTORY }}
 
@@ -54,14 +54,14 @@ jobs:
           key: terraform-${{ hashFiles('${{ vars.TF_DIRECTORY }}/.terraform.lock.hcl') }}
 
       - name: Init Terraform
-        uses: WalletConnect/actions/terraform/init/@2.1.2
+        uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
           environment: ${{ inputs.environment }}
           use-tfvars: false
 
       - name: Validate Terraform
         id: tf-fmt
-        uses: WalletConnect/actions/terraform/validate/@2.1.2
+        uses: WalletConnect/actions/terraform/validate/@2.1.3
         with:
           terraform-path: ${{ vars.TF_DIRECTORY }}
 
@@ -87,7 +87,7 @@ jobs:
           key: terraform-${{ hashFiles('${{ vars.TF_DIRECTORY }}/.terraform.lock.hcl') }}
 
       - name: Init Terraform
-        uses: WalletConnect/actions/terraform/init/@2.1.2
+        uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
           environment: ${{ inputs.environment }}
           use-tfvars: false
@@ -118,7 +118,7 @@ jobs:
           key: terraform-${{ hashFiles('${{ vars.TF_DIRECTORY }}/.terraform.lock.hcl') }}
 
       - name: Init Terraform
-        uses: WalletConnect/actions/terraform/init/@2.1.2
+        uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
           environment: ${{ inputs.environment }}
           use-tfvars: false

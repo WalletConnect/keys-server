@@ -2,7 +2,6 @@ name: ⚙️ Deploy
 run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy_infra && !inputs.deploy_app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy_infra && ' ❱❱  infra' || '' }}${{ inputs.deploy_app && ' ❱❱  app' || '' }}"
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       deploy_infra:
@@ -36,38 +35,20 @@ permissions:
 
 jobs:
   ci:
-    name: CI (DBG)
+    name: CI
     uses: ./.github/workflows/sub-ci.yml
     secrets: inherit
     with:
-      infra: true
-      app: false
+      infra: ${{ inputs.deploy_infra }}
+      app: ${{ inputs.deploy_app }}
 
   cd:
-    name: CD (DBG)
+    name: CD
     uses: ./.github/workflows/sub-cd.yml
     needs: [ci]
     secrets: inherit
     with:
-      deploy_infra: true
-      deploy_app: false
-      deploy_prod: false
-
-#  ci:
-#    name: CI
-#    uses: ./.github/workflows/sub-ci.yml
-#    secrets: inherit
-#    with:
-#      infra: ${{ inputs.deploy_infra }}
-#      app: ${{ inputs.deploy_app }}
-#
-#  cd:
-#    name: CD
-#    uses: ./.github/workflows/sub-cd.yml
-#    needs: [ci]
-#    secrets: inherit
-#    with:
-#      deploy_infra: ${{ inputs.deploy_infra == 'true' }}
-#      deploy_app: ${{ inputs.deploy_app == 'true' }}
-#      deploy_prod: ${{ inputs.environment == 'wl-prod' }}
-#      version: ${{ inputs.version }}
+      deploy_infra: ${{ inputs.deploy_infra == 'true' }}
+      deploy_app: ${{ inputs.deploy_app == 'true' }}
+      deploy_prod: ${{ inputs.environment == 'wl-prod' }}
+      version: ${{ inputs.version }}

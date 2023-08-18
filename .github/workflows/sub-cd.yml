@@ -46,7 +46,7 @@ jobs:
       - name: Get latest release
         id: get_latest_version
         if: ${{ inputs.version == '' }}
-        uses: WalletConnect/actions/github/latest_release/@2.1.2
+        uses: WalletConnect/actions/github/latest_release/@2.1.3
 
       - name: Get version
         id: get_version
@@ -108,7 +108,7 @@ jobs:
       url: https://keyserver.walletconnect.com/health
     steps:
       - id: decide
-        uses: WalletConnect/actions/deploy-window/@2.1.2
+        uses: WalletConnect/actions/deploy-window/@2.1.3
         with:
           earliest-hour: "9"
           latest-hour: "17"

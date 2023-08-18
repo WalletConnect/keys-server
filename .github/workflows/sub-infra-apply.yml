@@ -39,19 +39,21 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Configure AWS Credentials for Main account
+      - name: Configure AWS Credentials for Monitoring account
         uses: './.github/actions/aws-login'
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_MAIN }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_MAIN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_MONITORING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_MONITORING }}
 
       - name: Get Grafana details
         id: grafana-get-details
-        uses: WalletConnect/actions/aws/grafana/get-details/@2.1.2
+        uses: WalletConnect/actions/aws/grafana/get-details-by-name/@2.1.3
+        with:
+          workspace-name: 'Main'
 
       - name: Get Grafana key
         id: grafana-get-key
-        uses: WalletConnect/actions/aws/grafana/get-key/@2.1.2
+        uses: WalletConnect/actions/aws/grafana/get-key/@2.1.3
         with:
           key-prefix: ${{ github.event.repository.name }}
           workspace-id: ${{ steps.grafana-get-details.outputs.workspace-id }}
@@ -68,7 +70,7 @@ jobs:
           key: terraform-${{ hashFiles('${{ vars.TF_DIRECTORY }}/.terraform.lock.hcl') }}
 
       - name: Init Terraform
-        uses: WalletConnect/actions/terraform/init/@2.1.2
+        uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
           environment: ${{ inputs.environment }}
           use-tfvars: false
@@ -89,7 +91,7 @@ jobs:
       - name: Delete Grafana key
         id: grafana-delete-key
         if: ${{ always() }}
-        uses: WalletConnect/actions/aws/grafana/delete-key/@2.1.2
+        uses: WalletConnect/actions/aws/grafana/delete-key/@2.1.3
         with:
           key-name: ${{ steps.grafana-get-key.outputs.key-name }}
           workspace-id: ${{ steps.grafana-get-details.outputs.workspace-id }}
