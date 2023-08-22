@@ -64,7 +64,7 @@ jobs:
         id: release
         uses: './.github/actions/update-version'
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
     outputs:
       version: ${{ steps.release.outputs.version }}
 
