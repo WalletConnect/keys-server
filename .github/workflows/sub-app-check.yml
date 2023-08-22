@@ -7,7 +7,7 @@ env:
   RUST_BACKTRACE: full
 
 permissions:
-  content: read
+  contents: read
 
 jobs:
   clippy:
