@@ -92,9 +92,10 @@ jobs:
           environment: ${{ inputs.environment }}
           use-tfvars: false
 
-      - uses: aquasecurity/tfsec-action@v1.0.2
+      - uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: ${{ vars.TF_DIRECTORY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   tflint:
     name: TFLint

@@ -27,3 +27,8 @@ variable "keystore_cluster_id" {
   description = "The ID of the keystore DocDB cluster."
   type        = string
 }
+
+variable "monitoring_role_arn" {
+  description = "The ARN of the monitoring role."
+  type        = string
+}
