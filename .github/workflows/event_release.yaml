@@ -1,0 +1,96 @@
+name: ⚡ Release
+run-name: 'Release / ${{ github.event.head_commit.message }}'
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - 'docs/**'
+      - 'Cargo.toml'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - 'justfile'
+      - 'rustfmt.toml'
+      - '.editorconfig'
+      - '.pre-commit-config.yaml'
+      - '.terraformignore'
+      - '.env.example'
+
+concurrency: deploy
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+
+# We skip the CI part here since it must have already run thanks to branch protection.
+
+  paths_filter:
+    name: Paths Filter
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            infra:
+              - '${{ vars.TF_DIRECTORY }}/**'
+            app:
+              - 'src/**'
+
+  update_version:
+    name: Update Version
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    if: ${{ needs.paths_filter.outputs.app == 'true' }}
+    needs: [paths_filter]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: './.github/actions/update-version'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+
+  publish_image-staging:
+    name: Publish Image - Staging
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [update_version]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+      aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
+
+  publish_image-prod:
+    name: Publish Image - Prod
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [update_version]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+      aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/sub-cd.yml
+    if: ${{ always() && !cancelled() && !failure() }}
+    needs: [paths_filter, publish_image-staging, publish_image-prod]
+    secrets: inherit
+    with:
+      deploy-infra: ${{ needs.paths_filter.outputs.infra == 'true' }}
+      deploy-app: ${{ needs.paths_filter.outputs.app == 'true' }}
+      deploy-prod: true

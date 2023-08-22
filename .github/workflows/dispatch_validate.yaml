@@ -1,0 +1,29 @@
+name: ⚙️ Validate
+run-name: "Validate: ${{ github.sha }}${{ (!inputs.infra && !inputs.app) && '👀 validate nothing' || ''}}${{ inputs.infra && ' ✓  infra' || '' }}${{ inputs.app && ' ✓  app' || '' }}"
+on:
+  workflow_dispatch:
+    inputs:
+      infra:
+        description: "Validate infra"
+        default: true
+        required: true
+        type: boolean
+      app:
+        description: "Validate app"
+        default: true
+        required: true
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/sub-ci.yml
+    secrets: inherit
+    with:
+      infra: ${{ inputs.infra }}
+      app: ${{ inputs.app }}

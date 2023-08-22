@@ -1,0 +1,83 @@
+name: ⚙️ Publish
+run-name: "Publish: ${{ github.sha }} ➠ ${{ inputs.version }}${{ inputs.deploy-to != 'none' && format(' ❱❱ {0}', inputs.deploy-to) || ''}}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release Version"
+        type: string
+        required: true
+      deploy-to:
+        description: "Deploy published image to"
+        type: choice
+        options:
+          - none
+          - staging
+          - prod
+        default: staging
+        required: true
+
+concurrency: deploy
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/sub-ci.yml
+    secrets: inherit
+    with:
+      infra: false
+      app: true
+
+  update_version:
+    name: Update Version
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    if: ${{ needs.paths_filter.outputs.app == 'true' }}
+    needs: [ci]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: './.github/actions/update-version'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+
+  publish_image-staging:
+    name: Publish Image - Staging
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [ update_version ]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+      aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
+
+  publish_image-prod:
+    name: Publish Image - Prod
+    uses: ./.github/workflows/sub-publish-image.yml
+    needs: [ update_version ]
+    with:
+      version: ${{ needs.update_version.outputs.version }}
+      aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/sub-cd.yml
+    if: ${{ inputs.deploy-to == 'staging' || inputs.deploy-to == 'prod' }}
+    needs: [publish_image-staging, publish_image-prod]
+    secrets: inherit
+    with:
+      deploy-infra: false
+      deploy-app: true
+      deploy-prod: ${{ inputs.deploy-to == 'prod' }}

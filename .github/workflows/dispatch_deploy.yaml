@@ -1,0 +1,55 @@
+name: ⚙️ Deploy
+run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy-infra:
+        description: "Deploy infrastructure"
+        default: true
+        required: true
+        type: boolean
+      deploy-app:
+        description: "Deploy app"
+        default: true
+        required: true
+        type: boolean
+      environment:
+        description: 'the environment to deploy to'
+        type: choice
+        options:
+          - 'wl-staging'
+          - 'wl-prod'
+        default: staging
+        required: true
+      version:
+        description: "The release version, otherwise latest is used"
+        type: string
+        required: false
+
+concurrency: deploy
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/sub-ci.yml
+    secrets: inherit
+    with:
+      infra: ${{ inputs.deploy-infra }}
+      app: ${{ inputs.deploy-app }}
+
+  cd:
+    name: CD
+    uses: ./.github/workflows/sub-cd.yml
+    needs: [ci]
+    secrets: inherit
+    with:
+      deploy-infra: ${{ inputs.deploy-infra == 'true' }}
+      deploy-app: ${{ inputs.deploy-app == 'true' }}
+      deploy-prod: ${{ inputs.environment == 'wl-prod' }}
+      version: ${{ inputs.version }}
