@@ -18,11 +18,11 @@ on:
       environment-url:
         description: 'the URL of the environment'
         type: string
-        default: https://keyserver.walletconnect.com/health
+        default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn:
         description: 'the ARN of the AWS role to assume'
         type: string
-        default: https://keyserver.walletconnect.com/health
+        default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
 permissions:
   id-token: write

@@ -56,7 +56,7 @@ jobs:
     with:
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-staging'
-      environment-url: https://staging.keyserver.walletconnect.com/health
+      environment-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
   deploy-app-staging:
     name: Deploy App Staging
@@ -67,7 +67,7 @@ jobs:
       image-name: ${{ vars.IMAGE_NAME }}
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-staging'
-      environment-url: https://staging.keyserver.walletconnect.com/health
+      environment-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   health-check-staging:
@@ -78,10 +78,10 @@ jobs:
       group: ${{ vars.RUN_GROUP }}
     environment:
       name: app/wl-staging
-      url: https://staging.keyserver.walletconnect.com/health
+      url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
     steps:
       - name: validate
-        run: curl "https://staging.keyserver.walletconnect.com/health"
+        run: curl "https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health"
 
   deployment_window:
     name: Deployment Window
@@ -91,7 +91,7 @@ jobs:
       group: ${{ vars.RUN_GROUP }}
     environment:
       name: app/wl-prod
-      url: https://keyserver.walletconnect.com/health
+      url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
     steps:
       - id: decide
         uses: WalletConnect/actions/deploy-window/@2.1.3
@@ -114,7 +114,7 @@ jobs:
     with:
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-prod'
-      environment-url: https://keyserver.walletconnect.com/health
+      environment-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
   deploy-app-prod:
     name: Deploy App Prod
@@ -125,5 +125,5 @@ jobs:
       image-name: ${{ vars.IMAGE_NAME }}
       version: ${{ needs.get_version.outputs.version }}
       environment: 'wl-prod'
-      environment-url: https://keyserver.walletconnect.com/health
+      environment-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
