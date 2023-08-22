@@ -59,6 +59,7 @@ jobs:
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:
+      ecr-repository: 'keyserver-staging'
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
@@ -67,6 +68,7 @@ jobs:
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:
+      ecr-repository: 'keyserver-prod'
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
 
