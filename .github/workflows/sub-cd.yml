@@ -22,8 +22,8 @@ on:
 concurrency: cd
 
 permissions:
-  id-token: write
   contents: read
+  id-token: write
 
 jobs:
   get_version:

@@ -13,8 +13,8 @@ on:
         default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
 permissions:
-  id-token: write
   contents: write
+  id-token: write
   packages: write
 
 jobs:

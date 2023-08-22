@@ -6,6 +6,9 @@ on:
 env:
   RUST_BACKTRACE: full
 
+permissions:
+  content: read
+
 jobs:
   clippy:
     name: Clippy
