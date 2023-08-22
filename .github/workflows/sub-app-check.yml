@@ -26,6 +26,9 @@ jobs:
           components: 'cargo,clippy'
           override: true
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.3
 
@@ -73,6 +76,9 @@ jobs:
           toolchain: ${{ vars.RUST_VERSION }}
           profile: 'default'
           override: true
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
 
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.3
