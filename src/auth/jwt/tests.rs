@@ -65,7 +65,7 @@ fn jwt_verify_invite_key_success() {
     assert!(jwt.verify().is_ok());
 }
 
-/// Test that we can verify a JWT
+/// Test that we can verify a JWT.
 #[test]
 fn jwt_verify_fail() {
     let payload = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkaWQ6a2V5Ono2TWtwSHlDalBqQWs5TmVGWlJuOFJGUVRiaGZ6TEs0Tm5ialJnTGNVVGdzU1RBQyIsInN1YiI6ImY3NjUyYWZiNmRjNGUwN2JmMWNlZTc2NzNkYTExMzI1M2U1NjcwNTJmZGVmZmFjYzdlOTQwNTZmMTQ3NDI1NzMiLCJhdWQiOiJodHRwOi8vMTAuMC4yLjI6ODA4MCIsImlhdCI6MTY3Mzk4NTg1MywiZXhwIjoxNjc0MDcyMjUzLCJwa2giOiJkaWQ6cGtoOmVpcDE1NToxOjB4ZTcyZjk4YWY3YmZlOWEzN2EwNmE2YmY2M2U2OTEyNTYzMTMxN2NlZCJ9.tIx08nEkoJ4M2VZ1uJI6SKSxKhZ31ANa7dXu_b07fXhmKYgujHEyyFk7Ge4OEIEtfH0wrLBOAbnpwEFY2JEwAQ";
