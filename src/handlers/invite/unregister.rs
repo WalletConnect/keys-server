@@ -66,7 +66,7 @@ pub async fn handler(
         account: account.to_string(),
     };
     params.validate().map_err(|error| {
-        info!(
+        warn!(
             "Failure - Unregister invite with jwt: {:?}, error: {:?}",
             payload.id_auth, error
         );
