@@ -1,6 +1,6 @@
 use crate::auth::cacao::Cacao;
 
-/// Test that we can verify a Cacao
+/// Test that we can verify a Cacao.
 #[test]
 fn cacao_verify_success() {
     let cacao_serialized = r#"{
