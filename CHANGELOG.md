@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.8.0 - 2023-08-22
+#### Bug Fixes
+- **(hotfix)** migrate to dedicated VPC (#94) - (f27ce74) - Szymon Rząd
+- **(o11y)** alerts miss service name - (fddd150) - Derek
+- trigger release on push to `master` instead of `main` (#105) - (5d617cc) - Xavier Basty
+- CI permissions (#104) - (f073d87) - Xavier Basty
+- CI permissions (#103) - (b220a43) - Xavier Basty
+- use new VPC in docdb (#98) - (7128c0a) - Xavier Basty
+- add image version parameter to dispatch workflow event (#90) - (1a8d65d) - Xavier Basty
+- remove redundant project actions (#86) - (310c55e) - Xavier Basty
+#### Features
+- Update CI PAT - (5e08a90) - Szymon Rząd
+- Add logging and metrics (#100) - (9c53b33) - Szymon Rząd
+- switch to keyserver aws account (#99) - (8cbe136) - Xavier Basty
+- tag ECS tasks - (a7b1cb8) - Derek
+- add project issues workflow, update project id (#83) - (56812f5) - Xavier Basty
+- update Grafana notification channel - (9fc1246) - Derek
+- upgrade to latest Grafana - (08d656e) - Derek
+#### Miscellaneous Chores
+- Grammar - (89bab01) - szymon
+- Restore old update version checkout - (c5d2a27) - szymon
+- Grammar - (8e56970) - Szymon Rząd
+- Grammar (#108) - (66cd3df) - Szymon Rząd
+- Update latest release action - (21f3695) - Szymon Rząd
+- - -
+
 ## 1.7.0 - 2023-05-17
 #### Features
 - Add read permission GITHUB_TOKEN (#79) - (b370a5f) - Szymon Rząd
