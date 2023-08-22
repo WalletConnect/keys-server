@@ -22,6 +22,7 @@ on:
         required: true
 
 permissions:
+  content: read
   id-token: write
 
 concurrency: ${{ inputs.environment }}
@@ -31,9 +32,6 @@ jobs:
     name: Plan `${{ inputs.environment }}`
     runs-on:
       group: ${{ vars.RUN_GROUP }}
-    permissions:
-      contents: read
-      pull-requests: write
     environment:
       name: infra/${{ inputs.environment }}
       url: ${{ inputs.environment-url }}

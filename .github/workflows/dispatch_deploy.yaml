@@ -30,9 +30,9 @@ on:
 concurrency: deploy
 
 permissions:
+  contents: write
   id-token: write
-  contents: read
-  pull-requests: write
+  packages: write
 
 jobs:
   ci:

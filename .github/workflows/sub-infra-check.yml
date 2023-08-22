@@ -11,6 +11,9 @@ on:
       TF_API_TOKEN:
         required: true
 
+permissions:
+  content: read
+
 jobs:
   check-fmt:
     name: Formatting
