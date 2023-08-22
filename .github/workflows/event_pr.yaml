@@ -28,6 +28,8 @@ jobs:
       group: ${{ vars.RUN_GROUP }}
     permissions:
       statuses: write
+      contents: read
+      pull-requests: write
     steps:
       - name: Check PR Title
         uses: aslafy-z/conventional-pr-title-action@v3
