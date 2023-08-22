@@ -8,6 +8,7 @@ use {
 pub mod health;
 pub mod identity;
 pub mod invite;
+pub mod metrics;
 
 #[derive(serde::Serialize)]
 #[serde(rename_all = "UPPERCASE")]

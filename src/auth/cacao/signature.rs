@@ -45,7 +45,7 @@ impl Eip191 {
             .map_err(|_| CacaoError::Verification)?;
 
         let recovered_key = VerifyingKey::recover_from_digest(
-            Keccak256::new_with_prefix(&self.eip191_bytes(message)),
+            Keccak256::new_with_prefix(self.eip191_bytes(message)),
             &sig,
             recovery_id,
         )

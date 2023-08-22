@@ -21,7 +21,8 @@ pub struct InviteKeyClaims {
     /// [1]: https://w3c-ccg.github.io/did-method-key/#ed25519-x25519
     iss: String,
 
-    /// Public key for chat invite key in form of did:key according to the [X25519][1]
+    /// Public key for chat invite key in form of did:key according to the
+    /// [X25519][1]
     ///
     /// [1]: https://w3c-ccg.github.io/did-method-key/#x25519
     sub: String,

@@ -9,6 +9,8 @@ use {
             jwt::Jwt,
         },
         error::{self},
+        increment_counter,
+        log::prelude::{info, warn},
         state::AppState,
     },
     axum::extract::{Json, State},
@@ -34,9 +36,28 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<UnregisterInviteKeyPayload>,
 ) -> error::Result<Response> {
-    // Errors with invalid jwt claims
-    let jwt = Jwt::<InviteKeyClaims>::new(&payload.id_auth)?;
-    jwt.verify()?;
+    info!(
+        "Handling - Unregister invite with jwt: {:?}",
+        payload.id_auth
+    );
+
+    let jwt = Jwt::<InviteKeyClaims>::new(&payload.id_auth).map_err(|error| {
+        increment_counter!(state.metrics, invalid_identity_unregister_jwt);
+        info!(
+            "Failure - Unregister invite with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
+
+    jwt.verify().map_err(|error| {
+        increment_counter!(state.metrics, invalid_invite_unregister_jwt);
+        info!(
+            "Failure - Unregister invite with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
 
     let claims: InviteKeyClaims = jwt.claims;
     let account = extract_did_data(&claims.pkh, DID_METHOD_PKH)?;
@@ -44,12 +65,31 @@ pub async fn handler(
     let params = UnregisterInviteKeyParams {
         account: account.to_string(),
     };
-    params.validate()?;
+    params.validate().map_err(|error| {
+        warn!(
+            "Failure - Unregister invite with jwt: {:?}, error: {:?}",
+            payload.id_auth, error
+        );
+        error
+    })?;
 
     state
         .keys_persitent_storage
         .remove_invite_key(&params.account)
-        .await?;
+        .await
+        .map_err(|error| {
+            warn!(
+                "Failure - Unregister invite with jwt: {:?}, error: {:?}",
+                payload.id_auth, error
+            );
+            error
+        })?;
+
+    info!(
+        "Success - Unregister invite with jwt: {:?}",
+        payload.id_auth
+    );
+    increment_counter!(state.metrics, invite_unregister);
 
     Ok(Response::default())
 }

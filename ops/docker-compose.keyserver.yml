@@ -24,6 +24,7 @@ services:
       jaeger:
         condition: service_started
     environment:
+      - RUST_BACKTRACE=1
       - PORT=8080
       - LOG_LEVEL=INFO
       - DATABASE_URL=mongodb://admin:admin@mongo:27017/keyserver?authSource=admin

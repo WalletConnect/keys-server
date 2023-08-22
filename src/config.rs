@@ -11,6 +11,7 @@ pub struct Configuration {
     // TELEMETRY
     pub telemetry_enabled: Option<bool>,
     pub telemetry_grpc_url: Option<String>,
+    pub telemetry_prometheus_port: Option<u16>,
 }
 
 impl Configuration {
