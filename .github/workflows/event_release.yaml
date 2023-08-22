@@ -58,7 +58,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          submodules: recursive
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
 
       - name: Release
         id: release
