@@ -22,6 +22,7 @@ Configure the Grafana dashboards for the application
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_monitoring-role"></a> [monitoring-role](#module\_monitoring-role) | app.terraform.io/wallet-connect/monitoring-role/aws | 1.0.2 |
 | <a name="module_this"></a> [this](#module\_this) | app.terraform.io/wallet-connect/label/null | 0.3.2 |
 
 ## Resources
@@ -48,6 +49,7 @@ Configure the Grafana dashboards for the application
 | <a name="input_label_order"></a> [label\_order](#input\_label\_order) | The order in which the labels (ID elements) appear in the `id`.<br>Defaults to ["namespace", "region", "stage", "name", "attributes"].<br>You can omit any of the 5 labels, but at least one must be present. | `list(string)` | `null` | no |
 | <a name="input_label_value_case"></a> [label\_value\_case](#input\_label\_value\_case) | Controls the letter case of ID elements (labels) as included in `id`,<br>set as tag values, and output by this module individually.<br>Does not affect values of tags passed in via the `tags` input.<br>Possible values: `lower`, `title`, `upper` and `none` (no transformation).<br>Set this to `title` and set `delimiter` to `""` to yield Pascal Case IDs.<br>Default value: `lower`. | `string` | `null` | no |
 | <a name="input_load_balancer_arn"></a> [load\_balancer\_arn](#input\_load\_balancer\_arn) | The ARN of the load balancer. | `string` | n/a | yes |
+| <a name="input_monitoring_role_arn"></a> [monitoring\_role\_arn](#input\_monitoring\_role\_arn) | The ARN of the monitoring role. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | ID element. Usually the component name.<br>This is the only ID element not also included as a `tag`.<br>The "name" tag is set to the full `id` string. There is no tag with the value of the `name` input. | `string` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually the organization name, i.e. 'walletconnect' to help ensure generated IDs are globally unique. | `string` | `null` | no |
 | <a name="input_notification_channels"></a> [notification\_channels](#input\_notification\_channels) | The notification channels to send alerts to | `list(any)` | n/a | yes |
