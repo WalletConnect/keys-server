@@ -1,5 +1,5 @@
 name: ⚙️ Publish
-run-name: "Publish: ${{ github.sha }} ➠ ${{ inputs.version }}${{ inputs.deploy-to != 'none' && format(' ❱❱ {0}', inputs.deploy-to) || ''}}"
+run-name: "Publish: ${{ github.sha }}${{ inputs.deploy-to != 'none' && format(' ❱❱ {0}', inputs.deploy-to) || ''}}"
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
       app: true
 
   update_version:
-    name: Update Version
+    name: Update Version ➠ ${{ steps.release.outputs.version }}
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     needs: [ci]
@@ -51,7 +51,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
 
   publish_image-staging:
-    name: Publish Image - Staging
+    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Staging
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:
@@ -60,7 +60,7 @@ jobs:
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   publish_image-prod:
-    name: Publish Image - Prod
+    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Prod
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:

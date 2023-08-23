@@ -1,5 +1,5 @@
 name: ⚙️ Deploy
-run-name: "Deploy: ${{ github.sha }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
+run-name: "Deploy: ${{ github.sha }} ➠ ${{ inputs.version }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
 
 on:
   workflow_dispatch:
