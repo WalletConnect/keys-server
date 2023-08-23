@@ -55,7 +55,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ecr-repository }}/${{ vars.IMAGE_NAME }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ecr-repository }}
             walletconnect/${{ vars.IMAGE_NAME }},enable=false
           flavor: |
             latest=auto
