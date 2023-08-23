@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.8.1 - 2023-08-23
+#### Bug Fixes
+- conditions in CI - (2b57f8a) - Xavier Basty
+- update version usage (#112) - (c7030b6) - Xavier Basty
+- CI titles (#111) - (4b51f21) - Xavier Basty
+- publish flow (#110) - (2f72afb) - Xavier Basty
+- release flows in CI (#109) - (defe4bc) - Xavier Basty
+- - -
+
 ## 1.8.0 - 2023-08-22
 #### Bug Fixes
 - **(hotfix)** migrate to dedicated VPC (#94) - (f27ce74) - Szymon Rząd
