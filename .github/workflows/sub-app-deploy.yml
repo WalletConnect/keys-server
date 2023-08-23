@@ -55,5 +55,5 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           cluster-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}_cluster
           service-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}-service
-          task-definition-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}
+          task-definition-name: ${{ vars.IMAGE_NAME }}
           image-name: ${{ steps.login-ecr.outputs.registry }}/${{ vars.IMAGE_NAME }}:${{ inputs.version }}
