@@ -76,7 +76,7 @@ jobs:
       url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
     steps:
       - id: decide
-        uses: WalletConnect/actions/deploy-window/@2.1.3
+        uses: WalletConnect/actions/deploy-window/@2.1.4
         with:
           earliest-hour: "9"
           latest-hour: "17"
