@@ -33,7 +33,7 @@ jobs:
   deploy-infra-staging:
     name: Deploy Infra Staging
     uses: ./.github/workflows/sub-infra-apply.yml
-    if: ${{ inputs.deploy-infra == 'true' }}
+    if: ${{ inputs.deploy-infra }}
     secrets: inherit
     with:
       version: ${{ inputs.version }}
@@ -43,7 +43,7 @@ jobs:
   deploy-app-staging:
     name: Deploy App Staging
     uses: ./.github/workflows/sub-app-deploy.yml
-    if: ${{ (always() && !failure() && !cancelled()) && inputs.deploy-app == 'true' }}
+    if: ${{ (always() && !failure() && !cancelled()) && inputs.deploy-app }}
     needs: [deploy-infra-staging]
     with:
       image-name: ${{ vars.IMAGE_NAME }}
@@ -67,7 +67,7 @@ jobs:
 
   deployment_window:
     name: Deployment Window
-    if: ${{ inputs.deploy-prod == 'true' }}
+    if: ${{ inputs.deploy-prod }}
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     environment:
@@ -84,12 +84,12 @@ jobs:
           force-deploy-phrase: force deploy
     outputs:
       # Ignore deployment windows if workflow was started manually
-      result: ${{ steps.decide.outputs.deploy_or_not == 'yes' || inputs.skip_window == 'true' }}
+      result: ${{ steps.decide.outputs.deploy_or_not == 'yes' || inputs.skip_window }}
 
   deploy-infra-prod:
     name: Deploy Infra Prod
     uses: ./.github/workflows/sub-infra-apply.yml
-    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-infra == 'true' && inputs.deploy-prod == 'true' && needs.deployment_window.outputs.result == 'true' }}
+    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-infra && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
     needs: [health-check-staging, deployment_window]
     secrets: inherit
     with:
@@ -100,7 +100,7 @@ jobs:
   deploy-app-prod:
     name: Deploy App Prod
     uses: ./.github/workflows/sub-app-deploy.yml
-    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-app == 'true' && inputs.deploy-prod == 'true' && needs.deployment_window.outputs.result == 'true' }}
+    if: ${{ always() && !failure() && !cancelled() && inputs.deploy-app && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
     needs: [health-check-staging, deployment_window, deploy-infra-prod]
     with:
       image-name: ${{ vars.IMAGE_NAME }}
