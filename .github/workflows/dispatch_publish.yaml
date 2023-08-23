@@ -31,7 +31,7 @@ jobs:
       app: true
 
   update_version:
-    name: Update Version ➠ ${{ steps.release.outputs.version }}
+    name: Update Version
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     needs: [ci]
@@ -39,8 +39,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          submodules: recursive
           token: ${{ secrets.PAT }}
+          fetch-depth: 0
 
       - name: Release
         id: release
@@ -49,6 +50,14 @@ jobs:
           token: ${{ secrets.PAT }}
     outputs:
       version: ${{ steps.release.outputs.version }}
+
+  released_version:
+    name: Version ➠ ${{ needs.update_version.outputs.version }}
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    needs: [ update_version ]
+    steps:
+      - run: echo "Version = ${{ needs.update_version.outputs.version }}"
 
   publish_image-staging:
     name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Staging
