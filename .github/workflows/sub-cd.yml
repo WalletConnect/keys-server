@@ -54,9 +54,9 @@ jobs:
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   health-check-staging:
-    name: Health Check
+    name: Health Check - Staging
     if: ${{ always() && !failure() && !cancelled() }}
-    needs: [deploy-app-staging, deploy-infra-staging]
+    needs: [deploy-infra-staging, deploy-app-staging]
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     environment:
@@ -107,3 +107,17 @@ jobs:
       stage: prod
       stage-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
+
+
+  health-check-prod:
+    name: Health Check - Prod
+    if: ${{ always() && !failure() && !cancelled() }}
+    needs: [deploy-infra-prod, deploy-app-prod]
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    environment:
+      name: prod
+      url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
+    steps:
+      - name: validate
+        run: curl "https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health"
