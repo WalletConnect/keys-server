@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.8.3 - 2023-08-23
+#### Bug Fixes
+- add github token to `protoc` action to avoid rate limits - (fd8d321) - Xavier Basty
+- deployment environments - (acc991c) - Xavier Basty
+- - -
+
 ## 1.8.2 - 2023-08-23
 #### Bug Fixes
 - ECR repository name - (69791a6) - Xavier Basty
