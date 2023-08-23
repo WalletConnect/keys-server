@@ -48,12 +48,11 @@ jobs:
 
       - name: Deploy image to ECS
         id: deploy
-        uses: WalletConnect/actions/actions/deploy-ecs/@2.1.3
+        uses: WalletConnect/actions/aws/ecs/deploy-image/@2.1.3
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-role-arn: ${{ inputs.aws-role-arn }}
           aws-region: ${{ env.AWS_REGION }}
-          cluster-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}_cluster
-          service-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}-service
+          cluster-name: walletconnect-${{ env.AWS_REGION }}-${{ inputs.stage }}-${{ vars.IMAGE_NAME }}_cluster
+          service-name: ${{ vars.IMAGE_NAME }}-service
           task-definition-name: ${{ vars.IMAGE_NAME }}
           image-name: ${{ steps.login-ecr.outputs.registry }}/${{ vars.IMAGE_NAME }}:${{ inputs.version }}
