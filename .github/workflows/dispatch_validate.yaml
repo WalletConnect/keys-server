@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       infra:
-        description: "Validate infra"
+        description: "Validate Infra"
         default: true
         required: true
         type: boolean
       app:
-        description: "Validate app"
+        description: "Validate App"
         default: true
         required: true
         type: boolean

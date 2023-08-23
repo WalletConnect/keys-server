@@ -20,7 +20,7 @@ jobs:
   check-infra:
     name: Infra CI
     uses: ./.github/workflows/sub-infra-check.yml
-    if: ${{ inputs.infra }}
+    if: ${{ inputs.infra == 'true' }}
     secrets: inherit
     with:
       environment: 'wl-staging'
@@ -28,7 +28,7 @@ jobs:
   check-app:
     name: App CI
     uses: ./.github/workflows/sub-app-check.yml
-    if: ${{ inputs.app }}
+    if: ${{ inputs.app == 'true' }}
     secrets: inherit
 
   plan-staging:
