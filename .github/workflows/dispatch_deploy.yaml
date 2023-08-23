@@ -38,7 +38,6 @@ jobs:
   cd:
     name: CD
     uses: ./.github/workflows/sub-cd.yml
-    needs: [ci]
     secrets: inherit
     with:
       deploy-infra: ${{ inputs.deploy-infra }}
