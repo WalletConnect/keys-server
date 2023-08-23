@@ -15,7 +15,7 @@ on:
         required: true
         type: boolean
       environment:
-        description: 'the environment to deploy to'
+        description: 'Environment to deploy to'
         type: choice
         options:
           - 'wl-staging'
@@ -23,14 +23,14 @@ on:
         default: staging
         required: true
       version:
-        description: "The release version, otherwise latest is used"
+        description: "Release version"
         type: string
-        required: false
+        required: true
 
 concurrency: deploy
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
   packages: write
 
