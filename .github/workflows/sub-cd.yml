@@ -18,7 +18,11 @@ on:
       version:
         description: "The release version"
         type: string
-        required: false
+      skip_window:
+        description: "Skip deployment window"
+        type: boolean
+        default: false
+
 concurrency: cd
 
 permissions:
@@ -26,35 +30,13 @@ permissions:
   id-token: write
 
 jobs:
-  get_version:
-    name: Get Version
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
-    steps:
-      - name: Get latest release
-        id: get_latest_version
-        if: ${{ inputs.version == '' }}
-        uses: WalletConnect/actions/github/latest_release/@2.1.3
-
-      - name: Get version
-        id: get_version
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=${{ steps.get_latest_version.outputs.version }}" >> "$GITHUB_OUTPUT"
-          fi
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-
   deploy-infra-staging:
     name: Deploy Infra Staging
     uses: ./.github/workflows/sub-infra-apply.yml
     if: ${{ inputs.deploy-infra }}
-    needs: [get_version]
     secrets: inherit
     with:
-      version: ${{ needs.get_version.outputs.version }}
+      version: ${{ inputs.version }}
       environment: 'wl-staging'
       environment-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
@@ -62,10 +44,10 @@ jobs:
     name: Deploy App Staging
     uses: ./.github/workflows/sub-app-deploy.yml
     if: ${{ (always() && !failure() && !cancelled()) && inputs.deploy-app }}
-    needs: [get_version, deploy-infra-staging]
+    needs: [deploy-infra-staging]
     with:
       image-name: ${{ vars.IMAGE_NAME }}
-      version: ${{ needs.get_version.outputs.version }}
+      version: ${{ inputs.version }}
       environment: 'wl-staging'
       environment-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
@@ -85,8 +67,6 @@ jobs:
 
   deployment_window:
     name: Deployment Window
-    needs: [health-check-staging]
-    if: ${{ always() && !failure() && !cancelled() }}
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     environment:
@@ -103,16 +83,16 @@ jobs:
           force-deploy-phrase: force deploy
     outputs:
       # Ignore deployment windows if workflow was started manually
-      result: ${{ steps.decide.outputs.deploy_or_not == 'yes' || github.event_name == 'workflow_dispatch' }}
+      result: ${{ steps.decide.outputs.deploy_or_not == 'yes' || inputs.skip_window == 'true' }}
 
   deploy-infra-prod:
     name: Deploy Infra Prod
     uses: ./.github/workflows/sub-infra-apply.yml
     if: ${{ always() && !failure() && !cancelled() && inputs.deploy-infra && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
-    needs: [health-check-staging, deployment_window, get_version]
+    needs: [health-check-staging, deployment_window]
     secrets: inherit
     with:
-      version: ${{ needs.get_version.outputs.version }}
+      version: ${{ inputs.version }}
       environment: 'wl-prod'
       environment-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
@@ -120,10 +100,10 @@ jobs:
     name: Deploy App Prod
     uses: ./.github/workflows/sub-app-deploy.yml
     if: ${{ always() && !failure() && !cancelled() && inputs.deploy-app && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
-    needs: [health-check-staging, deployment_window, get_version, deploy-infra-prod]
+    needs: [health-check-staging, deployment_window, deploy-infra-prod]
     with:
       image-name: ${{ vars.IMAGE_NAME }}
-      version: ${{ needs.get_version.outputs.version }}
+      version: ${{ inputs.version }}
       environment: 'wl-prod'
       environment-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}

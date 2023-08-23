@@ -35,21 +35,14 @@ permissions:
   packages: write
 
 jobs:
-  ci:
-    name: CI
-    uses: ./.github/workflows/sub-ci.yml
-    secrets: inherit
-    with:
-      infra: ${{ inputs.deploy-infra }}
-      app: ${{ inputs.deploy-app }}
-
   cd:
     name: CD
     uses: ./.github/workflows/sub-cd.yml
     needs: [ci]
     secrets: inherit
     with:
-      deploy-infra: ${{ inputs.deploy-infra == 'true' }}
-      deploy-app: ${{ inputs.deploy-app == 'true' }}
+      deploy-infra: ${{ inputs.deploy-infra }}
+      deploy-app: ${{ inputs.deploy-app }}
       deploy-prod: ${{ inputs.environment == 'wl-prod' }}
       version: ${{ inputs.version }}
+      skip_window: true
