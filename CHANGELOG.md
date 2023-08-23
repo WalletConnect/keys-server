@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.8.6 - 2023-08-23
+#### Bug Fixes
+- bump custom actions to 2.1.4 - (59ea1ed) - Xavier Basty
+- - -
+
 ## 1.8.5 - 2023-08-23
 #### Bug Fixes
 - ECS deployment - (bbdf333) - Xavier Basty
