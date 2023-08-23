@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release Version"
+        description: "Release Version (optional)"
         type: string
-        required: true
+        required: false
       deploy-to:
         description: "Deploy published image to"
         type: choice
@@ -38,7 +38,7 @@ jobs:
     name: Update Version
     runs-on:
       group: ${{ vars.RUN_GROUP }}
-    if: ${{ needs.paths_filter.outputs.app == 'true' }}
+    if: ${{ inputs.version == '' }}
     needs: [ci]
     steps:
       - name: Checkout
@@ -50,33 +50,57 @@ jobs:
         id: release
         uses: './.github/actions/update-version'
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
     outputs:
       version: ${{ steps.release.outputs.version }}
+
+  get_version:
+    name: Get Version
+    runs-on: ubuntu-latest
+    needs: [update_version]
+    if: ${{ always() && !cancelled() && !failure() }}
+    steps:
+      - name: Get version
+        id: get_version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ needs.update_version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
 
   publish_image-staging:
     name: Publish Image - Staging
     uses: ./.github/workflows/sub-publish-image.yml
-    needs: [ update_version ]
+    needs: [ get_version ]
+    if: ${{ always() && !cancelled() && !failure() }}
     with:
-      version: ${{ needs.update_version.outputs.version }}
+      ecr-repository: 'keyserver-staging'
+      version: ${{ needs.get_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   publish_image-prod:
     name: Publish Image - Prod
     uses: ./.github/workflows/sub-publish-image.yml
-    needs: [ update_version ]
+    needs: [ get_version ]
+    if: ${{ always() && !cancelled() && !failure() }}
     with:
-      version: ${{ needs.update_version.outputs.version }}
+      ecr-repository: 'keyserver-prod'
+      version: ${{ needs.get_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
 
   cd:
     name: CD
     uses: ./.github/workflows/sub-cd.yml
-    if: ${{ inputs.deploy-to == 'staging' || inputs.deploy-to == 'prod' }}
-    needs: [publish_image-staging, publish_image-prod]
+    needs: [get_version, publish_image-staging, publish_image-prod]
+    if: ${{ always() && !cancelled() && !failure() && (inputs.deploy-to == 'staging' || inputs.deploy-to == 'prod') }}
     secrets: inherit
     with:
       deploy-infra: false
       deploy-app: true
       deploy-prod: ${{ inputs.deploy-to == 'prod' }}
+      version: ${{ needs.get_version.outputs.version }}
+      skip_window: true
