@@ -3,19 +3,15 @@ name: ❖ App - Deploy
 on:
   workflow_call:
     inputs:
-      image-name:
-        description: 'the name of the image to deploy'
-        type: string
-        default: 'keyserver'
       version:
         description: 'the release version'
         type: string
         required: true
-      environment:
+      stage:
         description: 'the environment to deploy to'
         type: string
         default: 'staging'
-      environment-url:
+      stage-url:
         description: 'the URL of the environment'
         type: string
         default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
@@ -30,11 +26,11 @@ permissions:
 
 jobs:
   deploy-app:
-    name: Deploy App `${{ inputs.environment }}`
+    name: Deploy App `${{ inputs.stage }}`
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     environment:
-      name: app/${{ inputs.environment }}
+      name: ${{ inputs.stage }}
       url: ${{ inputs.environment_url }}
     steps:
       - name: Checkout
@@ -57,7 +53,7 @@ jobs:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ env.AWS_REGION }}
-          cluster-name: ${{ inputs.environment }}_${{ inputs.image-name }}_cluster
-          service-name: ${{ inputs.environment }}_${{ inputs.image-name }}-service
-          task-definition-name: ${{ inputs.environment }}_${{ inputs.image-name }}
-          image-name: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.image-name }}:${{ inputs.version }}
+          cluster-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}_cluster
+          service-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}-service
+          task-definition-name: ${{ inputs.stage }}_${{ vars.IMAGE_NAME }}
+          image-name: ${{ steps.login-ecr.outputs.registry }}/${{ vars.IMAGE_NAME }}:${{ inputs.version }}

@@ -60,20 +60,18 @@ jobs:
       - run: echo "Version = ${{ needs.update_version.outputs.version }}"
 
   publish_image-staging:
-    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Staging
+    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Staging ECR
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:
-      ecr-repository: 'keyserver-staging'
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
   publish_image-prod:
-    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Prod
+    name: Publish Image -  ${{ needs.get_version.outputs.version }} ❱❱ Prod ECR
     uses: ./.github/workflows/sub-publish-image.yml
     needs: [ update_version ]
     with:
-      ecr-repository: 'keyserver-prod'
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
 

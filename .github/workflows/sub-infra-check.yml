@@ -3,10 +3,10 @@ name: ❖ Infra - Check
 on:
   workflow_call:
     inputs:
-      environment:
+      stage:
         description: 'The name of the Terraform workspace to use'
         type: string
-        default: 'wl-staging'
+        default: staging
     secrets:
       TF_API_TOKEN:
         required: true
@@ -59,7 +59,7 @@ jobs:
       - name: Init Terraform
         uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
-          environment: ${{ inputs.environment }}
+          environment: ${{ inputs.stage }}
           use-tfvars: false
 
       - name: Validate Terraform
@@ -92,7 +92,7 @@ jobs:
       - name: Init Terraform
         uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
-          environment: ${{ inputs.environment }}
+          environment: ${{ inputs.stage }}
           use-tfvars: false
 
       - uses: aquasecurity/tfsec-action@v1.0.3
@@ -124,7 +124,7 @@ jobs:
       - name: Init Terraform
         uses: WalletConnect/actions/terraform/init/@2.1.3
         with:
-          environment: ${{ inputs.environment }}
+          environment: ${{ inputs.stage }}
           use-tfvars: false
 
       - name: Setup TFLint

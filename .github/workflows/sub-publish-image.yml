@@ -11,9 +11,6 @@ on:
         description: 'the ARN of the AWS role to assume'
         type: string
         default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
-      ecr-repository:
-        description: 'the ECR repository to publish to'
-        type: string
 
 permissions:
   contents: read
@@ -55,7 +52,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ecr-repository }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.IMAGE_NAME }}
             walletconnect/${{ vars.IMAGE_NAME }},enable=false
           flavor: |
             latest=auto

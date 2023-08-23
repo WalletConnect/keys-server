@@ -5,25 +5,25 @@ on:
   workflow_dispatch:
     inputs:
       deploy-infra:
-        description: "Deploy infrastructure"
+        description: "Deploy Infra"
         default: true
         required: true
         type: boolean
       deploy-app:
-        description: "Deploy app"
+        description: "Deploy App"
         default: true
         required: true
         type: boolean
-      environment:
-        description: 'Environment to deploy to'
+      stage:
+        description: 'Target Environment'
         type: choice
         options:
-          - 'wl-staging'
-          - 'wl-prod'
+          - staging
+          - prod
         default: staging
         required: true
       version:
-        description: "Release version"
+        description: "Release Version"
         type: string
         required: true
 
@@ -43,6 +43,6 @@ jobs:
     with:
       deploy-infra: ${{ inputs.deploy-infra }}
       deploy-app: ${{ inputs.deploy-app }}
-      deploy-prod: ${{ inputs.environment == 'wl-prod' }}
+      deploy-prod: ${{ inputs.stage == 'prod' }}
       version: ${{ inputs.version }}
       skip_window: true
