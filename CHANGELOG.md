@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.8.2 - 2023-08-23
+#### Bug Fixes
+- ECR repository name - (69791a6) - Xavier Basty
+- - -
+
 ## 1.8.1 - 2023-08-23
 #### Bug Fixes
 - conditions in CI - (2b57f8a) - Xavier Basty
