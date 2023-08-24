@@ -28,7 +28,6 @@ jobs:
     name: Check linked issues
     runs-on:
       group: ${{ vars.RUN_GROUP }}
-    if: github.event_name == 'pull_request_target'
     steps:
       - uses: nearform-actions/github-action-check-linked-issues@v1
 
