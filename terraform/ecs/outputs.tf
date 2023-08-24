@@ -22,3 +22,8 @@ output "load_balancer_arn_suffix" {
   description = "The ARN suffix of the load balancer"
   value       = aws_lb.load_balancer.arn_suffix
 }
+
+output "ecs_task_family" {
+  description = "The family of the task definition"
+  value       = aws_ecs_task_definition.app_task.family
+}

@@ -9,4 +9,5 @@ module "monitoring" {
   load_balancer_arn     = module.ecs.load_balancer_arn_suffix
   keystore_cluster_id   = module.keystore.cluster_id
   monitoring_role_arn   = data.terraform_remote_state.monitoring.outputs.grafana_workspaces.main.iam_role_arn
+  ecs_task_family       = module.ecs.ecs_task_family
 }
