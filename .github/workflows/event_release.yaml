@@ -105,3 +105,4 @@ jobs:
       deploy-infra: ${{ needs.paths_filter.outputs.infra == 'true' }}
       deploy-app: ${{ needs.paths_filter.outputs.app == 'true' }}
       deploy-prod: true
+      version: ${{ needs.update_version.outputs.version }}
