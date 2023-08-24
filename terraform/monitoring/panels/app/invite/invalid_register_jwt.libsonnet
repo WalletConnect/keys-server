@@ -7,7 +7,7 @@ local defaults  = import '../../defaults.libsonnet';
 {
   new(ds, vars)::
     panels.timeseries(
-      title       = 'Invite - Invalid CACAO Registration',
+      title       = 'Invite - Invalid JWT during Registration',
       datasource  = ds.prometheus,
     )
     .configure(defaults.configuration.timeseries)
