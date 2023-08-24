@@ -31,8 +31,8 @@ local _configuration  = defaults.configuration.timeseries
 
 
 local ops_alert(vars) = alert.new(
-  name        = "%s Keyserver DocumentDB LowMem Num Operations Throttled Alert" % vars.environment,
-  message     = "%s Keyserver DocumentDB LowMem Num Operations Throttled" % vars.environment,
+  name        = "%s Keys-Server DocumentDB LowMem Num Operations Throttled Alert" % vars.environment,
+  message     = "%s Keys-Server DocumentDB LowMem Num Operations Throttled" % vars.environment,
   period      = '5m',
   frequency   = '1m',
   notifications = vars.notifications,

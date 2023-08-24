@@ -1,4 +1,4 @@
-# keyserver-rust
+# Keys-Server
 
 ## API Guide
 
@@ -16,13 +16,13 @@ Setup:
   ```
 - Fill `.env` file with necessary values
 
-Running the keyserver:
+Running the keys-server:
 ```sh
 $ source .env # make sure the env variables are set
 $ just run
 ```
 
-Running the docker-compose set up (MongoDB + MongoExpress + Jaeger + Keyserver):
+Running the docker-compose set up (MongoDB + MongoExpress + Jaeger + Keys-Server):
 ```sh
 $ source .env # make sure the env variables are set
 $ just build-docker

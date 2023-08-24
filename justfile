@@ -44,20 +44,20 @@ fmt:
 
 # Build docker image
 build-docker:
-  @echo '=> Build keyserver docker image'
+  @echo '=> Build keys-server docker image'
   docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml build keyserver
 
-# Start keyserver & storage services on docker
+# Start keys-server & storage services on docker
 run-docker:
     @echo '==> Start services on docker'
     docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml up -d
 
-# Stop keyserver & storage services on docker
+# Stop keys-server & storage services on docker
 stop-docker:
   @echo '==> Stop services on docker'
   docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml down
 
-# Clean up docker keyserver & storage services
+# Clean up docker keys-server & storage services
 clean-docker:
   @echo '==> Clean services on docker'
   docker-compose  -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml stop
@@ -79,9 +79,9 @@ clean-storage-docker:
   docker-compose -f ./ops/docker-compose.storage.yml stop
   docker-compose -f ./ops/docker-compose.storage.yml rm -f
 
-# Restart keyserver on docker
+# Restart keys-server on docker
 restart-keyserver-docker:
-  @echo '==> Restart keyserver service on docker'
+  @echo '==> Restart keys-server service on docker'
   docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml up -d --build --force-recreate --no-deps keyserver
 
 # Lint the project for any quality issues
