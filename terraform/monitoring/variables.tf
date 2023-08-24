@@ -32,3 +32,8 @@ variable "monitoring_role_arn" {
   description = "The ARN of the monitoring role."
   type        = string
 }
+
+variable "ecs_task_family" {
+  description = "The name of the ECS task family."
+  type        = string
+}

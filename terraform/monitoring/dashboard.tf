@@ -12,6 +12,7 @@ data "jsonnet_file" "dashboard" {
     notifications = jsonencode(var.notification_channels)
 
     ecs_service_name = var.ecs_service_name
+    ecs_task_family  = var.ecs_task_family
     load_balancer    = var.load_balancer_arn
     target_group     = var.ecs_target_group_arn
     docdb_cluster_id = var.keystore_cluster_id

@@ -1,7 +1,24 @@
 {
+  ecs: {
+    cpu: (import 'ecs/cpu.libsonnet').new,
+    memory: (import 'ecs/memory.libsonnet').new,
+  },
+
   app: {
-    cpu: (import 'app/cpu.libsonnet').new,
-    memory: (import 'app/memory.libsonnet').new,
+    invite: {
+      register: (import 'app/invite/register.libsonnet').new,
+      resolved: (import 'app/invite/resolved.libsonnet').new,
+      unregister: (import 'app/invite/unregister.libsonnet').new,
+      invalid_register_jwt: (import 'app/invite/invalid_register_jwt.libsonnet').new,
+      invalid_unregister_jwt: (import 'app/invite/invalid_unregister_jwt.libsonnet').new,
+    },
+    identity: {
+      register: (import 'app/identity/register.libsonnet').new,
+      resolved: (import 'app/identity/resolved.libsonnet').new,
+      unregister: (import 'app/identity/unregister.libsonnet').new,
+      invalid_register_cacao: (import 'app/identity/invalid_register_cacao.libsonnet').new,
+      invalid_unregister_jwt: (import 'app/identity/invalid_unregister_jwt.libsonnet').new,
+    },
   },
 
   lb: {
