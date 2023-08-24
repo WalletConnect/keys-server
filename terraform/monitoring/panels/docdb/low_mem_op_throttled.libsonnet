@@ -1,10 +1,10 @@
 local grafana         = import '../../grafonnet-lib/grafana.libsonnet';
+local defaults        = import '../../grafonnet-lib/defaults.libsonnet';
+
 local panels          = grafana.panels;
 local targets         = grafana.targets;
 local alert           = grafana.alert;
 local alertCondition  = grafana.alertCondition;
-
-local defaults        = import '../defaults.libsonnet';
 
 local ops_threshold   = 2;
 
@@ -31,12 +31,13 @@ local _configuration  = defaults.configuration.timeseries
 
 
 local ops_alert(vars) = alert.new(
-  name        = "%s Keys-Server DocumentDB LowMem Num Operations Throttled Alert" % vars.environment,
-  message     = "%s Keys-Server DocumentDB LowMem Num Operations Throttled" % vars.environment,
-  period      = '5m',
-  frequency   = '1m',
+  namespace     = vars.namespace,
+  name          = "%s DocumentDB LowMem Num Operations Throttled Alert" % vars.environment,
+  message       = "%s DocumentDB LowMem Num Operations Throttled" % vars.environment,
+  period        = '5m',
+  frequency     = '1m',
   notifications = vars.notifications,
-  conditions  = [
+  conditions    = [
     alertCondition.new(
       evaluatorParams = [ ops_threshold ],
       evaluatorType   = 'gt',

@@ -7,20 +7,18 @@ local targets   = grafana.targets;
 {
   new(ds, vars)::
     panels.timeseries(
-      title       = 'Database Connections',
+      title       = 'Active Connections',
       datasource  = ds.cloudwatch,
     )
     .configure(defaults.configuration.timeseries)
 
     .addTarget(targets.cloudwatch(
-      alias       = 'Database Connections',
-      datasource  = ds.cloudwatch,
-      namespace   = 'AWS/DocDB',
-      metricName  = 'DatabaseConnections',
-      statistic   = 'Average',
-      dimensions  = {
-        DBClusterIdentifier: vars.docdb_cluster_id
+      datasource      = ds.cloudwatch,
+      namespace     = 'AWS/ApplicationELB',
+      metricName    = 'ActiveConnectionCount',
+      dimensions    = {
+        LoadBalancer: vars.load_balancer
       },
-      matchExact  = true,
+      statistic     = 'Average',
     ))
 }

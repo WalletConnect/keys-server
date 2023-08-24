@@ -1,8 +1,8 @@
 local grafana   = import '../../grafonnet-lib/grafana.libsonnet';
+local defaults  = import '../../grafonnet-lib/defaults.libsonnet';
+
 local panels    = grafana.panels;
 local targets   = grafana.targets;
-
-local defaults  = import '../defaults.libsonnet';
 
 local _configuration = defaults.configuration.timeseries
   .withSoftLimit(
@@ -19,16 +19,18 @@ local _configuration = defaults.configuration.timeseries
     .configure(_configuration)
 
     .addTarget(targets.cloudwatch(
-      alias           = 'Hosts Count',
-      metricQueryType = grafana.target.cloudwatch.metricQueryTypes.query,
       datasource      = ds.cloudwatch,
-      namespace       = 'AWS/NetworkELB',
-      metricName      = 'HealthyHostCount',
+      metricQueryType = grafana.target.cloudwatch.metricQueryTypes.query,
 
+      dimensions    = {
+        TargetGroup: vars.target_group
+      },
+      metricName    = 'HealthyHostCount',
+      namespace     = 'AWS/ApplicationELB',
       sql           = {
         from: {
           property: {
-            name: "AWS/NetworkELB",
+            name: "AWS/ApplicationELB",
             type: "string"
           },
           type: "property"
@@ -60,6 +62,7 @@ local _configuration = defaults.configuration.timeseries
           type: "and"
         }
       },
-      sqlExpression = "SELECT MAX(HealthyHostCount) FROM \"AWS/NetworkELB\" WHERE LoadBalancer = '%s'" % [vars.load_balancer],
+      sqlExpression = "SELECT MAX(HealthyHostCount) FROM \"AWS/ApplicationELB\" WHERE LoadBalancer = '%s'" % [vars.load_balancer],
+      statistic     = 'Maximum',
     ))
 }
