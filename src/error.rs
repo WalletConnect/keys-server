@@ -96,7 +96,7 @@ impl IntoResponse for Error {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ResponseError {
                     name: "unknown_error".to_string(),
-                    message: "This error should not have occurred. Please file an issue at: https://github.com/walletconnect/keyserver".to_string(),
+                    message: "This error should not have occurred. Please file an issue at: https://github.com/walletconnect/keys-server".to_string(),
                 }
             ),
         }.into_response()
