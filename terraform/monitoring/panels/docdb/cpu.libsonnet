@@ -1,26 +1,19 @@
 local grafana         = import '../../grafonnet-lib/grafana.libsonnet';
+local defaults        = import '../../grafonnet-lib/defaults.libsonnet';
+
 local panels          = grafana.panels;
 local targets         = grafana.targets;
 local alert           = grafana.alert;
 local alertCondition  = grafana.alertCondition;
 
-local defaults        = import '../defaults.libsonnet';
-
-local _configuration = defaults.configuration.timeseries_resource
-  .withUnit('percent')
-  .withSoftLimit(
-    axisSoftMin = 0,
-    axisSoftMax = 30,
-  );
-
-
 local cpu_alert(vars) = alert.new(
-  name        = "%s Keys-Server DocumentDB CPU alert" % vars.environment,
-  message     = "%s Keys-Server DocumentDB CPU alert" % vars.environment,
-  period      = '5m',
-  frequency   = '1m',
+  namespace     = vars.namespace,
+  name          = "%s DocumentDB CPU alert" % vars.environment,
+  message       = "%s DocumentDB CPU alert" % vars.environment,
+  period        = '5m',
+  frequency     = '1m',
   notifications = vars.notifications,
-  conditions  = [
+  conditions    = [
     alertCondition.new(
       evaluatorParams = [ 50 ],
       evaluatorType   = 'gt',
@@ -39,7 +32,7 @@ local cpu_alert(vars) = alert.new(
       title       = 'CPU Utilization',
       datasource  = ds.cloudwatch,
     )
-    .configure(_configuration)
+    .configure(defaults.configuration.timeseries_resource)
     .setAlert(cpu_alert(vars))
 
     .addTarget(targets.cloudwatch(

@@ -1,10 +1,10 @@
 local grafana         = import '../../grafonnet-lib/grafana.libsonnet';
+local defaults        = import '../../grafonnet-lib/defaults.libsonnet';
+
 local panels          = grafana.panels;
 local targets         = grafana.targets;
 local alert           = grafana.alert;
 local alertCondition  = grafana.alertCondition;
-
-local defaults        = import '../defaults.libsonnet';
 
 local mem_threshold = 4000000000;   // 4GiB
 local max_memory    = 16000000000;  // 16GiB (AWS DocDB max on db.r6g.large)
@@ -45,12 +45,13 @@ local _configuration = defaults.configuration.timeseries
 
 
 local mem_alert(vars) = alert.new(
-  name        = "%s Keys-Server DocumentDB Freeable Memory Alert" % vars.environment,
-  message     = "%s Keys-Server DocumentDB Freeable Memory" % vars.environment,
-  period      = '5m',
-  frequency   = '1m',
+  namespace     = vars.namespace,
+  name          = "%s DocumentDB Freeable Memory Alert" % vars.environment,
+  message       = "%s DocumentDB Freeable Memory" % vars.environment,
+  period        = '5m',
+  frequency     = '1m',
   notifications = vars.notifications,
-  conditions  = [
+  conditions    = [
     alertCondition.new(
       evaluatorParams = [ mem_threshold ],
       evaluatorType   = 'lt',

@@ -2,6 +2,7 @@ local grafana     = import 'grafonnet-lib/grafana.libsonnet';
 local panels      = import 'panels/panels.libsonnet';
 
 local dashboard   = grafana.dashboard;
+local row         = grafana.row;
 
 local ds    = {
   prometheus: {
@@ -14,10 +15,13 @@ local ds    = {
   }
 };
 local vars  = {
-  notifications:    std.parseJson(std.extVar('notifications')),
+  namespace:        'Keys',
   environment:      std.extVar('environment'),
+  notifications:    std.parseJson(std.extVar('notifications')),
+
   ecs_service_name: std.extVar('ecs_service_name'),
   load_balancer:    std.extVar('load_balancer'),
+  target_group:     std.extVar('target_group'),
   docdb_cluster_id: std.extVar('docdb_cluster_id'),
 };
 
@@ -44,25 +48,25 @@ dashboard.new(
     },
   )
 )
-.addPanels(
-  grafana.layout.generate_grid([
-    panels.app.app_cpu_memory(ds, vars)         { gridPos: pos._2     },
-    panels.app.healthy_hosts(ds, vars)          { gridPos: pos._2     },
-    panels.app.active_nlb_flows(ds, vars)       { gridPos: pos._2     },
-    panels.app.nlb_target_resets(ds, vars)      { gridPos: pos._2     },
+.addPanels(grafana.layout.generate_grid([
+  row.new('Application'),
+    panels.app.cpu(ds, vars)                      { gridPos: pos._2 },
+    panels.app.memory(ds, vars)                   { gridPos: pos._2 },
 
-    ////////////////////////////////////////////////////////////////////////////
-    grafana.panels.text(
-      content     = '# DocumentDB',
-      transparent = true
-    )                                                 { gridPos: pos.title  },
+  row.new('Load Balancer'),
+    panels.lb.active_connections(ds, vars)        { gridPos: pos._2 },
+    panels.lb.healthy_hosts(ds, vars)             { gridPos: pos._2 },
 
-    panels.docdb.cpu(ds, vars)                        { gridPos: pos._3     },
-    panels.docdb.available_memory(ds, vars)           { gridPos: pos._3     },
-    panels.docdb.connections(ds, vars)                { gridPos: pos._3     },
+    panels.lb.requests(ds, vars)                  { gridPos: pos._3 },
+    panels.lb.error_4xx(ds, vars)                 { gridPos: pos._3 },
+    panels.lb.error_5xx(ds, vars)                 { gridPos: pos._3 },
 
-    panels.docdb.low_mem_op_throttled(ds, vars)       { gridPos: pos._3     },
-    panels.docdb.volume(ds, vars)                     { gridPos: pos._3     },
-    panels.docdb.buffer_cache_hit_ratio(ds, vars)     { gridPos: pos._3     },
-  ])
-)
+  row.new('DocumentDB'),
+    panels.docdb.cpu(ds, vars)                    { gridPos: pos._3 },
+    panels.docdb.available_memory(ds, vars)       { gridPos: pos._3 },
+    panels.docdb.connections(ds, vars)            { gridPos: pos._3 },
+
+    panels.docdb.low_mem_op_throttled(ds, vars)   { gridPos: pos._3 },
+    panels.docdb.volume(ds, vars)                 { gridPos: pos._3 },
+    panels.docdb.buffer_cache_hit_ratio(ds, vars) { gridPos: pos._3 },
+]))
