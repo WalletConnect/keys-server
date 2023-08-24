@@ -1,6 +1,7 @@
 module "monitoring-role" {
   source          = "app.terraform.io/wallet-connect/monitoring-role/aws"
   version         = "1.0.2"
+  context         = module.this
   remote_role_arn = var.monitoring_role_arn
 }
 
@@ -12,7 +13,7 @@ resource "grafana_data_source" "prometheus" {
   json_data_encoded = jsonencode({
     httpMethod         = "GET"
     sigV4Auth          = true
-    sigV4AuthType      = "workspace-iam-role"
+    sigV4AuthType      = "ec2_iam_role"
     sigV4Region        = module.this.region
     sigV4AssumeRoleArn = module.monitoring-role.iam_role_arn
   })
