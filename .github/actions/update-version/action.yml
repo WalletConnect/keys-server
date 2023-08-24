@@ -25,12 +25,14 @@ runs:
         git-user: 'github-actions[bot]'
         git-user-email: "github-actions[bot]@users.noreply.github.com"
 
-    - name: Update version in Cargo.toml
+    - name: Update version in Cargo.toml and Cargo.lock
       shell: bash
       run: |
         version=$(echo "${{ steps.release.outputs.version }}" | sed 's/v//g')
         sed "s/^version = \".*\"\$/version = \"$version\"/" ./Cargo.toml > /tmp/cargo.toml
+        sed "/^name = \"keyserver\"\$/{ n; s/^version = \".*\"\$/version = \"$version\"/g }" ./Cargo.lock > /tmp/cargo.lock
         mv /tmp/cargo.toml ./Cargo.toml
+        mv /tmp/cargo.lock ./Cargo.lock
 
     - name: Commit version bump
       uses: stefanzweifel/git-auto-commit-action@v4
