@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.9.0 - 2023-08-24
+#### Bug Fixes
+- run condition for `check-linked-issues` - (a5c0711) - Xavier Basty
+- update `Cargo.lock` during releases - (ca7056e) - Xavier Basty
+- fix jobs dependencies in deploy dispatch flow - (7d30550) - Xavier Basty
+#### Features
+- Add health-check for prod in CD - (870f43c) - Xavier Basty
+#### Miscellaneous Chores
+- rename `keyserver` to `keys-server` in strings (#115) - (5798196) - Xavier Basty
+- merge `check linked issues` into PR flow - (b75abcb) - Xavier Basty
+- - -
+
 ## 1.8.6 - 2023-08-23
 #### Bug Fixes
 - bump custom actions to 2.1.4 - (59ea1ed) - Xavier Basty
