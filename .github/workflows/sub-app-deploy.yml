@@ -51,8 +51,8 @@ jobs:
         uses: WalletConnect/actions/aws/ecs/deploy-image/@2.1.4
         with:
           aws-role-arn: ${{ inputs.aws-role-arn }}
-          aws-region: ${{ env.AWS_REGION }}
-          cluster-name: walletconnect-${{ env.AWS_REGION }}-${{ inputs.stage }}-${{ vars.IMAGE_NAME }}_cluster
+          aws-region: ${{ vars.AWS_REGION }}
+          cluster-name: walletconnect-${{ vars.AWS_REGION }}-${{ inputs.stage }}-${{ vars.IMAGE_NAME }}_cluster
           service-name: ${{ vars.IMAGE_NAME }}-service
           task-definition-name: ${{ vars.IMAGE_NAME }}
           image-name: ${{ steps.login-ecr.outputs.registry }}/${{ vars.IMAGE_NAME }}:${{ inputs.version }}

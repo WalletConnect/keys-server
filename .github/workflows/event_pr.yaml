@@ -47,9 +47,6 @@ jobs:
     name: Paths Filter
     runs-on:
       group: ${{ vars.RUN_GROUP }}
-    outputs:
-      infra: ${{ steps.filter.outputs.infra }}
-      app: ${{ steps.filter.outputs.app }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -60,6 +57,9 @@ jobs:
               - '${{ vars.TF_DIRECTORY }}/**'
             app:
               - 'src/**'
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      app: ${{ steps.filter.outputs.app }}
 
   ci:
     name: CI

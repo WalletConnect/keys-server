@@ -35,9 +35,6 @@ jobs:
     name: Paths Filter
     runs-on:
       group: ${{ vars.RUN_GROUP }}
-    outputs:
-      infra: ${{ steps.filter.outputs.infra }}
-      app: ${{ steps.filter.outputs.app }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -48,6 +45,9 @@ jobs:
               - '${{ vars.TF_DIRECTORY }}/**'
             app:
               - 'src/**'
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      app: ${{ steps.filter.outputs.app }}
 
   update_version:
     name: Update Version
@@ -82,7 +82,7 @@ jobs:
   publish_image-staging:
     name: Publish ${{ needs.update_version.outputs.version }} ❱❱ Staging ECR
     uses: ./.github/workflows/sub-publish-image.yml
-    needs: [update_version]
+    needs: [ update_version ]
     with:
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
@@ -90,19 +90,47 @@ jobs:
   publish_image-prod:
     name: Publish ${{ needs.update_version.outputs.version }} ❱❱ Prod ECR
     uses: ./.github/workflows/sub-publish-image.yml
-    needs: [update_version]
+    needs: [ update_version ]
     with:
       version: ${{ needs.update_version.outputs.version }}
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
+
+  get_version:
+    name: Get Version
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    needs: [ paths_filter, update_version, publish_image-staging, publish_image-prod ]
+    if: ${{ always() && !cancelled() && !failure() }}
+    steps:
+      - name: Get task definition from ECS
+        id: get_task
+        if: ${{ needs.paths_filter.outputs.app != 'true' }}
+        uses: WalletConnect/actions/aws/ecs/get-task-image/@2.1.4
+        with:
+          aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
+          aws-region: ${{ vars.AWS_REGION }}
+          task-definition-name: ${{ vars.IMAGE_NAME }}
+          container-name: ${{ vars.IMAGE_NAME }}
+
+      - name: Get target version
+        id: get_target_version
+        run: |
+          if [ "${{ needs.paths_filter.outputs.app }}" == "true" ]; then
+            echo "version=${{ needs.update_version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ steps.get_task.outputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+    outputs:
+      version: ${{ steps.get_target_version.outputs.version }}
 
   cd:
     name: CD
     uses: ./.github/workflows/sub-cd.yml
     if: ${{ always() && !cancelled() && !failure() }}
-    needs: [paths_filter, publish_image-staging, publish_image-prod]
+    needs: [paths_filter, get_version, publish_image-staging, publish_image-prod]
     secrets: inherit
     with:
       deploy-infra: ${{ needs.paths_filter.outputs.infra == 'true' }}
       deploy-app: ${{ needs.paths_filter.outputs.app == 'true' }}
       deploy-prod: true
-      version: ${{ needs.update_version.outputs.version }}
+      version: ${{ needs.get_version.outputs.version }}
