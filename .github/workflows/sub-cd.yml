@@ -54,18 +54,14 @@ jobs:
       stage-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
       aws-role-arn: ${{ vars.AWS_ROLE_STAGING }}
 
-  health-check-staging:
-    name: Health Check - Staging
+  validate-staging:
+    name: Validate - Staging
     if: ${{ always() && !failure() && !cancelled() }}
     needs: [deploy-infra-staging, deploy-app-staging]
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
-    environment:
-      name: staging
-      url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
-    steps:
-      - name: validate
-        run: curl "https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health"
+    uses: ./.github/workflows/sub-validate.yml
+    with:
+      stage: staging
+      stage-url: https://staging.${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
 
   deployment_window:
     name: Deployment Window
@@ -91,7 +87,7 @@ jobs:
     name: Deploy Infra Prod
     uses: ./.github/workflows/sub-infra-apply.yml
     if: ${{ always() && !failure() && !cancelled() && inputs.deploy-infra && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
-    needs: [health-check-staging, deployment_window]
+    needs: [validate-staging, deployment_window]
     secrets: inherit
     with:
       version: ${{ inputs.version }}
@@ -102,7 +98,7 @@ jobs:
     name: Deploy App Prod
     uses: ./.github/workflows/sub-app-deploy.yml
     if: ${{ always() && !failure() && !cancelled() && inputs.deploy-app && inputs.deploy-prod && needs.deployment_window.outputs.result == 'true' }}
-    needs: [health-check-staging, deployment_window, deploy-infra-prod]
+    needs: [validate-staging, deployment_window, deploy-infra-prod]
     with:
       version: ${{ inputs.version }}
       stage: prod
@@ -110,15 +106,11 @@ jobs:
       aws-role-arn: ${{ vars.AWS_ROLE_PROD }}
 
 
-  health-check-prod:
-    name: Health Check - Prod
+  validate-prod:
+    name: Validate - Prod
     if: ${{ always() && !failure() && !cancelled() }}
     needs: [deploy-infra-prod, deploy-app-prod]
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
-    environment:
-      name: prod
-      url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
-    steps:
-      - name: validate
-        run: curl "https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health"
+    uses: ./.github/workflows/sub-validate.yml
+    with:
+      stage: prod
+      stage-url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health

@@ -3,12 +3,12 @@ run-name: "Validate: ${{ github.sha }}${{ (!inputs.infra && !inputs.app) && 'ðŸ‘
 on:
   workflow_dispatch:
     inputs:
-      infra:
+      check-infra:
         description: "Validate Infra"
         default: true
         required: true
         type: boolean
-      app:
+      check-app:
         description: "Validate App"
         default: true
         required: true
@@ -24,5 +24,5 @@ jobs:
     uses: ./.github/workflows/sub-ci.yml
     secrets: inherit
     with:
-      infra: ${{ inputs.infra }}
-      app: ${{ inputs.app }}
+      check-infra: ${{ inputs.check-infra }}
+      check-app: ${{ inputs.check-app }}

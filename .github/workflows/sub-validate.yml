@@ -1,0 +1,27 @@
+name: ❖ Validate
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: 'the environment to validate'
+        required: true
+        type: string
+        default: 'staging'
+      stage-url:
+        description: 'the URL of the environment'
+        required: true
+        type: string
+        default: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health
+
+jobs:
+  health-check:
+    name: Health Check - ${{ inputs.stage }}
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    environment:
+      name: ${{ inputs.stage }}
+      url: ${{ inputs.stage-url }}
+    steps:
+      - name: health-check
+        run: curl "${{ inputs.stage-url }}"

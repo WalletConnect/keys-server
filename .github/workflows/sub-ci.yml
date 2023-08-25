@@ -3,11 +3,11 @@ name: ❖ CI
 on:
   workflow_call:
     inputs:
-      infra:
+      check-infra:
         description: 'Run Infrastructure CI'
         type: boolean
         default: true
-      app:
+      check-app:
         description: 'Run App CI'
         type: boolean
         default: true
@@ -20,7 +20,7 @@ jobs:
   check-infra:
     name: Infra CI
     uses: ./.github/workflows/sub-infra-check.yml
-    if: ${{ inputs.infra }}
+    if: ${{ inputs.check-infra }}
     secrets: inherit
     with:
       stage: staging
@@ -28,7 +28,7 @@ jobs:
   check-app:
     name: App CI
     uses: ./.github/workflows/sub-app-check.yml
-    if: ${{ inputs.app }}
+    if: ${{ inputs.check-app }}
     secrets: inherit
 
   plan-staging:
