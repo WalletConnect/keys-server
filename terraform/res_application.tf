@@ -29,6 +29,7 @@ module "ecs" {
   # Application
   port          = 8080
   keystore_addr = module.keystore.connection_url
+  log_level     = var.log_level
 
   # Monitoring
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
