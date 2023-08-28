@@ -72,7 +72,8 @@ resource "aws_ecs_task_definition" "app_task" {
       essential = true,
 
       environment = [
-        { "name" = "DATABASE_URL", "value" = var.keystore_addr }
+        { "name" = "DATABASE_URL", "value" = var.keystore_addr },
+        { "name" = "LOG_LEVEL", "value" = var.log_level }
       ],
 
       portMappings = [

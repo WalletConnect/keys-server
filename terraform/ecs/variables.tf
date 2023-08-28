@@ -86,6 +86,11 @@ variable "keystore_addr" {
   type        = string
 }
 
+variable "log_level" {
+  description = "Defines logging level for the application"
+  type        = string
+}
+
 #---------------------------------------
 # Monitoring
 

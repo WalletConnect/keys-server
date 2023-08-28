@@ -26,6 +26,11 @@ variable "image_version" {
   type        = string
 }
 
+variable "log_level" {
+  description = "Defines logging level for the application"
+  type        = string
+}
+
 
 #-------------------------------------------------------------------------------
 # Keystore
@@ -58,3 +63,4 @@ variable "notification_channels" {
   type        = list(any)
   default     = []
 }
+
