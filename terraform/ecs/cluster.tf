@@ -109,7 +109,7 @@ resource "aws_ecs_task_definition" "app_task" {
       ],
 
       environment = [
-        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${var.port}" },
+        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${var.port + 1}" },
         { name : "AWS_PROMETHEUS_ENDPOINT", value : "${var.prometheus_endpoint}api/v1/remote_write" },
         { name = "AWS_REGION", value = "eu-central-1" },
       ],
