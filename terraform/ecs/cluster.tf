@@ -1,5 +1,6 @@
 locals {
-  image = "${var.ecr_repository_url}:${var.image_version}"
+  image          = "${var.ecr_repository_url}:${var.image_version}"
+  telemetry_port = var.port + 1
 
   otel_cpu    = 128
   otel_memory = 128
@@ -73,7 +74,8 @@ resource "aws_ecs_task_definition" "app_task" {
 
       environment = [
         { "name" = "DATABASE_URL", "value" = var.keystore_addr },
-        { "name" = "LOG_LEVEL", "value" = var.log_level }
+        { "name" = "LOG_LEVEL", "value" = var.log_level },
+        { "name" = "TELEMETRY_PROMETHEUS_PORT", "value" = tostring(local.telemetry_port) },
       ],
 
       portMappings = [
@@ -105,13 +107,15 @@ resource "aws_ecs_task_definition" "app_task" {
       essential = true,
 
       command = [
-        "--config=/etc/ecs/ecs-amp-prometheus.yaml"
+        "--config=/etc/ecs/ecs-amp-prometheus.yaml",
+        # Uncomment to enable debug logging in otel-collector
+        "--set=service.telemetry.logs.level=DEBUG"
       ],
 
       environment = [
-        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${var.port + 1}" },
+        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${local.telemetry_port}" },
         { name : "AWS_PROMETHEUS_ENDPOINT", value : "${var.prometheus_endpoint}api/v1/remote_write" },
-        { name = "AWS_REGION", value = "eu-central-1" },
+        { name = "AWS_REGION", value = module.this.region },
       ],
 
       logConfiguration = {
