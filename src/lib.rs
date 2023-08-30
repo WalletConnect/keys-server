@@ -1,6 +1,6 @@
 use {
     crate::{config::Configuration, state::AppState},
-    ::log::info,
+    ::log::{info, warn},
     axum::{
         routing::{get, post},
         Router,
@@ -32,10 +32,10 @@ pub async fn bootstrap(
     mut shutdown: broadcast::Receiver<()>,
     config: Configuration,
 ) -> error::Result<()> {
-    let keys_persitent_storage: Arc<MongoPersistentStorage> =
+    let keys_persistent_storage: Arc<MongoPersistentStorage> =
         Arc::new(MongoPersistentStorage::new(&config).await?);
 
-    let mut state = AppState::new(config, keys_persitent_storage)?;
+    let mut state = AppState::new(config, keys_persistent_storage)?;
 
     if state.config.telemetry_prometheus_port.is_some() {
         state.set_metrics(metrics::Metrics::new(Resource::new(vec![
@@ -45,6 +45,8 @@ pub async fn bootstrap(
                 state.build_info.crate_info.version.clone().to_string(),
             ),
         ]))?);
+    } else {
+        warn!("Telemetry is disabled")
     }
 
     let port = state.config.port;
