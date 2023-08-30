@@ -27,8 +27,8 @@ jobs:
     uses: ./.github/workflows/sub-ci.yml
     secrets: inherit
     with:
-      infra: false
-      app: true
+      check-infra: false
+      check-app: true
 
   update_version:
     name: Update Version
