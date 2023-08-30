@@ -13,9 +13,10 @@ local defaults  = import '../../defaults.libsonnet';
     .configure(defaults.configuration.timeseries)
 
     .addTarget(targets.prometheus(
-      datasource  = ds.prometheus,
-      expr        = 'sum(rate(invite_resolved{aws_ecs_task_family="%s"}[5m]))' % vars.ecs_task_family,
-      refId       = "sources",
-      exemplar    = true,
+      legendFormat  = 'Resolutions',
+      datasource    = ds.prometheus,
+      expr          = 'sum(invite_resolved{aws_ecs_task_family="%s"})' % vars.ecs_task_family,
+      refId         = "sources",
+      exemplar      = true,
     ))
 }
