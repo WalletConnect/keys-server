@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.10.0 - 2023-08-30
+#### Bug Fixes
+- enable metrics export in ECS (#124) - (db61e22) - Xavier Basty
+- CI parameters in `publish` flow - (f89432d) - Xavier Basty
+- change the port of the otel collector sidecar (#122) - (20e9766) - Xavier Basty
+- remove unnecessary `add-mask` commands - (58ef8ea) - Xavier Basty
+- CI parameters in PR flow - (854daa6) - Xavier Basty
+- get deployed version in infra only release - (2d3fb88) - Xavier Basty
+- hide Grafana key in CI logs - (4bd9326) - Xavier Basty
+- CD call in release workflow - (06424db) - Xavier Basty
+#### Features
+- change log level (#120) - (d75749e) - Szymon Rząd
+- move health-check to validate composite workflow for extensibility - (5b2d3de) - Xavier Basty
+- add prometheus panels to grafana (#118) - (9e99609) - Xavier Basty
+- add HTTP metrics to Grafana (#116) - (df913aa) - Xavier Basty
+#### Miscellaneous Chores
+- switch to shared action for `update-version` - (1bfdf87) - Xavier Basty
+- - -
+
 ## 1.9.0 - 2023-08-24
 #### Bug Fixes
 - run condition for `check-linked-issues` - (a5c0711) - Xavier Basty
