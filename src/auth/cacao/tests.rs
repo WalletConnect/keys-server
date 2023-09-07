@@ -30,6 +30,46 @@ fn cacao_verify_success() {
 
     let identity_key = cacao.p.identity_key();
     assert!(identity_key.is_ok());
+    assert_eq!(
+        identity_key.unwrap(),
+        "z6MkhoV7JnKEFgwai4R1ui14xcPDnqVFZ3a9dUNM3fE3z3Nf"
+    )
+}
+
+#[test]
+fn cacao_verify_success_identity_in_audience() {
+    let cacao_serialized = r#"{
+        "h": {
+            "t": "eip4361"
+        },
+        "p": {
+            "iss": "did:pkh:eip155:1:0xdFe7d0E324ed017a74aE311E9236E6CaDB24176b",
+            "domain": "com.walletconnect.sample.web3inbox",
+            "aud": "did:key:z6MkvjNoiz9AXGH1igzrtB54US5hE9bZPQm1ryKGkCLwWht7",
+            "version": "1",
+            "nonce": "6c9435d868ce15e0a1b0987a61a975e8c0edda17054840548dabf0a3c55cf5e4",
+            "iat": "2023-09-07T11:04:23+02:00",
+            "statement": "I further authorize this DAPP to send and receive messages on my behalf for this domain and manage my identity at identity.walletconnect.com.",
+            "resources": [
+                "identity.walletconnect.com"
+            ]
+        },
+        "s": {
+            "t": "eip191",
+            "s": "0x18b8dd2595930bd4bcd8066ad9fca5c54aaab20d2ec1cf46ff90baa5a91acad80f064a2f533d9dfc75928958a1da8e4f6755e14cab325a40a3a51e4bd6f2a1c91b"
+        }
+    }"#;
+    let cacao: Cacao = serde_json::from_str(cacao_serialized).unwrap();
+    let result = cacao.verify();
+    assert!(result.is_ok());
+    assert!(result.map_err(|_| false).unwrap());
+
+    let identity_key = cacao.p.identity_key();
+    assert!(identity_key.is_ok());
+    assert_eq!(
+        identity_key.unwrap(),
+        "z6MkvjNoiz9AXGH1igzrtB54US5hE9bZPQm1ryKGkCLwWht7"
+    )
 }
 
 /// Test that we can verify a Cacao
