@@ -73,6 +73,11 @@ impl Payload {
     }
 
     pub fn identity_key(&self) -> Result<String, CacaoError> {
+        self.identity_key_from_audience()
+            .or_else(|_| self.identity_key_from_resources())
+    }
+
+    fn identity_key_from_resources(&self) -> Result<String, CacaoError> {
         let resources = self
             .resources
             .as_ref()
@@ -80,6 +85,12 @@ impl Payload {
         let did_key = resources.first().ok_or(CacaoError::PayloadIdentityKey)?;
 
         extract_did_data(did_key, DID_METHOD_KEY)
+            .map(|data| data.to_string())
+            .map_err(|_| CacaoError::PayloadIdentityKey)
+    }
+
+    fn identity_key_from_audience(&self) -> Result<String, CacaoError> {
+        extract_did_data(&self.aud, DID_METHOD_KEY)
             .map(|data| data.to_string())
             .map_err(|_| CacaoError::PayloadIdentityKey)
     }
