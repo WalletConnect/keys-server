@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.11.0 - 2023-09-07
+#### Bug Fixes
+- display metric increase for Prometheus (#128) - (1888b9c) - Xavier Basty
+- remove `rate` from Prometheus queries (#126) - (b801252) - Xavier Basty
+- mask docker password in CI logs - (0f0700b) - Xavier Basty
+#### Features
+- Allow taking identity key from audience (#130) - (f10ddcc) - Szymon Rząd
+
+- - -
+
 ## 1.10.0 - 2023-08-30
 #### Bug Fixes
 - enable metrics export in ECS (#124) - (db61e22) - Xavier Basty
