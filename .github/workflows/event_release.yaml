@@ -72,7 +72,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
 
   released_version:
-    name: Version ➠ ${{ needs.update_version.outputs.version }}
+    name: Release Version ➠ ${{ needs.update_version.outputs.version }}
     runs-on:
       group: ${{ vars.RUN_GROUP }}
     needs: [ update_version ]
@@ -122,6 +122,14 @@ jobs:
           fi
     outputs:
       version: ${{ steps.get_target_version.outputs.version }}
+
+  used_version:
+    name: Version ➠ ${{ needs.get_version.outputs.version }}
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    needs: [ get_version ]
+    steps:
+      - run: echo "Version = ${{ needs.get_version.outputs.version }}
 
   cd:
     name: CD
