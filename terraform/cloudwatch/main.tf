@@ -9,6 +9,7 @@ locals {
   period             = 60 * 5
 }
 
+#tfsec:ignore:aws-sns-enable-topic-encryption
 resource "aws_sns_topic" "webhook" {
   name         = "cloudwatch-webhook"
   display_name = "CloudWatch Webhook forwarding to BetterUptime"

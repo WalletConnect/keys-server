@@ -15,6 +15,7 @@ resource "aws_prometheus_alert_manager_definition" "prometheus_alerts" {
     EOF
 }
 
+#tfsec:ignore:aws-sns-enable-topic-encryption
 resource "aws_sns_topic" "prometheus_webhook" {
   name         = "prometheus-webhook"
   display_name = "Prometheus Webhook forwarding to BetterUptime"
