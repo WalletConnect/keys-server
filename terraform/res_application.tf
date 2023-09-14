@@ -1,7 +1,3 @@
-resource "aws_prometheus_workspace" "prometheus" {
-  alias = "prometheus-${module.this.id}"
-}
-
 # ECS Cluster, Task, Service, and Load Balancer for our app
 module "ecs" {
   source  = "./ecs"

@@ -23,21 +23,7 @@ module "this" {
 
 #tflint-ignore: terraform_standard_module_structure
 variable "context" {
-  type = any
-  default = {
-    namespace           = null
-    region              = null
-    stage               = null
-    name                = null
-    delimiter           = null
-    attributes          = []
-    tags                = {}
-    label_order         = []
-    regex_replace_chars = null
-    id_length_limit     = null
-    label_key_case      = null
-    label_value_case    = null
-  }
+  type        = any
   description = <<-EOT
     Single object for setting entire context at once.
     See description of individual variables for details.

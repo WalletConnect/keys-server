@@ -23,6 +23,16 @@ output "load_balancer_arn_suffix" {
   value       = aws_lb.load_balancer.arn_suffix
 }
 
+output "ecs_cluster_name" {
+  description = "The name of the ECS cluster"
+  value       = aws_ecs_cluster.app_cluster.name
+}
+
+output "ecs_service_name" {
+  description = "The name of the ECS service"
+  value       = aws_ecs_service.app_service.name
+}
+
 output "ecs_task_family" {
   description = "The family of the task definition"
   value       = aws_ecs_task_definition.app_task.family

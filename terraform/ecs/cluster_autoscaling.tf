@@ -22,7 +22,6 @@ resource "aws_appautoscaling_target" "ecs_target" {
   resource_id        = "service/${aws_ecs_cluster.app_cluster.name}/${aws_ecs_service.app_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  role_arn           = aws_iam_role.ecs_autoscaling_role.arn
 }
 
 resource "aws_appautoscaling_policy" "ecs_target_cpu" {

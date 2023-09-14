@@ -64,3 +64,14 @@ variable "notification_channels" {
   default     = []
 }
 
+variable "betterstack_prometheus_webhook" {
+  description = "The BetterStack webhook to send Prometheus alerts to"
+  type        = string
+  sensitive   = true
+}
+
+variable "betterstack_cloudwatch_webhook" {
+  description = "The BetterStack webhook to send CloudWatch alerts to"
+  type        = string
+  sensitive   = true
+}
