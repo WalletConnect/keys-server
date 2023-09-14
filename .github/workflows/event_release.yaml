@@ -130,7 +130,7 @@ jobs:
       group: ${{ vars.RUN_GROUP }}
     needs: [ get_version ]
     steps:
-      - run: echo "Version = ${{ needs.get_version.outputs.version }}
+      - run: echo "Version = ${{ needs.get_version.outputs.version }}"
 
   cd:
     name: CD
