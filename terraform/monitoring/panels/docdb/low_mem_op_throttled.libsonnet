@@ -61,7 +61,7 @@ local ops_alert(vars) = alert.new(
     .setAlert(ops_alert(vars))
 
     .addTarget(targets.cloudwatch(
-      alias       = 'LowMem Num Operations Throttled (Avg)',
+      alias       = 'LowMem Num Operations Throttled (Max)',
       datasource  = ds.cloudwatch,
       dimensions  = {
         DBClusterIdentifier: vars.docdb_cluster_id
