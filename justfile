@@ -106,7 +106,7 @@ rs-check-fmt:
 
   if command -v cargo-fmt >/dev/null; then
     echo '==> Running rustfmt'
-    cargo fmt -- --check
+    cargo fmt --
   else
     echo '==> rustfmt not found in PATH, skipping'
   fi
