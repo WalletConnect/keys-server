@@ -54,7 +54,7 @@ jobs:
         id: grafana-get-details
         uses: WalletConnect/actions/aws/grafana/get-details-by-name/@2.1.4
         with:
-          workspace-name: 'Main'
+          workspace-name: ${{ vars.GRAFANA_WORKSPACE_NAME }}
 
       - name: Get Grafana key
         id: grafana-get-key
