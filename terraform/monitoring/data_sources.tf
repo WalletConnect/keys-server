@@ -17,6 +17,8 @@ resource "grafana_data_source" "prometheus" {
     sigV4Region        = module.this.region
     sigV4AssumeRoleArn = module.monitoring-role.iam_role_arn
   })
+
+  depends_on = [module.monitoring-role]
 }
 
 resource "grafana_data_source" "cloudwatch" {
@@ -27,4 +29,6 @@ resource "grafana_data_source" "cloudwatch" {
     defaultRegion = module.this.region
     assumeRoleArn = module.monitoring-role.iam_role_arn
   })
+
+  depends_on = [module.monitoring-role]
 }
