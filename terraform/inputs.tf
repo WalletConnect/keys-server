@@ -8,6 +8,16 @@ data "terraform_remote_state" "org" {
   }
 }
 
+data "terraform_remote_state" "datalake" {
+  backend = "remote"
+  config = {
+    organization = "wallet-connect"
+    workspaces = {
+      name = "data-lake-${module.this.stage}"
+    }
+  }
+}
+
 data "terraform_remote_state" "dns" {
   backend = "remote"
   config = {

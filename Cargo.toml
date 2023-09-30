@@ -11,6 +11,11 @@ authors = [
 build = "build.rs"
 
 [dependencies]
+wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.5.1", features = ["geoip", "geoblock"] }
+
+aws-config = "0.56"
+aws-sdk-s3 = "0.31"
+
 axum = "0.6.1"
 axum-macros = "0.3.0"
 tokio = { version = "1.0", features = ["full"] }

@@ -1,7 +1,9 @@
 use {
-    crate::{config::Configuration, state::AppState},
-    ::log::{info, warn},
+    crate::{config::Configuration, log::prelude::*, state::AppState},
+    aws_config::meta::region::RegionProviderChain,
+    aws_sdk_s3::{config::Region, Client as S3Client},
     axum::{
+        body::HttpBody,
         routing::{get, post},
         Router,
     },
@@ -16,6 +18,10 @@ use {
         trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
     },
     tracing::Level,
+    wc::geoip::{
+        block::{middleware::GeoBlockLayer, BlockingPolicy},
+        MaxMindResolver,
+    },
 };
 
 pub mod auth;
@@ -34,6 +40,9 @@ pub async fn bootstrap(
 ) -> error::Result<()> {
     let keys_persistent_storage: Arc<MongoPersistentStorage> =
         Arc::new(MongoPersistentStorage::new(&config).await?);
+
+    let s3_client = get_s3_client(&config).await;
+    let geoip_resolver = get_geoip_resolver(&config, &s3_client).await;
 
     let mut state = AppState::new(config, keys_persistent_storage)?;
 
@@ -70,23 +79,26 @@ pub async fn bootstrap(
         .allow_origin("*".parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST]);
 
-    let app = Router::new()
-        .route("/health", get(handlers::health::handler))
-        .route(
-            "/identity",
-            get(handlers::identity::resolve::handler)
-                .post(handlers::identity::register::handler)
-                .delete(handlers::identity::unregister::handler),
-        )
-        .route(
-            "/invite",
-            post(handlers::invite::register::handler)
-                .delete(handlers::invite::unregister::handler)
-                .get(handlers::invite::resolve::handler),
-        )
-        .layer(global_middleware)
-        .layer(cors_layer)
-        .with_state(state_arc.clone());
+    let app = new_geoblocking_router(
+        geoip_resolver.clone(),
+        state_arc.config.blocked_countries.clone(),
+    )
+    .route("/health", get(handlers::health::handler))
+    .route(
+        "/identity",
+        get(handlers::identity::resolve::handler)
+            .post(handlers::identity::register::handler)
+            .delete(handlers::identity::unregister::handler),
+    )
+    .route(
+        "/invite",
+        post(handlers::invite::register::handler)
+            .delete(handlers::invite::unregister::handler)
+            .get(handlers::invite::resolve::handler),
+    )
+    .layer(global_middleware)
+    .layer(cors_layer)
+    .with_state(state_arc.clone());
 
     let private_app = Router::new()
         .route("/metrics", get(handlers::metrics::handler))
@@ -102,4 +114,62 @@ pub async fn bootstrap(
     }
 
     Ok(())
+}
+
+fn new_geoblocking_router<S, B>(
+    geoip_resolver: Option<Arc<MaxMindResolver>>,
+    blocked_countries: Vec<String>,
+) -> Router<S, B>
+where
+    S: Clone + Send + Sync + 'static,
+    B: HttpBody + Send + 'static,
+{
+    if let Some(resolver) = geoip_resolver {
+        Router::new().layer(GeoBlockLayer::new(
+            resolver.clone(),
+            blocked_countries.clone(),
+            BlockingPolicy::AllowAll,
+        ))
+    } else {
+        Router::new()
+    }
+}
+
+async fn get_s3_client(config: &Configuration) -> S3Client {
+    let region_provider = RegionProviderChain::first_try(Region::new("eu-central-1"));
+    let shared_config = aws_config::from_env().region(region_provider).load().await;
+
+    let aws_config = match &config.s3_endpoint {
+        Some(s3_endpoint) => {
+            info!(%s3_endpoint, "initializing analytics with custom s3 endpoint");
+
+            aws_sdk_s3::config::Builder::from(&shared_config)
+                .endpoint_url(s3_endpoint)
+                .build()
+        }
+        _ => aws_sdk_s3::config::Builder::from(&shared_config).build(),
+    };
+
+    S3Client::from_conf(aws_config)
+}
+
+async fn get_geoip_resolver(
+    config: &Configuration,
+    s3_client: &S3Client,
+) -> Option<Arc<MaxMindResolver>> {
+    match (&config.geoip_db_bucket, &config.geoip_db_key) {
+        (Some(bucket), Some(key)) => {
+            info!(%bucket, %key, "initializing geoip database from aws s3");
+
+            Some(Arc::new(
+                MaxMindResolver::from_aws_s3(s3_client, bucket, key)
+                    .await
+                    .expect("failed to load geoip resolver"),
+            ))
+        }
+        _ => {
+            info!("analytics geoip lookup is disabled");
+            None
+        }
+    }
 }

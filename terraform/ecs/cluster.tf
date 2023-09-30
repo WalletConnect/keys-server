@@ -75,7 +75,13 @@ resource "aws_ecs_task_definition" "app_task" {
       environment = [
         { "name" = "DATABASE_URL", "value" = var.keystore_addr },
         { "name" = "LOG_LEVEL", "value" = var.log_level },
+
         { "name" = "TELEMETRY_PROMETHEUS_PORT", "value" = tostring(local.telemetry_port) },
+
+        { "name" = "GEOIP_DB_BUCKET", "value" = var.geoip_db_bucket_name },
+        { "name" = "GEOIP_DB_KEY", "value" = var.geoip_db_key },
+
+        { "name" = "BLOCKED_COUNTRIES", "value" = "KP,IR,CU,SY" },
       ],
 
       portMappings = [

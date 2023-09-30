@@ -8,10 +8,20 @@ pub struct Configuration {
     pub log_level: String,
     pub database_url: String,
 
-    // TELEMETRY
+    // Telemetry
     pub telemetry_enabled: Option<bool>,
     pub telemetry_grpc_url: Option<String>,
     pub telemetry_prometheus_port: Option<u16>,
+
+    // AWS
+    pub s3_endpoint: Option<String>,
+
+    // GeoIP
+    pub geoip_db_bucket: Option<String>,
+    pub geoip_db_key: Option<String>,
+
+    // GeoBlocking
+    pub blocked_countries: Vec<String>,
 }
 
 impl Configuration {

@@ -98,3 +98,16 @@ variable "prometheus_endpoint" {
   description = "The endpoint of the Prometheus server to use for monitoring"
   type        = string
 }
+
+#---------------------------------------
+# GeoIP
+
+variable "geoip_db_bucket_name" {
+  description = "The name of the S3 bucket where the GeoIP database is stored"
+  type        = string
+}
+
+variable "geoip_db_key" {
+  description = "The key of the GeoIP database in the S3 bucket"
+  type        = string
+}
