@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.12.0 - 2023-10-02
+#### Bug Fixes
+- switch to `central` Grafana instance (#139) - (c458b45) - Xavier Basty
+- syntax for `used_version` task - (a5a9bb6) - Xavier Basty
+- force CI to run the "display version" task - (e1e8f26) - Xavier Basty
+- don't redeploy app when deploying infra in CD - (19e7991) - Xavier Basty
+#### Features
+- geo-blocking (#141) - (ce83b63) - Xavier Basty
+- add CloudWatch alarms and alarms forwarding to BetterStack (#131) - (b87566b) - Xavier Basty
+#### Miscellaneous Chores
+- set DocDB available memory threshold to 3GiB (#136) - (2e15a6b) - Xavier Basty
+- display actual version passed to the CD (#133) - (08136b5) - Xavier Basty
+
+- - -
+
 ## 1.11.0 - 2023-09-07
 #### Bug Fixes
 - display metric increase for Prometheus (#128) - (1888b9c) - Xavier Basty
