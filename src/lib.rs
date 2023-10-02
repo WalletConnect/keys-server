@@ -3,7 +3,6 @@ use {
     aws_config::meta::region::RegionProviderChain,
     aws_sdk_s3::{config::Region, Client as S3Client},
     axum::{
-        body::HttpBody,
         routing::{get, post},
         Router,
     },
@@ -79,26 +78,32 @@ pub async fn bootstrap(
         .allow_origin("*".parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST]);
 
-    let app = new_geoblocking_router(
-        geoip_resolver.clone(),
-        state_arc.config.blocked_countries.clone(),
-    )
-    .route("/health", get(handlers::health::handler))
-    .route(
-        "/identity",
-        get(handlers::identity::resolve::handler)
-            .post(handlers::identity::register::handler)
-            .delete(handlers::identity::unregister::handler),
-    )
-    .route(
-        "/invite",
-        post(handlers::invite::register::handler)
-            .delete(handlers::invite::unregister::handler)
-            .get(handlers::invite::resolve::handler),
-    )
-    .layer(global_middleware)
-    .layer(cors_layer)
-    .with_state(state_arc.clone());
+    let app = Router::new()
+        .route("/health", get(handlers::health::handler))
+        .route(
+            "/identity",
+            get(handlers::identity::resolve::handler)
+                .post(handlers::identity::register::handler)
+                .delete(handlers::identity::unregister::handler),
+        )
+        .route(
+            "/invite",
+            post(handlers::invite::register::handler)
+                .delete(handlers::invite::unregister::handler)
+                .get(handlers::invite::resolve::handler),
+        )
+        .layer(global_middleware)
+        .layer(cors_layer);
+    let app = if let Some(resolver) = geoip_resolver {
+        app.layer(GeoBlockLayer::new(
+            resolver.clone(),
+            state_arc.config.blocked_countries.clone(),
+            BlockingPolicy::AllowAll,
+        ))
+    } else {
+        app
+    };
+    let app = app.with_state(state_arc.clone());
 
     let private_app = Router::new()
         .route("/metrics", get(handlers::metrics::handler))
@@ -114,25 +119,6 @@ pub async fn bootstrap(
     }
 
     Ok(())
-}
-
-fn new_geoblocking_router<S, B>(
-    geoip_resolver: Option<Arc<MaxMindResolver>>,
-    blocked_countries: Vec<String>,
-) -> Router<S, B>
-where
-    S: Clone + Send + Sync + 'static,
-    B: HttpBody + Send + 'static,
-{
-    if let Some(resolver) = geoip_resolver {
-        Router::new().layer(GeoBlockLayer::new(
-            resolver.clone(),
-            blocked_countries.clone(),
-            BlockingPolicy::AllowAll,
-        ))
-    } else {
-        Router::new()
-    }
 }
 
 async fn get_s3_client(config: &Configuration) -> S3Client {
