@@ -1835,7 +1835,7 @@ dependencies = [
 
 [[package]]
 name = "keyserver"
-version = "1.12.0"
+version = "1.12.1"
 dependencies = [
  "anyhow",
  "async-trait",
