@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.12.1 - 2023-10-02
+#### Bug Fixes
+- apply geoblock at beginning of chain (#143) - (feecd42) - Xavier Basty
+
+- - -
+
 ## 1.12.0 - 2023-10-02
 #### Bug Fixes
 - switch to `central` Grafana instance (#139) - (c458b45) - Xavier Basty
