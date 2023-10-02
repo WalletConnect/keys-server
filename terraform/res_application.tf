@@ -29,4 +29,8 @@ module "ecs" {
 
   # Monitoring
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
+
+  # GeoIP
+  geoip_db_bucket_name = data.terraform_remote_state.datalake.outputs.geoip_bucket_id
+  geoip_db_key         = var.geoip_db_key
 }
