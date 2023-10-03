@@ -1,3 +1,7 @@
+data "aws_s3_bucket" "geoip" {
+  bucket = "keyserver.${module.this.stage}.geoip.database.private.walletconnect"
+}
+
 # ECS Cluster, Task, Service, and Load Balancer for our app
 module "ecs" {
   source  = "./ecs"
@@ -31,6 +35,6 @@ module "ecs" {
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
 
   # GeoIP
-  geoip_db_bucket_name = data.terraform_remote_state.datalake.outputs.geoip_bucket_id
+  geoip_db_bucket_name = data.aws_s3_bucket.geoip.id
   geoip_db_key         = var.geoip_db_key
 }
