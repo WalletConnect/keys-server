@@ -18,12 +18,12 @@ data "terraform_remote_state" "org" {
 #  }
 #}
 
-data "terraform_remote_state" "dns" {
+data "terraform_remote_state" "infra_aws" {
   backend = "remote"
   config = {
     organization = "wallet-connect"
     workspaces = {
-      name = "dns-delegation"
+      name = "infra-aws"
     }
   }
 }

@@ -1,5 +1,5 @@
 locals {
-  zones              = { for k, v in tomap(data.terraform_remote_state.dns.outputs.zones.keyserver[local.stage]) : v.id => v.name }
+  zones              = { for k, v in tomap(data.terraform_remote_state.infra_aws.outputs.zones.keyserver[local.stage]) : v.id => v.name }
   zones_certificates = { for k, v in module.dns_certificate : v.zone_id => v.certificate_arn }
 }
 
