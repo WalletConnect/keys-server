@@ -1,5 +1,5 @@
 data "aws_s3_bucket" "geoip" {
-  bucket = "keyserver.${module.this.stage}.geoip.database.private.walletconnect"
+  bucket = data.terraform_remote_state.infra_aws.outputs.geoip_bucked_id
 }
 
 # ECS Cluster, Task, Service, and Load Balancer for our app
