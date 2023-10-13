@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.12.2 - 2023-10-13
+#### Bug Fixes
+- add cors on delete (#150) - (eb236e8) - Celine Sarafa
+- replace local copy of geoip db with shared one. (#147) - (a71dba0) - Xavier Basty
+- use local version of geoip db (#145) - (2a9c907) - Xavier Basty
+#### Continuous Integration
+- bump update_rust_version to 2.1.5 (#148) - (cc7f3dc) - Max Kalashnikoff
+
+- - -
+
 ## 1.12.1 - 2023-10-02
 #### Bug Fixes
 - apply geoblock at beginning of chain (#143) - (feecd42) - Xavier Basty
