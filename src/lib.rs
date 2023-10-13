@@ -76,7 +76,7 @@ pub async fn bootstrap(
     let cors_layer = CorsLayer::new()
         .allow_headers([http::header::CONTENT_TYPE])
         .allow_origin("*".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::GET, Method::POST]);
+        .allow_methods([Method::GET, Method::POST, Method::DELETE]);
 
     let app = Router::new()
         .route("/health", get(handlers::health::handler))
