@@ -38,9 +38,7 @@ Configure the Grafana dashboards for the application
 | <a name="input_prometheus_endpoint"></a> [prometheus\_endpoint](#input\_prometheus\_endpoint) | The endpoint for the Prometheus server. |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_dashboard_definition"></a> [dashboard\_definition](#output\_dashboard\_definition) | The JSON definition of the dashboard. |
+No outputs.
 
 
 <!-- END_TF_DOCS -->

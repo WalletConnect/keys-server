@@ -81,7 +81,7 @@ resource "aws_ecs_task_definition" "app_task" {
         { "name" = "GEOIP_DB_BUCKET", "value" = var.geoip_db_bucket_name },
         { "name" = "GEOIP_DB_KEY", "value" = var.geoip_db_key },
 
-        { "name" = "BLOCKED_COUNTRIES", "value" = "KP,IR,CU,SY" },
+        { "name" = "BLOCKED_COUNTRIES", "value" = var.ofac_blocked_countries },
       ],
 
       portMappings = [
