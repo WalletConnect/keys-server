@@ -26,7 +26,7 @@ Now you can apply the changes:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.12.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.17.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.5.1 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 ## Modules
@@ -48,6 +48,7 @@ Now you can apply the changes:
 |------|-------------|------|---------|:--------:|
 | <a name="input_betterstack_cloudwatch_webhook"></a> [betterstack\_cloudwatch\_webhook](#input\_betterstack\_cloudwatch\_webhook) | The BetterStack webhook to send CloudWatch alerts to |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
 | <a name="input_betterstack_prometheus_webhook"></a> [betterstack\_prometheus\_webhook](#input\_betterstack\_prometheus\_webhook) | The BetterStack webhook to send Prometheus alerts to |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
+| <a name="input_geoip_db_key"></a> [geoip\_db\_key](#input\_geoip\_db\_key) | The name to the GeoIP database |  <pre lang="json">string</pre> |  <pre lang="json">"GeoLite2-City.mmdb"</pre> |  no |
 | <a name="input_grafana_auth"></a> [grafana\_auth](#input\_grafana\_auth) | The API Token for the Grafana instance |  <pre lang="json">string</pre> |  <pre lang="json">""</pre> |  no |
 | <a name="input_image_version"></a> [image\_version](#input\_image\_version) | The version of the image to deploy |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
 | <a name="input_keystore_primary_instance_class"></a> [keystore\_primary\_instance\_class](#input\_keystore\_primary\_instance\_class) | The instance class of the primary docdb instances |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
@@ -56,6 +57,7 @@ Now you can apply the changes:
 | <a name="input_keystore_replica_instance_count"></a> [keystore\_replica\_instance\_count](#input\_keystore\_replica\_instance\_count) | The number of replica docdb instances to deploy |  <pre lang="json">number</pre> |  <pre lang="json">n/a</pre> |  yes |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | Defines logging level for the application |  <pre lang="json">string</pre> |  <pre lang="json">n/a</pre> |  yes |
 | <a name="input_notification_channels"></a> [notification\_channels](#input\_notification\_channels) | The notification channels to send alerts to |  <pre lang="json">list(any)</pre> |  <pre lang="json">[]</pre> |  no |
+| <a name="input_ofac_blocked_countries"></a> [ofac\_blocked\_countries](#input\_ofac\_blocked\_countries) | The list of countries to block |  <pre lang="json">string</pre> |  <pre lang="json">""</pre> |  no |
 ## Outputs
 
 No outputs.
