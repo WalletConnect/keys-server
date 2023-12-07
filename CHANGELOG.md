@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.13.0 - 2023-12-07
+#### Bug Fixes
+- update prometheus metrics (#159) - (b73ba03) - Xavier Basty
+#### Features
+- fetch the list of OFAC blocked countries from GitHub variables (#153) - (e2bddda) - Xavier Basty
+#### Miscellaneous Chores
+- reduce memory threshold to 1.5GB (#156) - (d808a3c) - Chris Smith
+- remove linked issues check (#155) - (64eb261) - Xavier Basty
+- update `utils` version (#154) - (0e59857) - Xavier Basty
+
+- - -
+
 ## 1.12.2 - 2023-10-13
 #### Bug Fixes
 - add cors on delete (#150) - (eb236e8) - Celine Sarafa
