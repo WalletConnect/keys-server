@@ -45,7 +45,8 @@ pub async fn bootstrap(
 
     let mut state = AppState::new(config, keys_persistent_storage)?;
 
-    if state.config.telemetry_prometheus_port.is_some() {
+    if let Some(prometheus_port) = state.config.telemetry_prometheus_port {
+        info!("Telemetry is enabled on port {}", prometheus_port);
         state.set_metrics(metrics::Metrics::new(Resource::new(vec![
             KeyValue::new("service_name", state.build_info.crate_info.name.clone()),
             KeyValue::new(
