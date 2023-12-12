@@ -20,7 +20,7 @@ axum = "0.6.1"
 axum-macros = "0.3.0"
 tokio = { version = "1.0", features = ["full"] }
 tower = { version = "0.4", features = ["util", "timeout", "load-shed", "limit"] }
-tower-http = { version = "0.3.0", features = ["add-extension", "auth", "compression-full", "trace", "cors"] }
+tower-http = { version = "0.3.0", features = ["add-extension", "auth", "compression-full", "trace", "cors", "request-id", "util"] }
 hyper = "0.14"
 http = "0.2.8"
 
