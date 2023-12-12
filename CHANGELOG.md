@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.13.1 - 2023-12-12
+#### Bug Fixes
+- add timing traces (#160) - (d5989ab) - Chris Smith
+
+- - -
+
 ## 1.13.0 - 2023-12-07
 #### Bug Fixes
 - update prometheus metrics (#159) - (b73ba03) - Xavier Basty
