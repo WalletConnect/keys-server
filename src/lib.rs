@@ -14,7 +14,9 @@ use {
     tower::ServiceBuilder,
     tower_http::{
         cors::CorsLayer,
+        request_id::MakeRequestUuid,
         trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer},
+        ServiceBuilderExt,
     },
     tracing::Level,
     wc::geoip::{
@@ -63,16 +65,23 @@ pub async fn bootstrap(
 
     let state_arc = Arc::new(state);
 
-    let global_middleware = ServiceBuilder::new().layer(
-        TraceLayer::new_for_http()
-            .make_span_with(DefaultMakeSpan::new().include_headers(true))
-            .on_request(DefaultOnRequest::new().level(Level::INFO))
-            .on_response(
-                DefaultOnResponse::new()
-                    .level(Level::INFO)
-                    .include_headers(true),
-            ),
-    );
+    let global_middleware = ServiceBuilder::new()
+        .set_x_request_id(MakeRequestUuid)
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(
+                    DefaultMakeSpan::new()
+                        .level(Level::INFO)
+                        .include_headers(true),
+                )
+                .on_request(DefaultOnRequest::new().level(Level::INFO))
+                .on_response(
+                    DefaultOnResponse::new()
+                        .level(Level::INFO)
+                        .include_headers(true),
+                ),
+        )
+        .propagate_x_request_id();
 
     let cors_layer = CorsLayer::new()
         .allow_headers([http::header::CONTENT_TYPE])

@@ -37,11 +37,6 @@ clean:
   @echo '==> Cleaning project target/*'
   cargo clean
 
-# Reformat code
-fmt:
-  @echo '==> Reformatting code'
-  cargo +nightly fmt
-
 fmt-imports:
   #!/bin/bash
   set -euo pipefail
@@ -96,7 +91,11 @@ restart-keyserver-docker:
   docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml up -d --build --force-recreate --no-deps keyserver
 
 # Lint the project for any quality issues
-lint: rs-check-fmt check clippy commit-check
+lint: clippy fmt commit-check
+
+unit: lint test test-all test-doc tf-lint
+
+devloop: unit fmt-imports
 
 # Run project linter
 clippy:
@@ -111,13 +110,13 @@ clippy:
   fi
 
 # Run code formatting check
-rs-check-fmt:
+fmt:
   #!/bin/bash
   set -euo pipefail
 
   if command -v cargo-fmt >/dev/null; then
     echo '==> Running rustfmt'
-    cargo fmt -- --check
+    cargo fmt
   else
     echo '==> rustfmt not found in PATH, skipping'
   fi
