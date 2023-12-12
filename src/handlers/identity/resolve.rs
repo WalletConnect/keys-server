@@ -35,7 +35,7 @@ impl From<ResolveIdentityResponse> for Value {
     }
 }
 
-#[instrument(name = "resolve_handler", skip(state))]
+#[instrument(name = "resolve_handler", skip_all)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(params): Query<ResolveIdentityPayload>,
