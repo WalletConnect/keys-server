@@ -208,12 +208,15 @@ impl KeysPersistentStorage for MongoPersistentStorage {
     }
 
     async fn get_cacao_by_identity_key(&self, identity_key: &str) -> Result<Cacao, StoreError> {
+        info!("get_cacao_by_identity_key");
         let filter = doc! {
             "identities.identity_key": identity_key,
         };
 
+        info!("constructing not_found");
         let not_found = StoreError::NotFound("Identity key".to_string(), identity_key.to_string());
 
+        info!("find_one");
         match MongoKeys::find_one(&self.db, Some(filter), None).await? {
             Some(mongo_keys) => {
                 info!(
@@ -223,11 +226,14 @@ impl KeysPersistentStorage for MongoPersistentStorage {
                     mongo_keys
                 );
 
+                info!("Timing - find - Start");
                 let mongo_identity = mongo_keys
                     .identities
                     .into_iter()
                     .find(|i| i.identity_key == *identity_key)
                     .ok_or(not_found)?;
+                info!("Timing - find - End");
+
                 Ok(mongo_identity.cacao)
             }
             None => Err(not_found),

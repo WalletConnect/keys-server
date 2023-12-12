@@ -13,19 +13,15 @@ use {
     serde::{Deserialize, Serialize},
     serde_json::{json, Value},
     std::sync::Arc,
+    tracing::instrument,
     validator::Validate,
 };
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Validate)]
 pub struct ResolveIdentityPayload {
     #[serde(rename = "publicKey")]
-    public_key: String,
-}
-
-#[derive(Validate, Debug)]
-pub struct ResolveIdentityParams {
     #[validate(custom = "validate_identity_key")]
-    identity_key: String,
+    public_key: String,
 }
 
 #[derive(Serialize)]
@@ -39,15 +35,14 @@ impl From<ResolveIdentityResponse> for Value {
     }
 }
 
+#[instrument(name = "resolve_handler", skip(state))]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(payload): Query<ResolveIdentityPayload>,
+    Query(params): Query<ResolveIdentityPayload>,
 ) -> error::Result<Response> {
-    let params = ResolveIdentityParams {
-        identity_key: payload.public_key,
-    };
     info!("Handling - Resolve identity with params: {:?}", params);
 
+    info!("Timing - Validating params - Start");
     params.validate().map_err(|error| {
         info!(
             "Failure - Resolve identity with params: {:?}, error: {:?}",
@@ -55,10 +50,12 @@ pub async fn handler(
         );
         error
     })?;
+    info!("Timing - Validating params - End");
 
+    info!("Timing - get_cacao_by_identity_key - Start");
     let cacao = state
         .keys_persitent_storage
-        .get_cacao_by_identity_key(&params.identity_key)
+        .get_cacao_by_identity_key(&params.public_key)
         .await
         .map_err(|error| {
             warn!(
@@ -67,11 +64,13 @@ pub async fn handler(
             );
             error
         })?;
+    info!("Timing - get_cacao_by_identity_key - End");
 
     let response = ResolveIdentityResponse { cacao };
 
     info!("Success - Resolve identity with params: {:?}", params);
     increment_counter!(state.metrics, identity_resolved);
+    info!("Incremented counter");
 
     Ok(Response::new_success_with_value(
         StatusCode::OK,
