@@ -48,6 +48,17 @@ fmt-imports:
     echo '==> rustfmt not found in PATH, skipping'
   fi
 
+fmt-imports:
+  #!/bin/bash
+  set -euo pipefail
+
+  if command -v cargo-fmt >/dev/null; then
+    echo '==> Running rustfmt'
+    cargo +nightly fmt -- --config group_imports=StdExternalCrate,imports_granularity=One
+  else
+    echo '==> rustfmt not found in PATH, skipping'
+  fi
+
 # Build docker image
 build-docker:
   @echo '=> Build keys-server docker image'
