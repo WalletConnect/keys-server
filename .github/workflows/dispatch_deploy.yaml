@@ -26,6 +26,7 @@ on:
         description: "Release Version"
         type: string
         required: true
+        default: 'latest'
 
 concurrency: deploy
 
@@ -35,13 +36,37 @@ permissions:
   packages: write
 
 jobs:
+
+  select_version:
+    name: Select Version
+    if: ${{ always() && !cancelled() && !failure() }}
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Select target version
+        id: select_version
+        run: |
+          if [ "${{ inputs.version }}" == "latest" ]; then
+            echo "version=$(git tag | sort --version-sort | tail -n1)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+    outputs:
+      version: ${{ steps.select_version.outputs.version }}
+
   cd:
     name: CD
+    needs: [ select_version ]
     uses: ./.github/workflows/sub-cd.yml
     secrets: inherit
     with:
       deploy-infra: ${{ inputs.deploy-infra }}
       deploy-app: ${{ inputs.deploy-app }}
       deploy-prod: ${{ inputs.stage == 'prod' }}
-      version: ${{ inputs.version }}
+      version: ${{ needs.select_version.outputs.version }}
       skip_window: true
