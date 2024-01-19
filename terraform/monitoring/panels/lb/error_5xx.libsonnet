@@ -4,7 +4,7 @@ local defaults  = import '../../grafonnet-lib/defaults.libsonnet';
 local panels    = grafana.panels;
 local targets   = grafana.targets;
 
-local threshold = 100;
+local threshold = 5;
 
 local _configuration = defaults.configuration.timeseries
   .withSoftLimit(
