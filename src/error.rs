@@ -2,6 +2,7 @@ use {
     crate::{auth, handlers::ResponseError, stores::StoreError},
     axum::response::{IntoResponse, Response},
     hyper::StatusCode,
+    tracing::{error, info, warn},
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -44,7 +45,8 @@ pub enum Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
-        match self {
+        info!("Responding with error: {self:?}");
+        let response = match &self {
             Error::Database(e) => crate::handlers::Response::new_failure(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ResponseError {
@@ -99,6 +101,16 @@ impl IntoResponse for Error {
                     message: "This error should not have occurred. Please file an issue at: https://github.com/walletconnect/keys-server".to_string(),
                 }
             ),
-        }.into_response()
+        }.into_response();
+
+        if response.status().is_client_error() {
+            warn!("HTTP Client Error: {self:?}");
+        }
+
+        if response.status().is_server_error() {
+            error!("HTTP Server Error: {self:?}");
+        }
+
+        response
     }
 }
