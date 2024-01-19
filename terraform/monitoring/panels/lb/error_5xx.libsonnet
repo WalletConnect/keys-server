@@ -30,7 +30,6 @@ local _configuration = defaults.configuration.timeseries
     )
 
     .setAlert(
-      vars.environment,
       grafana.alert.new(
         namespace     = vars.namespace,
         name          = "%(env)s - 5XX alert"     % { env: grafana.utils.strings.capitalize(vars.environment) },
