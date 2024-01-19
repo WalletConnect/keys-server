@@ -33,8 +33,8 @@ local _configuration = defaults.configuration.timeseries
       vars.environment,
       grafana.alert.new(
         namespace     = vars.namespace,
-        name          = "%(env)s - 5XX alert"     % { env: grafana.utils.strings.capitalize(env) },
-        message       = '%(env)s - Notify - 5XX alert'  % { env: grafana.utils.strings.capitalize(env) },
+        name          = "%(env)s - 5XX alert"     % { env: grafana.utils.strings.capitalize(vars.environment) },
+        message       = '%(env)s - Notify - 5XX alert'  % { env: grafana.utils.strings.capitalize(vars.environment) },
         notifications = vars.notifications,
         noDataState   = 'no_data',
         period        = '0m',
