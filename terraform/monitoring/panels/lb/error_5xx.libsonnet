@@ -4,7 +4,7 @@ local defaults  = import '../../grafonnet-lib/defaults.libsonnet';
 local panels    = grafana.panels;
 local targets   = grafana.targets;
 
-local threshold = 100;
+local threshold = 5;
 
 local _configuration = defaults.configuration.timeseries
   .withSoftLimit(
@@ -27,6 +27,37 @@ local _configuration = defaults.configuration.timeseries
     .addPanelThreshold(
       op    = 'gt',
       value = threshold,
+    )
+
+    .setAlert(
+      grafana.alert.new(
+        namespace     = vars.namespace,
+        name          = "%(env)s - 5XX alert"     % { env: grafana.utils.strings.capitalize(vars.environment) },
+        message       = '%(env)s - Notify - 5XX alert'  % { env: grafana.utils.strings.capitalize(vars.environment) },
+        notifications = vars.notifications,
+        noDataState   = 'no_data',
+        period        = '0m',
+        conditions    = [
+          grafana.alertCondition.new(
+            evaluatorParams = [ 5 ],
+            evaluatorType   = 'gt',
+            operatorType    = 'or',
+            queryRefId      = 'ELB',
+            queryTimeStart  = '5m',
+            queryTimeEnd    = 'now',
+            reducerType     = grafana.alert_reducers.Avg
+          ),
+          grafana.alertCondition.new(
+            evaluatorParams = [ threshold ],
+            evaluatorType   = 'gt',
+            operatorType    = 'or',
+            queryRefId      = 'Target',
+            queryTimeStart  = '5m',
+            queryTimeEnd    = 'now',
+            reducerType     = grafana.alert_reducers.Avg
+          ),
+        ],
+      )
     )
 
     .addTarget(targets.cloudwatch(
