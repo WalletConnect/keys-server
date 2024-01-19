@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.13.3 - 2024-01-19
+#### Bug Fixes
+- log HTTP errors (#163) - (a97d36a) - Chris Smith
+
+- - -
+
 ## 1.13.2 - 2023-12-12
 #### Bug Fixes
 - add x request (#161) - (0065b04) - Chris Smith
