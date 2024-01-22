@@ -1,5 +1,5 @@
 name: ⚙️ Deploy
-run-name: "Deploy: ${{ github.sha }} ➠ ${{ inputs.version }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
+run-name: "Deploy: ${{ github.sha }} ➠ ${{ inputs.version-type }}:${{ inputs.version-tag }}${{ (!inputs.deploy-infra && !inputs.deploy-app) && ' 👀 deploy nothing' || ''}}${{ inputs.deploy-infra && ' ❱❱  infra' || '' }}${{ inputs.deploy-app && ' ❱❱  app' || '' }}"
 
 on:
   workflow_dispatch:
@@ -22,10 +22,18 @@ on:
           - prod
         default: staging
         required: true
-      version:
+      version-type:
         description: "Release Version"
-        type: string
+        type: choice
+        options:
+          - latest
+          - manual
+        default: 'latest'
         required: true
+      version-tag:
+        description: "Release Version Tag (for manual version)"
+        type: string
+        default: ''
 
 concurrency: deploy
 
@@ -35,13 +43,37 @@ permissions:
   packages: write
 
 jobs:
+
+  select_version:
+    name: Select Version
+    if: ${{ always() && !cancelled() && !failure() }}
+    runs-on:
+      group: ${{ vars.RUN_GROUP }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Select target version
+        id: select_version
+        run: |
+          if [ "${{ inputs.version-type }}" == "latest" ]; then
+            echo "version=$(git tag | sort --version-sort | tail -n1)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ inputs.version-tag }}" >> "$GITHUB_OUTPUT"
+          fi
+    outputs:
+      version: ${{ steps.select_version.outputs.version }}
+
   cd:
     name: CD
+    needs: [ select_version ]
     uses: ./.github/workflows/sub-cd.yml
     secrets: inherit
     with:
       deploy-infra: ${{ inputs.deploy-infra }}
       deploy-app: ${{ inputs.deploy-app }}
       deploy-prod: ${{ inputs.stage == 'prod' }}
-      version: ${{ inputs.version }}
+      version: ${{ needs.select_version.outputs.version }}
       skip_window: true
