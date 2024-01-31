@@ -96,6 +96,11 @@ variable "ofac_blocked_countries" {
   type        = string
 }
 
+variable "project_id" {
+  description = "Project ID for Blockchain API"
+  type        = string
+}
+
 #---------------------------------------
 # Monitoring
 

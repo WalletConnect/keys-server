@@ -75,6 +75,7 @@ resource "aws_ecs_task_definition" "app_task" {
       environment = [
         { "name" = "DATABASE_URL", "value" = var.keystore_addr },
         { "name" = "LOG_LEVEL", "value" = var.log_level },
+        { "name" = "PROJECT_ID", "value" = var.project_id },
 
         { "name" = "TELEMETRY_PROMETHEUS_PORT", "value" = tostring(local.telemetry_port) },
 

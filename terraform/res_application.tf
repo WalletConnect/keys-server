@@ -31,6 +31,7 @@ module "ecs" {
   keystore_addr          = module.keystore.connection_url
   log_level              = var.log_level
   ofac_blocked_countries = var.ofac_blocked_countries
+  project_id             = var.project_id
 
   # Monitoring
   prometheus_endpoint = aws_prometheus_workspace.prometheus.prometheus_endpoint
