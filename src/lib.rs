@@ -8,6 +8,7 @@ use {
     },
     http::{HeaderValue, Method},
     opentelemetry::{sdk::Resource, KeyValue},
+    relay_rpc::auth::cacao::signature::eip1271::blockchain_api::BlockchainApiProvider,
     std::{net::SocketAddr, sync::Arc},
     stores::keys::MongoPersistentStorage,
     tokio::{select, sync::broadcast},
@@ -45,7 +46,8 @@ pub async fn bootstrap(
     let s3_client = get_s3_client(&config).await;
     let geoip_resolver = get_geoip_resolver(&config, &s3_client).await;
 
-    let mut state = AppState::new(config, keys_persistent_storage)?;
+    let provider = BlockchainApiProvider::new(config.project_id.clone());
+    let mut state = AppState::new(config, keys_persistent_storage, provider)?;
 
     if let Some(prometheus_port) = state.config.telemetry_prometheus_port {
         info!("Telemetry is enabled on port {}", prometheus_port);

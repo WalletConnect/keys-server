@@ -14,7 +14,7 @@ pub use {
     },
 };
 use {
-    crate::{auth::cacao::Cacao, config::Configuration},
+    crate::config::Configuration, relay_rpc::auth::cacao::Cacao,
     wither::mongodb::options::FindOneAndUpdateOptions,
 };
 

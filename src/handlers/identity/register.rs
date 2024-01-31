@@ -1,13 +1,13 @@
 use {
     super::super::{validate_caip10_account, validate_identity_key, Response},
     crate::{
-        auth::cacao::Cacao,
         error::{self},
         increment_counter,
         log::prelude::{info, warn},
         state::AppState,
     },
     axum::extract::{Json, State},
+    relay_rpc::auth::cacao::Cacao,
     serde::Deserialize,
     std::sync::Arc,
     validator::Validate,
@@ -38,7 +38,7 @@ pub async fn handler(
         payload.cacao
     );
 
-    cacao.verify().map_err(|error| {
+    cacao.verify(&state.provider).await.map_err(|error| {
         increment_counter!(state.metrics, invalid_identity_register_cacao);
         info!(
             "Failure - Register identity with cacao: {:?}, error: {:?}",

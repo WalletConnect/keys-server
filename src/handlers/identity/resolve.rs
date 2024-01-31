@@ -1,7 +1,6 @@
 use {
     super::super::Response,
     crate::{
-        auth::cacao::Cacao,
         error,
         handlers::validate_identity_key,
         increment_counter,
@@ -10,6 +9,7 @@ use {
     },
     axum::extract::{Query, State},
     http::StatusCode,
+    relay_rpc::auth::cacao::Cacao,
     serde::{Deserialize, Serialize},
     serde_json::{json, Value},
     std::sync::Arc,
