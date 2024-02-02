@@ -32,7 +32,7 @@ local cpu_alert(vars) = alert.new(
       title       = 'CPU Utilization',
       datasource  = ds.cloudwatch,
     )
-    .configure(defaults.configuration.timeseries_resource)
+    .configure(defaults.configuration.timeseries)
     .setAlert(cpu_alert(vars))
 
     .addTarget(targets.cloudwatch(

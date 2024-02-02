@@ -10,7 +10,7 @@ local targets   = grafana.targets;
       title       = 'Memory Utilization',
       datasource  = ds.cloudwatch,
     )
-    .configure(defaults.overrides.memory(defaults.configuration.timeseries_resource))
+    .configure(defaults.overrides.memory(defaults.configuration.timeseries))
 
     .setAlert(defaults.alerts.memory(
       namespace     = vars.namespace,
