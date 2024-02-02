@@ -76,7 +76,10 @@ local mem_alert(vars) = alert.new(
       value = mem_threshold,
     )
 
-    .setAlert(mem_alert(vars))
+    .setAlert(
+      vars.environment,
+      mem_alert(vars)
+    )
 
     .addTarget(targets.cloudwatch(
       refId       = 'Mem_Min',

@@ -33,7 +33,10 @@ local cpu_alert(vars) = alert.new(
       datasource  = ds.cloudwatch,
     )
     .configure(defaults.configuration.timeseries)
-    .setAlert(cpu_alert(vars))
+    .setAlert(
+      vars.environment,
+      cpu_alert(vars)
+    )
 
     .addTarget(targets.cloudwatch(
       refId       = 'CPU_Max',
