@@ -1,4 +1,4 @@
-use {crate::error, serde::Deserialize, std::str::FromStr};
+use {crate::error, relay_rpc::domain::ProjectId, serde::Deserialize, std::str::FromStr};
 
 #[derive(Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct Configuration {
@@ -7,6 +7,7 @@ pub struct Configuration {
     #[serde(default = "default_log_level")]
     pub log_level: String,
     pub database_url: String,
+    pub project_id: ProjectId,
 
     // Telemetry
     pub telemetry_enabled: Option<bool>,

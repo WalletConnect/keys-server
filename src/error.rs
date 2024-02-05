@@ -2,6 +2,7 @@ use {
     crate::{auth, handlers::ResponseError, stores::StoreError},
     axum::response::{IntoResponse, Response},
     hyper::StatusCode,
+    relay_rpc::auth::cacao::CacaoError,
     tracing::{error, info, warn},
 };
 
@@ -40,7 +41,7 @@ pub enum Error {
     Did(#[from] auth::did::DidError),
 
     #[error(transparent)]
-    Cacao(#[from] auth::cacao::CacaoError),
+    Cacao(#[from] CacaoError),
 }
 
 impl IntoResponse for Error {

@@ -37,6 +37,11 @@ variable "ofac_blocked_countries" {
   default     = ""
 }
 
+variable "project_id" {
+  description = "Project ID for Blockchain API"
+  type        = string
+}
+
 #-------------------------------------------------------------------------------
 # Keystore
 
