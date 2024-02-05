@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.0 - 2024-02-05
+#### Bug Fixes
+- **(ci)** using the `latest` and `manual` image tag in the manual deploy (#165) - (2cd571a) - Max Kalashnikoff
+- invalid tag on latest version deploy (#168) - (1cc595d) - Chris Smith
+- 5xx alarm (#166) - (e98c652) - Chris Smith
+#### Features
+- EIP-1271 (#167) - (50c1b9e) - Chris Smith
+
+- - -
+
 ## 1.13.3 - 2024-01-19
 #### Bug Fixes
 - log HTTP errors (#163) - (a97d36a) - Chris Smith
