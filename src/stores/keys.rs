@@ -210,7 +210,6 @@ impl KeysPersistentStorage for MongoPersistentStorage {
     async fn get_cacao_by_identity_key(&self, identity_key: &str) -> Result<Cacao, StoreError> {
         info!("get_cacao_by_identity_key");
         let filter = doc! {
-            "identities.identity_key": identity_key,
             "identities.identity_key": {
                 "$exists": true, // https://docs.aws.amazon.com/documentdb/latest/developerguide/functional-differences.html#functional-differences.sparse-index
                 "$eq": identity_key,
