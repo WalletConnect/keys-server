@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.1 - 2024-02-07
+#### Bug Fixes
+- query performance on DocumentDB (#171) - (660e06b) - Chris Smith
+
+- - -
+
 ## 1.14.0 - 2024-02-05
 #### Bug Fixes
 - **(ci)** using the `latest` and `manual` image tag in the manual deploy (#165) - (2cd571a) - Max Kalashnikoff
