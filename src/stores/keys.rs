@@ -166,49 +166,50 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         account: &str,
         identity_key: &str,
     ) -> Result<(), StoreError> {
-        let filter = doc! {
-            "account": &account,
+        let err = || {
+            Err(StoreError::NotFound(
+                "Account".to_string(),
+                account.to_string(),
+            ))
         };
 
-        let update = doc! {
-            "$pull": {
-                "identities" : {
-                    "identity_key": &identity_key,
+        async fn query(
+            db: &Database,
+            account: &str,
+            identity_key: &str,
+        ) -> wither::Result<Option<MongoKeys>> {
+            let filter = doc! {
+                "account": account,
+            };
+
+            let update = doc! {
+                "$pull": {
+                    "identities" : {
+                        "identity_key": identity_key,
+                    }
                 }
-            }
-        };
+            };
 
-        match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
+            MongoKeys::find_one_and_update(db, filter, update, None).await
+        }
+
+        match query(&self.db, account, identity_key).await? {
             Some(_) => Ok(()),
             None => {
-                // TODO: This is a temporary fix to handle the case where the account is not found becuase we lowercased it
-                return if (!account.starts_with("eip155")) {
-                    Err(StoreError::NotFound(
-                        "Account".to_string(),
-                        account.to_string(),
-                    ))
-                } else {
+                // Note to future: accounts can have both ERC-55 and lowercase variants, with duplicates. Make sure these are merged/treated as the same account
+                // See for context: https://github.com/WalletConnect/keys-server/pull/173
+
+                // Checking if eip155 so we don't try to lowercase accounts from other chains that were
+                // not affected (and may have different case-sensitivity rules)
+                if account.starts_with("eip155") {
                     let lowercase_account = account.to_lowercase();
-                    let filter = doc! {
-                        "account": &lowercase_account,
-                    };
-
-                    let update = doc! {
-                        "$pull": {
-                            "identities" : {
-                                "identity_key": &identity_key,
-                            }
-                        }
-                    };
-
-                    match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
+                    match query(&self.db, &lowercase_account, identity_key).await? {
                         Some(_) => Ok(()),
-                        None => Err(StoreError::NotFound(
-                            "Account".to_string(),
-                            lowercase_account.to_string(),
-                        )),
+                        None => err(),
                     }
-                };
+                } else {
+                    err()
+                }
             }
         }
     }
