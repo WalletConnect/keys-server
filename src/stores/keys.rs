@@ -181,20 +181,18 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
             Some(_) => Ok(()),
             None => {
-
                 // TODO: This is a temporary fix to handle the case where the account is not found becuase we lowercased it
-                return if(!account.starts_with("eip155")){
+                return if (!account.starts_with("eip155")) {
                     Err(StoreError::NotFound(
                         "Account".to_string(),
                         account.to_string(),
                     ))
                 } else {
-                    
                     let lowercase_account = account.to_lowercase();
                     let filter = doc! {
                         "account": &lowercase_account,
                     };
-            
+
                     let update = doc! {
                         "$pull": {
                             "identities" : {
@@ -202,7 +200,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
                             }
                         }
                     };
-            
+
                     match MongoKeys::find_one_and_update(&self.db, filter, update, None).await? {
                         Some(_) => Ok(()),
                         None => Err(StoreError::NotFound(
@@ -210,7 +208,7 @@ impl KeysPersistentStorage for MongoPersistentStorage {
                             lowercase_account.to_string(),
                         )),
                     }
-                }
+                };
             }
         }
     }
