@@ -63,6 +63,8 @@ pub async fn handler(
         error
     })?;
 
+    // Note to future: accounts can have both ERC-55 and lowercase variants, with duplicates. Make sure these are merged/treated as the same account
+    // See for context: https://github.com/WalletConnect/keys-server/pull/173
     state
         .keys_persitent_storage
         .create_account_if_not_exists_and_add_identity_key(
