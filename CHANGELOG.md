@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.2 - 2024-02-09
+#### Bug Fixes
+- lowercase addresses (#173) - (58c4b14) - Szymon Rząd
+
+- - -
+
 ## 1.14.1 - 2024-02-07
 #### Bug Fixes
 - query performance on DocumentDB (#171) - (660e06b) - Chris Smith
