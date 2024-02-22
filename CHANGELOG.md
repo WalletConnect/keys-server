@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.3 - 2024-02-22
+#### Bug Fixes
+- duplicate key registration giving 500 error (#179) - (089d5b1) - Chris Smith
+
+- - -
+
 ## 1.14.2 - 2024-02-09
 #### Bug Fixes
 - lowercase addresses (#173) - (58c4b14) - Szymon Rząd
