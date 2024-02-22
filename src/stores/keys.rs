@@ -14,9 +14,16 @@ pub use {
     },
 };
 use {
-    crate::config::Configuration, relay_rpc::auth::cacao::Cacao,
-    wither::mongodb::options::FindOneAndUpdateOptions,
+    crate::config::Configuration,
+    relay_rpc::auth::cacao::Cacao,
+    wither::{
+        mongodb::{self, options::FindOneAndUpdateOptions},
+        WitherError,
+    },
 };
+
+// https://www.mongodb.com/docs/manual/reference/error-codes/#mongodb-error-11000
+const MONGODB_DUPLICATE_KEY_ERROR_CODE: i32 = 11000;
 
 pub type KeysPersistentStorageArc = Arc<dyn KeysPersistentStorage + Send + Sync + 'static>;
 
@@ -127,7 +134,6 @@ impl KeysPersistentStorage for MongoPersistentStorage {
     ) -> Result<(), StoreError> {
         let filter = doc! {
             "account": &account,
-            "identities.identity_key": {"$ne": &identity_key},
         };
 
         let mongo_identity = MongoIdentity {
@@ -146,18 +152,19 @@ impl KeysPersistentStorage for MongoPersistentStorage {
         match MongoKeys::find_one_and_update(&self.db, filter, update, option).await {
             Ok(Some(_)) => Ok(()),
             Ok(None) => Ok(()),
-            Err(e) => {
-                if e.to_string().starts_with(
-                    "Command failed (DuplicateKey): E11000 duplicate key error collection: \
-                     keyserver.keys index: account_1",
-                )
-                // Todo add better error matching
-                {
-                    Ok(())
-                } else {
-                    Err(StoreError::Database(e))
-                }
-            }
+            Err(e) => match &e {
+                WitherError::Mongo(mongo_error) => match mongo_error.kind.as_ref() {
+                    mongodb::error::ErrorKind::Command(command_error) => {
+                        if command_error.code == MONGODB_DUPLICATE_KEY_ERROR_CODE {
+                            Ok(())
+                        } else {
+                            Err(StoreError::Database(e))
+                        }
+                    }
+                    _ => Err(StoreError::Database(e)),
+                },
+                _ => Err(StoreError::Database(e)),
+            },
         }
     }
 
