@@ -12,7 +12,7 @@ build = "build.rs"
 
 [dependencies]
 wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.7.0", features = ["geoip", "geoblock"] }
-relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.26.1", features = ["cacao"] }
+relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "feat/identity-key-from-url", features = ["cacao"] }
 
 aws-config = "0.56"
 aws-sdk-s3 = "0.31"
