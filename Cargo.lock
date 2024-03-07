@@ -3488,7 +3488,7 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 [[package]]
 name = "relay_rpc"
 version = "0.1.0"
-source = "git+https://github.com/WalletConnect/WalletConnectRust.git?branch=feat/identity-key-from-url#20a862988221bcff450da58621ebc115eac1dc98"
+source = "git+https://github.com/WalletConnect/WalletConnectRust.git?tag=v0.28.0#f7ff25cae3dec381e5c391a98532dabffd5299d8"
 dependencies = [
  "alloy-json-abi",
  "alloy-json-rpc",
