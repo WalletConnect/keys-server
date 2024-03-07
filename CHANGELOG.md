@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.4 - 2024-03-07
+#### Bug Fixes
+- bump WalletConnectRust (#181) - (c6ded55) - Chris Smith
+
+- - -
+
 ## 1.14.3 - 2024-02-22
 #### Bug Fixes
 - duplicate key registration giving 500 error (#179) - (089d5b1) - Chris Smith
