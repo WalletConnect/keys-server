@@ -90,10 +90,14 @@ restart-keyserver-docker:
   @echo '==> Restart keys-server service on docker'
   docker-compose -f ./ops/docker-compose.keyserver.yml -f ./ops/docker-compose.storage.yml up -d --build --force-recreate --no-deps keyserver
 
+# Make sure we are running the right submodule versions
+update-submodules:
+  git submodule update --init --recursive
+
 # Lint the project for any quality issues
 lint: clippy fmt commit-check
 
-unit: lint test test-all test-doc tf-lint
+unit: update-submodules lint test test-all test-doc tf-lint
 
 devloop: unit fmt-imports
 
