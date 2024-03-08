@@ -38,14 +38,17 @@ pub async fn handler(
         payload.cacao
     );
 
-    cacao.verify(&state.provider).await.map_err(|error| {
-        increment_counter!(state.metrics, invalid_identity_register_cacao);
-        info!(
-            "Failure - Register identity with cacao: {:?}, error: {:?}",
-            payload.cacao, error
-        );
-        error
-    })?;
+    cacao
+        .verify(state.provider.as_ref())
+        .await
+        .map_err(|error| {
+            increment_counter!(state.metrics, invalid_identity_register_cacao);
+            info!(
+                "Failure - Register identity with cacao: {:?}, error: {:?}",
+                payload.cacao, error
+            );
+            error
+        })?;
 
     let identity_key = cacao.p.identity_key()?;
     let account = cacao.p.caip_10_address()?;

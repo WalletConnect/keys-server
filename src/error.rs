@@ -42,6 +42,9 @@ pub enum Error {
 
     #[error(transparent)]
     Cacao(#[from] CacaoError),
+
+    #[error("Blockchain API error: {0}")]
+    BlockchainApi(blockchain_api::Error),
 }
 
 impl IntoResponse for Error {

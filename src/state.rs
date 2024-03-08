@@ -1,7 +1,7 @@
 use {
     crate::{config::Configuration, metrics::Metrics, stores::keys::KeysPersistentStorageArc},
+    blockchain_api::BlockchainApiProvider,
     build_info::BuildInfo,
-    relay_rpc::auth::cacao::signature::eip1271::blockchain_api::BlockchainApiProvider,
 };
 
 #[derive(Clone)]
@@ -10,7 +10,7 @@ pub struct AppState {
     pub build_info: BuildInfo,
     pub metrics: Option<Metrics>,
     pub keys_persitent_storage: KeysPersistentStorageArc,
-    pub provider: BlockchainApiProvider,
+    pub provider: Option<BlockchainApiProvider>,
 }
 
 build_info::build_info!(fn build_info);
@@ -19,7 +19,7 @@ impl AppState {
     pub fn new(
         config: Configuration,
         keys_persitent_storage: KeysPersistentStorageArc,
-        provider: BlockchainApiProvider,
+        provider: Option<BlockchainApiProvider>,
     ) -> crate::error::Result<AppState> {
         let build_info: &BuildInfo = build_info();
 
