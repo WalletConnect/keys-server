@@ -9,6 +9,9 @@ pub struct Configuration {
     pub database_url: String,
     pub project_id: ProjectId,
 
+    #[serde(default = "default_blockchain_api_endpoint")]
+    pub blockchain_api_endpoint: Option<String>,
+
     // Telemetry
     pub telemetry_enabled: Option<bool>,
     pub telemetry_grpc_url: Option<String>,
@@ -42,4 +45,8 @@ fn default_port() -> u16 {
 
 fn default_log_level() -> String {
     "WARN".to_string()
+}
+
+fn default_blockchain_api_endpoint() -> Option<String> {
+    Some("https://rpc.walletconnect.com".to_string())
 }

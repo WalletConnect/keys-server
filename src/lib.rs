@@ -1,14 +1,14 @@
 use {
-    crate::{config::Configuration, log::prelude::*, state::AppState},
+    crate::{config::Configuration, error::Error, log::prelude::*, state::AppState},
     aws_config::meta::region::RegionProviderChain,
     aws_sdk_s3::{config::Region, Client as S3Client},
     axum::{
         routing::{get, post},
         Router,
     },
+    blockchain_api::BlockchainApiProvider,
     http::{HeaderValue, Method},
     opentelemetry::{sdk::Resource, KeyValue},
-    relay_rpc::auth::cacao::signature::eip1271::blockchain_api::BlockchainApiProvider,
     std::{net::SocketAddr, sync::Arc},
     stores::keys::MongoPersistentStorage,
     tokio::{select, sync::broadcast},
@@ -46,7 +46,20 @@ pub async fn bootstrap(
     let s3_client = get_s3_client(&config).await;
     let geoip_resolver = get_geoip_resolver(&config, &s3_client).await;
 
-    let provider = BlockchainApiProvider::new(config.project_id.clone());
+    let provider = if let Some(blockchain_api_endpoint) = &config.blockchain_api_endpoint {
+        Some(
+            BlockchainApiProvider::new(
+                config.project_id.clone(),
+                blockchain_api_endpoint
+                    .parse()
+                    .expect("Error parsing blockchain_api_endpoint"),
+            )
+            .await
+            .map_err(Error::BlockchainApi)?,
+        )
+    } else {
+        None
+    };
     let mut state = AppState::new(config, keys_persistent_storage, provider)?;
 
     if let Some(prometheus_port) = state.config.telemetry_prometheus_port {

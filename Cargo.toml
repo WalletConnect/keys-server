@@ -6,13 +6,19 @@ authors = [
     "Derek Rein <derek@walletconnect.com>",
     "Szymon Rząd <szymon@walletconnect.com>",
     "Xavier Basty-Kjellberg <xavier@walletconnect.com>",
-    "Maciej Rak <raku@walletconnect.com>"
+    "Maciej Rak <raku@walletconnect.com>",
 ]
 build = "build.rs"
 
 [dependencies]
-wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.7.0", features = ["geoip", "geoblock"] }
-relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.28.0", features = ["cacao"] }
+wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.7.0", features = [
+    "geoip",
+    "geoblock",
+] }
+relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2", features = [
+    "cacao",
+] }
+blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2" }
 
 aws-config = "0.56"
 aws-sdk-s3 = "0.31"
@@ -20,13 +26,28 @@ aws-sdk-s3 = "0.31"
 axum = "0.6.1"
 axum-macros = "0.3.0"
 tokio = { version = "1.0", features = ["full"] }
-tower = { version = "0.4", features = ["util", "timeout", "load-shed", "limit"] }
-tower-http = { version = "0.3.0", features = ["add-extension", "auth", "compression-full", "trace", "cors", "request-id", "util"] }
+tower = { version = "0.4", features = [
+    "util",
+    "timeout",
+    "load-shed",
+    "limit",
+] }
+tower-http = { version = "0.3.0", features = [
+    "add-extension",
+    "auth",
+    "compression-full",
+    "trace",
+    "cors",
+    "request-id",
+    "util",
+] }
 hyper = "0.14"
 http = "0.2.8"
 
 # Database
-wither = { git = "https://github.com/WalletConnect/wither.git", rev = "6a70e74", features = ["bson-chrono-0_4"] }
+wither = { git = "https://github.com/WalletConnect/wither.git", rev = "6a70e74", features = [
+    "bson-chrono-0_4",
+] }
 wither_derive = { git = "https://github.com/WalletConnect/wither.git", rev = "6a70e74" }
 
 # Seralisation
@@ -48,7 +69,10 @@ opentelemetry-otlp = "0.11"
 
 # Logging
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "parking_lot"] }
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "parking_lot",
+] }
 tracing-appender = "0.2"
 tracing-opentelemetry = "0.18"
 atty = "0.2"
@@ -71,3 +95,8 @@ hex = "0.4.3"
 
 [build-dependencies]
 build-info-build = "0.0.29"
+
+# [patch.'https://github.com/WalletConnect/WalletConnectRust.git']
+# relay_rpc = { path = "../WalletConnectRust/relay_rpc" }
+# relay_client = { path = "../WalletConnectRust/relay_client" }
+# blockchain_api = { path = "../WalletConnectRust/blockchain_api" }
