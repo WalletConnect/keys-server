@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.5 - 2024-03-11
+#### Bug Fixes
+- dynamic chain support (#182) - (4f17a6a) - Chris Smith
+
+- - -
+
 ## 1.14.4 - 2024-03-07
 #### Bug Fixes
 - bump WalletConnectRust (#181) - (c6ded55) - Chris Smith
