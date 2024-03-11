@@ -15,10 +15,10 @@ wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.7.0", fe
     "geoip",
     "geoblock",
 ] }
-relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/dynamic-chain-support", features = [
+relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2", features = [
     "cacao",
 ] }
-blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/dynamic-chain-support" }
+blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2" }
 
 aws-config = "0.56"
 aws-sdk-s3 = "0.31"
