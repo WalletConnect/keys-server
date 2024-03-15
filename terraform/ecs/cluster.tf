@@ -95,6 +95,7 @@ resource "aws_ecs_task_definition" "app_task" {
           containerPort = var.port,
           hostPort      = var.port
         }
+        # TODO do we not need otel_port here like we do in Notify Server?
       ],
 
       logConfiguration : {
