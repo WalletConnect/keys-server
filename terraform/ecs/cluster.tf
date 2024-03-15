@@ -1,6 +1,5 @@
 locals {
   image          = "${var.ecr_repository_url}:${var.image_version}"
-  telemetry_port = var.port + 1
 
   desired_count = module.this.stage == "prod" ? var.autoscaling_desired_count : 1
 
@@ -83,7 +82,7 @@ resource "aws_ecs_task_definition" "app_task" {
         { "name" = "LOG_LEVEL", "value" = var.log_level },
         { "name" = "PROJECT_ID", "value" = var.project_id },
 
-        { "name" = "TELEMETRY_PROMETHEUS_PORT", "value" = tostring(local.telemetry_port) },
+        { "name" = "TELEMETRY_PROMETHEUS_PORT", "value" = tostring(local.otel_port) },
 
         { "name" = "GEOIP_DB_BUCKET", "value" = var.geoip_db_bucket_name },
         { "name" = "GEOIP_DB_KEY", "value" = var.geoip_db_key },
@@ -126,7 +125,7 @@ resource "aws_ecs_task_definition" "app_task" {
       ],
 
       environment = [
-        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${local.telemetry_port}" },
+        { name : "AWS_PROMETHEUS_SCRAPING_ENDPOINT", value : "0.0.0.0:${local.otel_port}" },
         { name : "AWS_PROMETHEUS_ENDPOINT", value : "${var.prometheus_endpoint}api/v1/remote_write" },
         { name = "AWS_REGION", value = module.this.region },
       ],
