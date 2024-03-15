@@ -1,5 +1,5 @@
 locals {
-  image          = "${var.ecr_repository_url}:${var.image_version}"
+  image = "${var.ecr_repository_url}:${var.image_version}"
 
   desired_count = module.this.stage == "prod" ? var.autoscaling_desired_count : 1
 
