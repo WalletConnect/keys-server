@@ -17,8 +17,7 @@ permissions:
 jobs:
   check-fmt:
     name: Formatting
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -37,8 +36,7 @@ jobs:
 
   validate:
     name: Validate
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,8 +68,7 @@ jobs:
 
   tfsec:
     name: TFSec
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -102,8 +99,7 @@ jobs:
 
   tflint:
     name: TFLint
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3

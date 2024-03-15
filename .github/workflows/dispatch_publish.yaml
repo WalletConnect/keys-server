@@ -32,8 +32,7 @@ jobs:
 
   update_version:
     name: Update Version
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     needs: [ci]
     steps:
       - name: Checkout
@@ -53,8 +52,7 @@ jobs:
 
   released_version:
     name: Version ➠ ${{ needs.update_version.outputs.version }}
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     needs: [ update_version ]
     steps:
       - run: echo "Version = ${{ needs.update_version.outputs.version }}"

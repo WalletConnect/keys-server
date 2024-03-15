@@ -24,8 +24,7 @@ jobs:
   auto-promote:
     name: auto-promote
     if: github.event.action == 'opened'
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Check Core Team membership
         uses: tspascoal/get-user-teams-membership@v1
