@@ -1,3 +1,7 @@
+locals {
+  autoscaling_min_capacity = module.this.stage == "prod" ? var.autoscaling_min_capacity : 1
+}
+
 resource "aws_iam_role" "ecs_autoscaling_role" {
   name = "${module.this.name}-ecs-scale-application"
 
@@ -17,8 +21,8 @@ resource "aws_iam_role" "ecs_autoscaling_role" {
 }
 
 resource "aws_appautoscaling_target" "ecs_target" {
-  min_capacity       = var.min_capacity
-  max_capacity       = var.max_capacity
+  min_capacity       = local.autoscaling_min_capacity
+  max_capacity       = var.autoscaling_max_capacity
   resource_id        = "service/${aws_ecs_cluster.app_cluster.name}/${aws_ecs_service.app_service.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"

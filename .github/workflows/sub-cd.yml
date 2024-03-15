@@ -66,8 +66,7 @@ jobs:
   deployment_window:
     name: Deployment Window
     if: ${{ inputs.deploy-prod }}
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     environment:
       name: prod
       url: https://${{ vars.SUBDOMAIN_NAME }}.walletconnect.com/health

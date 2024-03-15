@@ -20,8 +20,7 @@ permissions:
 jobs:
   build-container:
     name: Build
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3

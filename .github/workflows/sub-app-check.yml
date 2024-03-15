@@ -12,8 +12,7 @@ permissions:
 jobs:
   clippy:
     name: Clippy
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,8 +41,7 @@ jobs:
 
   formatting:
     name: Formatting
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -66,8 +64,7 @@ jobs:
 
   tests:
     name: Tests
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3

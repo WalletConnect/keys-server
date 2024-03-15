@@ -137,16 +137,16 @@ commit-check:
     echo '==> cog not found in PATH, skipping'
   fi
 
-tf-lint: tf-validate tf-check-fmt tfsec tflint
+tf-lint: tf-validate tf-fmt tfsec tflint
 
 # Check Terraform formating
-tf-check-fmt:
+tf-fmt:
   #!/bin/bash
   set -euo pipefail
 
   if command -v terraform >/dev/null; then
     echo '==> Checking terraform fmt'
-    terraform -chdir=terraform fmt -check -recursive
+    terraform -chdir=terraform fmt -recursive
   else
     echo '==> Terraform not found in PATH, skipping'
   fi

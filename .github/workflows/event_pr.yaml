@@ -26,8 +26,7 @@ permissions:
 jobs:
   check_pr:
     name: Check PR
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     permissions:
       statuses: write
     steps:
@@ -38,8 +37,7 @@ jobs:
 
   paths_filter:
     name: Paths Filter
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -65,8 +63,7 @@ jobs:
 
   merge_check:
     name: Merge Check
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     if: ${{ always() && !cancelled() && !failure() }}
     needs: [check_pr, ci]
     steps:

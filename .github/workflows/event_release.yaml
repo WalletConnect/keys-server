@@ -33,8 +33,7 @@ jobs:
 
   paths_filter:
     name: Paths Filter
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -51,8 +50,7 @@ jobs:
 
   update_version:
     name: Update Version
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     if: ${{ needs.paths_filter.outputs.app == 'true' }}
     needs: [paths_filter]
     steps:
@@ -73,8 +71,7 @@ jobs:
 
   released_version:
     name: Release Version ➠ ${{ needs.update_version.outputs.version }}
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubutnu-latest
     needs: [ update_version ]
     steps:
       - run: echo "Version = ${{ needs.update_version.outputs.version }}"
@@ -97,8 +94,7 @@ jobs:
 
   get_version:
     name: Get Version
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     needs: [ paths_filter, update_version, publish_image-staging, publish_image-prod ]
     if: ${{ always() && !cancelled() && !failure() }}
     steps:
@@ -126,8 +122,7 @@ jobs:
   used_version:
     name: Version ➠ ${{ needs.get_version.outputs.version }}
     if: ${{ always() && !cancelled() && !failure() }}
-    runs-on:
-      group: ${{ vars.RUN_GROUP }}
+    runs-on: ubuntu-latest
     needs: [ get_version ]
     steps:
       - run: echo "Version = ${{ needs.get_version.outputs.version }}"
