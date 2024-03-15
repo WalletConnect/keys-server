@@ -21,13 +21,19 @@ variable "task_memory" {
   type        = number
 }
 
-variable "min_capacity" {
+variable "autoscaling_desired_count" {
   description = "Minimum number of instances in the autoscaling group"
   type        = number
   default     = 2
 }
 
-variable "max_capacity" {
+variable "autoscaling_min_capacity" {
+  description = "Minimum number of instances in the autoscaling group"
+  type        = number
+  default     = 2
+}
+
+variable "autoscaling_max_capacity" {
   description = "Maximum number of instances in the autoscaling group"
   type        = number
   default     = 8

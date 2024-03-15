@@ -2,6 +2,12 @@ locals {
   image          = "${var.ecr_repository_url}:${var.image_version}"
   telemetry_port = var.port + 1
 
+  desired_count = module.this.stage == "prod" ? var.autoscaling_desired_count : 1
+
+  task_cpu    = module.this.stage == "prod" ? var.task_cpu : 256
+  task_memory = module.this.stage == "prod" ? var.task_memory : 512
+
+  otel_port   = var.port + 1
   otel_cpu    = 128
   otel_memory = 128
 }
@@ -9,8 +15,8 @@ locals {
 module "ecs_cpu_mem" {
   source  = "app.terraform.io/wallet-connect/ecs_cpu_mem/aws"
   version = "1.0.0"
-  cpu     = var.task_cpu + local.otel_cpu
-  memory  = var.task_memory + local.otel_memory
+  cpu     = local.task_cpu
+  memory  = local.task_memory
 }
 
 #-------------------------------------------------------------------------------
@@ -68,8 +74,8 @@ resource "aws_ecs_task_definition" "app_task" {
     {
       name      = module.this.name,
       image     = local.image,
-      cpu       = var.task_cpu,
-      memory    = var.task_memory,
+      cpu       = local.task_cpu - local.otel_cpu,
+      memory    = local.task_memory - local.otel_memory,
       essential = true,
 
       environment = [
@@ -147,7 +153,7 @@ resource "aws_ecs_service" "app_service" {
   cluster         = aws_ecs_cluster.app_cluster.id
   task_definition = aws_ecs_task_definition.app_task.arn
   launch_type     = "FARGATE"
-  desired_count   = var.min_capacity
+  desired_count   = local.desired_count
   propagate_tags  = "TASK_DEFINITION"
 
   # Wait for the service deployment to succeed

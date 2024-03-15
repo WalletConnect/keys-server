@@ -12,8 +12,9 @@ module "ecs" {
   image_version      = var.image_version
   task_cpu           = 512
   task_memory        = 1024
-  min_capacity       = 2
-  max_capacity       = 8
+  autoscaling_desired_count = 2
+  autoscaling_min_capacity  = 2
+  autoscaling_max_capacity  = 8
 
   # DNS
   route53_zones              = local.zones
