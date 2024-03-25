@@ -10,8 +10,8 @@ module "ecs" {
   # Cluster
   ecr_repository_url        = local.ecr_repository_url
   image_version             = var.image_version
-  task_cpu                  = 512
-  task_memory               = 1024
+  task_cpu                  = 256
+  task_memory               = 512
   autoscaling_desired_count = 2
   autoscaling_min_capacity  = 2
   autoscaling_max_capacity  = 8

@@ -6,7 +6,7 @@ local targets         = grafana.targets;
 local alert           = grafana.alert;
 local alertCondition  = grafana.alertCondition;
 
-local mem_threshold = 1500000000;   // 1.5GiB
+local mem_threshold = 500000000;   // 0.5GiB
 local max_memory    = 16000000000;  // 16GiB (AWS DocDB max on db.r6g.large)
 
 local _configuration = defaults.configuration.timeseries
