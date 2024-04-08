@@ -1,6 +1,6 @@
 use {
     crate::{config::Configuration, error::Error, log::prelude::*, state::AppState},
-    aws_config::meta::region::RegionProviderChain,
+    aws_config::{meta::region::RegionProviderChain, BehaviorVersion},
     aws_sdk_s3::{config::Region, Client as S3Client},
     axum::{
         routing::{get, post},
@@ -9,9 +9,9 @@ use {
     blockchain_api::BlockchainApiProvider,
     http::{HeaderValue, Method},
     opentelemetry::{sdk::Resource, KeyValue},
-    std::{net::SocketAddr, sync::Arc},
+    std::{future::IntoFuture, net::SocketAddr, sync::Arc},
     stores::keys::MongoPersistentStorage,
-    tokio::{select, sync::broadcast},
+    tokio::{net::TcpListener, select, sync::broadcast},
     tower::ServiceBuilder,
     tower_http::{
         cors::CorsLayer,
@@ -134,12 +134,13 @@ pub async fn bootstrap(
         .route("/metrics", get(handlers::metrics::handler))
         .with_state(state_arc);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    let private_addr = SocketAddr::from(([0, 0, 0, 0], private_port));
+    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port))).await?;
+    let private_listener =
+        TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], private_port))).await?;
 
     select! {
-        _ = axum::Server::bind(&addr).serve(app.into_make_service()) => info!("Server terminating"),
-        _ = axum::Server::bind(&private_addr).serve(private_app.into_make_service()) => info!("Internal Server terminating"),
+        _ = axum::serve(listener, app.into_make_service()).into_future() => info!("Server terminating"),
+        _ = axum::serve(private_listener, private_app.into_make_service()).into_future() => info!("Internal Server terminating"),
         _ = shutdown.recv() => info!("Shutdown signal received, killing servers"),
     }
 
@@ -148,7 +149,10 @@ pub async fn bootstrap(
 
 async fn get_s3_client(config: &Configuration) -> S3Client {
     let region_provider = RegionProviderChain::first_try(Region::new("eu-central-1"));
-    let shared_config = aws_config::from_env().region(region_provider).load().await;
+    let shared_config = aws_config::defaults(BehaviorVersion::latest())
+        .region(region_provider)
+        .load()
+        .await;
 
     let aws_config = match &config.s3_endpoint {
         Some(s3_endpoint) => {

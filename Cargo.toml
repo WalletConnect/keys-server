@@ -11,28 +11,28 @@ authors = [
 build = "build.rs"
 
 [dependencies]
-wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.7.0", features = [
+wc = { git = "https://github.com/WalletConnect/utils-rs.git", branch = "feat/axum-0.7", features = [
     "geoip",
     "geoblock",
 ] }
-relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2", features = [
+relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/bump-http-deps", features = [
     "cacao",
 ] }
-blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.2" }
+blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/bump-http-deps" }
 
-aws-config = "0.56"
-aws-sdk-s3 = "0.31"
+aws-config = "1.1.9"
+aws-sdk-s3 = "1.21.0"
 
-axum = "0.6.1"
+axum = "0.7.5"
 axum-macros = "0.3.0"
 tokio = { version = "1.0", features = ["full"] }
-tower = { version = "0.4", features = [
+tower = { version = "0.4.13", features = [
     "util",
     "timeout",
     "load-shed",
     "limit",
 ] }
-tower-http = { version = "0.3.0", features = [
+tower-http = { version = "0.5.2", features = [
     "add-extension",
     "auth",
     "compression-full",
@@ -41,8 +41,8 @@ tower-http = { version = "0.3.0", features = [
     "request-id",
     "util",
 ] }
-hyper = "0.14"
-http = "0.2.8"
+hyper = "1.2.0"
+http = "1.0.0"
 
 # Database
 wither = { git = "https://github.com/WalletConnect/wither.git", rev = "6a70e74", features = [
