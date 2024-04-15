@@ -11,14 +11,14 @@ authors = [
 build = "build.rs"
 
 [dependencies]
-wc = { git = "https://github.com/WalletConnect/utils-rs.git", branch = "feat/axum-0.7", features = [
+wc = { git = "https://github.com/WalletConnect/utils-rs.git", tag = "v0.10.0", features = [
     "geoip",
     "geoblock",
 ] }
-relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/bump-http-deps", features = [
+relay_rpc = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.3", features = [
     "cacao",
 ] }
-blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", branch = "fix/bump-http-deps" }
+blockchain_api = { git = "https://github.com/WalletConnect/WalletConnectRust.git", tag = "v0.29.3" }
 
 aws-config = "1.1.9"
 aws-sdk-s3 = "1.21.0"

@@ -1140,7 +1140,7 @@ dependencies = [
 [[package]]
 name = "blockchain_api"
 version = "0.1.0"
-source = "git+https://github.com/WalletConnect/WalletConnectRust.git?branch=fix/bump-http-deps#4700f987415e833a76beaf5f6d9e00760f08fc16"
+source = "git+https://github.com/WalletConnect/WalletConnectRust.git?tag=v0.29.3#b4c8f4c50aebc125bff2ee60d8413a315e9417a9"
 dependencies = [
  "relay_rpc",
  "reqwest 0.12.3",
@@ -2075,7 +2075,7 @@ dependencies = [
 [[package]]
 name = "geoip"
 version = "0.1.0"
-source = "git+https://github.com/WalletConnect/utils-rs.git?branch=feat/axum-0.7#05eab9f9baa88fa5da22c02e79aba44a537e8004"
+source = "git+https://github.com/WalletConnect/utils-rs.git?tag=v0.10.0#dfb9d5902271e4f27027f78948ea4f9b7e0e9072"
 dependencies = [
  "aws-sdk-s3",
  "axum-client-ip",
@@ -3686,7 +3686,7 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 [[package]]
 name = "relay_rpc"
 version = "0.1.0"
-source = "git+https://github.com/WalletConnect/WalletConnectRust.git?branch=fix/bump-http-deps#4700f987415e833a76beaf5f6d9e00760f08fc16"
+source = "git+https://github.com/WalletConnect/WalletConnectRust.git?tag=v0.29.3#b4c8f4c50aebc125bff2ee60d8413a315e9417a9"
 dependencies = [
  "alloy-json-abi",
  "alloy-json-rpc",
@@ -5303,7 +5303,7 @@ checksum = "4d91413b1c31d7539ba5ef2451af3f0b833a005eb27a631cec32bc0635a8602b"
 [[package]]
 name = "wc"
 version = "0.1.0"
-source = "git+https://github.com/WalletConnect/utils-rs.git?branch=feat/axum-0.7#05eab9f9baa88fa5da22c02e79aba44a537e8004"
+source = "git+https://github.com/WalletConnect/utils-rs.git?tag=v0.10.0#dfb9d5902271e4f27027f78948ea4f9b7e0e9072"
 dependencies = [
  "geoip",
 ]
