@@ -45,6 +45,9 @@ pub enum Error {
 
     #[error("Blockchain API error: {0}")]
     BlockchainApi(blockchain_api::Error),
+
+    #[error("IO Error: {0}")]
+    Io(#[from] std::io::Error),
 }
 
 impl IntoResponse for Error {
