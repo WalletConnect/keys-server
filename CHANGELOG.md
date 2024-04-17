@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 1.14.6 - 2024-04-17
+#### Bug Fixes
+- reduce error threshold and downscale (#185) - (9e6418c) - Chris Smith
+- downscale ECS, staging env (#183) - (76ad161) - Chris Smith
+#### Miscellaneous Chores
+- bump deps (#187) - (d7b23c1) - Chris Smith
+- remove deployment window (#184) - (3e1b824) - Chris Smith
+
+- - -
+
 ## 1.14.5 - 2024-03-11
 #### Bug Fixes
 - dynamic chain support (#182) - (4f17a6a) - Chris Smith
