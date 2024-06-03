@@ -11,7 +11,7 @@ local _configuration = defaults.configuration.timeseries
     axisSoftMin = 0,
     axisSoftMax = threshold * 1.2,
   )
-  .withThresholdStyle(grafana.fieldConfig.thresholdStyle.dashed)
+  .withThresholdStyle(grafana.fieldConfig.thresholdStyle.Dashed)
   .addThreshold({
     color : defaults.values.colors.critical,
     value : threshold,
@@ -29,7 +29,7 @@ local _configuration = defaults.configuration.timeseries
           axisSoftMin = 0,
           axisSoftMax = threshold * 1.2,
         )
-        .withThresholdStyle(grafana.fieldConfig.thresholdStyle.dashed)
+        .withThresholdStyle(grafana.fieldConfig.thresholdStyle.Dashed)
         .addThreshold({
           color : defaults.values.colors.critical,
           value : threshold,

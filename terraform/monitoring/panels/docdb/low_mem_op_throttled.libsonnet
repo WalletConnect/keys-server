@@ -58,7 +58,10 @@ local ops_alert(vars) = alert.new(
     )
     .configure(_configuration)
 
-    .setAlert(ops_alert(vars))
+    .setAlert(
+      vars.environment,
+      ops_alert(vars)
+    )
 
     .addTarget(targets.cloudwatch(
       alias       = 'LowMem Num Operations Throttled (Max)',

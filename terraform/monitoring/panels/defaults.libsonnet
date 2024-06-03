@@ -76,11 +76,5 @@ local grafana         = import '../grafonnet-lib/grafana.libsonnet';
         color : 'red',
         value : 50
       }),
-
-    timeseries_tr80:: self.timeseries
-      .addThreshold({
-        color : 'red',
-        value : 80
-      }),
   },
 }
