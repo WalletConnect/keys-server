@@ -7,8 +7,8 @@ locals {
   task_memory = module.this.stage == "prod" ? var.task_memory : 512
 
   otel_port   = var.port + 1
-  otel_cpu    = 128
-  otel_memory = 128
+  otel_cpu    = 256
+  otel_memory = 256
 }
 
 module "ecs_cpu_mem" {
