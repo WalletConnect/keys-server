@@ -114,10 +114,11 @@ resource "aws_ecs_task_definition" "app_task" {
 
     {
       name      = "aws-otel-collector",
-      image     = "public.ecr.aws/aws-observability/aws-otel-collector:latest",
+      image_tag = "v0.3.0"
+      image     = "public.ecr.aws/aws-observability/aws-otel-collector:${image_tag}",
       cpu       = local.otel_cpu,
       memory    = local.otel_memory,
-      essential = true,
+      essential = false,
 
       command = [
         "--config=/etc/ecs/ecs-amp-prometheus.yaml",
