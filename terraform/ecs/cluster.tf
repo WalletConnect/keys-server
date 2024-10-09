@@ -6,9 +6,10 @@ locals {
   task_cpu    = module.this.stage == "prod" ? var.task_cpu : 256
   task_memory = module.this.stage == "prod" ? var.task_memory : 512
 
-  otel_port   = var.port + 1
-  otel_cpu    = 128
-  otel_memory = 128
+  otel_image_tag = "v0.3.0"
+  otel_port      = var.port + 1
+  otel_cpu       = 128
+  otel_memory    = 128
 }
 
 module "ecs_cpu_mem" {
@@ -114,7 +115,7 @@ resource "aws_ecs_task_definition" "app_task" {
 
     {
       name      = "aws-otel-collector",
-      image     = "public.ecr.aws/aws-observability/aws-otel-collector:latest",
+      image     = "public.ecr.aws/aws-observability/aws-otel-collector:${local.otel_image_tag}",
       cpu       = local.otel_cpu,
       memory    = local.otel_memory,
       essential = true,
