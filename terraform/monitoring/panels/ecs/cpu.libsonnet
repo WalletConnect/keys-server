@@ -11,13 +11,16 @@ local overrides = defaults.overrides;
       title       = 'CPU Utilization',
       datasource  = ds.cloudwatch,
     )
-    .configure(overrides.cpu(defaults.configuration.timeseries_resource))
-    .setAlert(defaults.alerts.cpu(
-      namespace     = vars.namespace,
-      title         = 'ECS',
-      env           = vars.environment,
-      notifications = vars.notifications,
-    ))
+    .configure(overrides.cpu(defaults.configuration.timeseries))
+    .setAlert(
+      vars.environment,
+      defaults.alerts.cpu(
+        namespace     = vars.namespace,
+        title         = 'ECS',
+        env           = vars.environment,
+        notifications = vars.notifications,
+      )
+    )
 
     .addTarget(targets.cloudwatch(
       alias       = 'CPU (Max)',

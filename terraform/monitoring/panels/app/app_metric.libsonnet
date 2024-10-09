@@ -1,8 +1,7 @@
 local grafana        = import '../../grafonnet-lib/grafana.libsonnet';
+local defaults        = import '../../grafonnet-lib/defaults.libsonnet';
 local panels         = grafana.panels;
 local targets        = grafana.targets;
-
-local defaults  = import '../defaults.libsonnet';
 
 {
   new(ds, vars, title, metric_name, metric_label)::
