@@ -6,7 +6,7 @@ locals {
   task_cpu    = module.this.stage == "prod" ? var.task_cpu : 256
   task_memory = module.this.stage == "prod" ? var.task_memory : 512
 
-  otel_image_tag = "v0.3.0"
+  otel_image_tag = "v0.35.1"
   otel_port      = var.port + 1
   otel_cpu       = 128
   otel_memory    = 128
