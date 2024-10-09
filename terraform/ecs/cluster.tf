@@ -8,8 +8,8 @@ locals {
 
   otel_image_tag = "v0.3.0"
   otel_port   = var.port + 1
-  otel_cpu    = 256
-  otel_memory = 256
+  otel_cpu    = 128
+  otel_memory = 128
 }
 
 module "ecs_cpu_mem" {
